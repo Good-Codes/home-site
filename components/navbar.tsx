@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Menu, Sun, Moon } from "lucide-react";
 import { useTheme } from "next-themes";
+import { motion } from 'framer-motion';
 
 /**
  * Primary site navigation bar.
@@ -16,8 +17,18 @@ export default function Navbar() {
   const { theme, setTheme } = useTheme();
   const toggleTheme = () => setTheme(theme === "dark" ? "light" : "dark");
 
+  const headerVariants = {
+    hidden: { opacity: 0, y: -50 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] } }
+  };
+
   return (
-    <header className="sticky top-0 z-50 w-full bg-background/70 backdrop-blur">
+    <motion.header
+      variants={headerVariants}
+      initial="hidden"
+      animate="visible"
+      className="sticky top-0 z-50 w-full bg-background/70 backdrop-blur"
+    >
       <nav className="container mx-auto flex items-center justify-between px-6 py-4">
         {/* Brand */}
         <Link href="/" className="text-lg font-semibold tracking-tight">
@@ -63,7 +74,7 @@ export default function Navbar() {
           </SheetContent>
         </Sheet>
       </nav>
-    </header>
+    </motion.header>
   );
 }
 

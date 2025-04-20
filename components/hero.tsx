@@ -5,13 +5,24 @@ import React from "react";
 import Link from "next/link";
 import TypewriterComponent from "typewriter-effect";
 import { Button } from "@/components/ui/button";
+import { motion } from 'framer-motion';
 
 /**
  * Hero section with clear hierarchy and dynamic typewriter effect.
  */
 export default function Hero() {
+  const sectionVariants = {
+    hidden: { opacity: 0, y: 30 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] } }
+  };
   return (
-    <section className="relative isolate w-full overflow-hidden bg-background py-24 md:py-32">
+    <motion.section
+      className="relative isolate w-full overflow-hidden bg-background py-24 md:py-32"
+      variants={sectionVariants}
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true }}
+    >
       {/* Blurred gradient background */}
       <div
         aria-hidden
@@ -60,6 +71,6 @@ export default function Hero() {
           </Link>
         </div>
       </div>
-    </section>
+    </motion.section>
   );
 }

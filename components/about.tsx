@@ -31,8 +31,20 @@ export default function About() {
     }
   };
 
+  const sectionVariants = {
+    hidden: { opacity: 0, y: 30 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] } }
+  };
+
   return (
-    <section id="about" className="relative isolate overflow-hidden bg-neutral-50 py-24 dark:bg-neutral-950">
+    <motion.section
+      id="about"
+      className="relative isolate overflow-hidden bg-neutral-50 py-24 dark:bg-neutral-950"
+      variants={sectionVariants}
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true }}
+    >
       {/* Decorative background ring */}
       <div className="pointer-events-none absolute inset-y-0 right-1/2 -z-10 w-[120%] translate-x-1/2 rotate-45 overflow-hidden blur-2xl">
         <div className="aspect-[4/3] w-full bg-gradient-to-tr from-neutral-200 via-white to-neutral-300 dark:from-neutral-800 dark:via-neutral-900 dark:to-black" />
@@ -58,7 +70,7 @@ export default function About() {
             whileInView="visible"
             viewport={{ once: true }}
           >
-            {values.map(({ title, desc }, idx) => (
+            {values.map(({ title, desc }) => (
               <motion.div
                 key={title}
                 style={{ perspective: 1000 }}
@@ -93,7 +105,7 @@ export default function About() {
           />
         </div>
       </div>
-    </section>
+    </motion.section>
   );
 }
 
