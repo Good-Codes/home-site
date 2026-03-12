@@ -37,9 +37,9 @@ export default function Navbar() {
 
         {/* Desktop links */}
         <div className="hidden gap-6 md:flex">
-          <NavLink href="#about">About</NavLink>
           <NavLink href="#services">Services</NavLink>
           <NavLink href="#contact">Contact</NavLink>
+          <NavLink href="/about">About us</NavLink>
         </div>
 
         {/* Desktop CTA */}
@@ -63,7 +63,7 @@ export default function Navbar() {
             <Button variant="ghost" size="icon" onClick={toggleTheme} className="self-end">
               {theme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
             </Button>
-            <NavLink href="#about">About</NavLink>
+            <NavLink href="/about">About us</NavLink>
             <NavLink href="#services">Services</NavLink>
             <NavLink href="#contact">Contact</NavLink>
             <Link href="#contact">

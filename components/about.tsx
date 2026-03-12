@@ -123,3 +123,4 @@ const values = [
     desc: "Transparent collaboration focused on your goals and growth.",
   },
 ] as const;
+
