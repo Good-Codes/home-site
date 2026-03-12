@@ -101,8 +101,8 @@ export default function Team() {
           viewport={{ once: true }}
         >
           {team.map(({ name, role, bio, image }) => (
-            <motion.div key={name} variants={cardVariants}>
-              <Card className="overflow-hidden bg-neutral-50 dark:bg-neutral-900">
+            <motion.div key={name} variants={cardVariants} className="h-full">
+              <Card className="h-full overflow-hidden bg-neutral-50 dark:bg-neutral-900">
                 {/* Photo */}
                 <div className="relative h-56 w-full bg-neutral-200 dark:bg-neutral-800">
                   {/* <Image
@@ -120,7 +120,7 @@ export default function Team() {
                 </CardHeader>
 
                 {/* Bio */}
-                <CardContent className="pb-6">
+                <CardContent className="flex-1 pb-6">
                   <p className="text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
                     {bio}
                   </p>

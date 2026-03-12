@@ -9,7 +9,6 @@ export default function Page() {
   return (
     <main>
       <Hero />
-      <About />
       <Services />
       <Contact />
     </main>
