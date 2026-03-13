@@ -1,6 +1,7 @@
 // navbar.tsx
 "use client";
 
+import Image from "next/image";
 import React from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -31,8 +32,13 @@ export default function Navbar() {
     >
       <nav className="container mx-auto flex items-center justify-between px-6 py-4">
         {/* Brand */}
-        <Link href="/" className="text-lg font-semibold tracking-tight">
-          Good<span className="font-light">Code</span>
+        <Link href="/" className="flex items-center">
+          <Image
+            src="/logo.png"
+            alt="GoodCode Logo"
+            width={120}
+            height={40}
+          />
         </Link>
 
         {/* Desktop links */}
