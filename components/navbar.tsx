@@ -28,32 +28,33 @@ export default function Navbar() {
       variants={headerVariants}
       initial="hidden"
       animate="visible"
-      className="sticky top-0 z-50 w-full bg-[#67AFA7]/70 backdrop-blur"
+      className="sticky top-0 z-50 w-full bg-background"
     >
-      <nav className="container mx-auto flex items-center justify-between px-4 py-4">
+      <nav className="container mx-auto flex items-center justify-between px-3 py-1.5 md:px-4 md:py-2">
         {/* Brand */}
-        <Link href="/" className="flex w-[140px] shrink-0 items-center">
+        <Link href="/" className="flex h-9 w-9 shrink-0 items-center md:h-10 md:w-10">
           <Image
             src={theme === "dark" ? "/dark_mode_logo.png" : "/light_mode_logo.png"}
             alt="GoodCode Logo"
-            width={180}
-            height={60}
-            className="h-auto w-full object-contain"
+            width={50}
+            height={50}
+            sizes="(min-width: 768px) 50px, 50px"
+            className="h-full w-full object-contain"
             priority
           />
         </Link>
 
         {/* Desktop links */}
-        <div className="hidden gap-9 md:flex">
+        <div className="hidden gap-6 md:flex">
           <NavLink href="#services">Services</NavLink>
           <NavLink href="#contact">Contact</NavLink>
           <NavLink href="/about">About us</NavLink>
         </div>
 
         {/* Desktop CTA */}
-        <div className="hidden md:flex md:items-center md:gap-2">
-          <Button variant="ghost" size="icon" onClick={toggleTheme}>
-            {theme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+        <div className="hidden md:flex md:items-center md:gap-1.5">
+          <Button variant="ghost" size="icon" onClick={toggleTheme} className="size-8">
+            {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
           </Button>
           <Link href="#contact">
             <Button size="sm">Get a Quote</Button>
@@ -63,13 +64,13 @@ export default function Navbar() {
         {/* Mobile menu */}
         <Sheet>
           <SheetTrigger asChild>
-            <Button variant="ghost" size="icon" className="md:hidden">
-              <Menu className="h-5 w-5" />
+            <Button variant="ghost" size="icon" className="size-8 md:hidden">
+              <Menu className="h-4 w-4" />
             </Button>
           </SheetTrigger>
           <SheetContent side="right" className="flex flex-col gap-6 p-6">
-            <Button variant="ghost" size="icon" onClick={toggleTheme} className="self-end">
-              {theme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+            <Button variant="ghost" size="icon" onClick={toggleTheme} className="size-8 self-end">
+              {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
             </Button>
             <NavLink href="/about">About us</NavLink>
             <NavLink href="#services">Services</NavLink>
@@ -102,8 +103,8 @@ function NavLink({
       className="
         text-sm font-medium
         transition duration-300 ease-in-out
-        hover:text-blue-600 dark:hover:text-blue-400
-        hover:[text-shadow:0_0_8px_rgba(59,130,246,0.7)]
+        hover:text-[#67AFA7] dark:hover:text-[#67AFA7]
+        hover:[text-shadow:0_0_20px_#67AFA7] dark:hover:[text-shadow:0_0_20px_#67AFA7]
       "
     >
       {children}
