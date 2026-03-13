@@ -28,21 +28,23 @@ export default function Navbar() {
       variants={headerVariants}
       initial="hidden"
       animate="visible"
-      className="sticky top-0 z-50 w-full bg-background/70 backdrop-blur"
+      className="sticky top-0 z-50 w-full bg-[#67AFA7]/70 backdrop-blur"
     >
-      <nav className="container mx-auto flex items-center justify-between px-6 py-4">
+      <nav className="container mx-auto flex items-center justify-between px-4 py-4">
         {/* Brand */}
-        <Link href="/" className="flex items-center">
+        <Link href="/" className="flex w-[140px] shrink-0 items-center">
           <Image
-            src="/logo.png"
+            src={theme === "dark" ? "/dark_mode_logo.png" : "/light_mode_logo.png"}
             alt="GoodCode Logo"
-            width={120}
-            height={40}
+            width={180}
+            height={60}
+            className="h-auto w-full object-contain"
+            priority
           />
         </Link>
 
         {/* Desktop links */}
-        <div className="hidden gap-6 md:flex">
+        <div className="hidden gap-9 md:flex">
           <NavLink href="#services">Services</NavLink>
           <NavLink href="#contact">Contact</NavLink>
           <NavLink href="/about">About us</NavLink>
@@ -51,7 +53,7 @@ export default function Navbar() {
         {/* Desktop CTA */}
         <div className="hidden md:flex md:items-center md:gap-2">
           <Button variant="ghost" size="icon" onClick={toggleTheme}>
-            {theme === "dark" ? <Sun className="h-2 w-2" /> : <Moon className="h-2 w-2" />}
+            {theme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
           </Button>
           <Link href="#contact">
             <Button size="sm">Get a Quote</Button>
