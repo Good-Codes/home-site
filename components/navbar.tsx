@@ -16,6 +16,8 @@ import { motion } from 'framer-motion';
  */
 export default function Navbar() {
   const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = React.useState(false);
+  React.useEffect(() => setMounted(true), []);
   const toggleTheme = () => setTheme(theme === "dark" ? "light" : "dark");
 
   const headerVariants = {
@@ -33,15 +35,17 @@ export default function Navbar() {
       <nav className="container mx-auto flex items-center justify-between px-3 py-1.5 md:px-4 md:py-2">
         {/* Brand */}
         <Link href="/" className="flex h-9 w-9 shrink-0 items-center md:h-10 md:w-10">
-          <Image
-            src={theme === "dark" ? "/dark_mode_logo.png" : "/light_mode_logo.png"}
-            alt="GoodCode Logo"
-            width={50}
-            height={50}
-            sizes="(min-width: 768px) 50px, 50px"
-            className="h-full w-full object-contain"
-            priority
-          />
+          {mounted && (
+            <Image
+              src={theme === "dark" ? "/dark_mode_logo.png" : "/light_mode_logo.png"}
+              alt="GoodCode Logo"
+              width={50}
+              height={50}
+              sizes="(min-width: 768px) 50px, 50px"
+              className="h-full w-full object-contain"
+              priority
+            />
+          )}
         </Link>
 
         {/* Desktop links */}
@@ -54,7 +58,7 @@ export default function Navbar() {
         {/* Desktop CTA */}
         <div className="hidden md:flex md:items-center md:gap-1.5">
           <Button variant="ghost" size="icon" onClick={toggleTheme} className="size-8">
-            {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+            {mounted && (theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />)}
           </Button>
           <Link href="#contact">
             <Button size="sm">Get a Quote</Button>
@@ -70,7 +74,7 @@ export default function Navbar() {
           </SheetTrigger>
           <SheetContent side="right" className="flex flex-col gap-6 p-6">
             <Button variant="ghost" size="icon" onClick={toggleTheme} className="size-8 self-end">
-              {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+              {mounted && (theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />)}
             </Button>
             <NavLink href="/services">Services</NavLink>
             <NavLink href="/contact">Contact us</NavLink>

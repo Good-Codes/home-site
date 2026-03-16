@@ -49,7 +49,7 @@ export default function Hero() {
         </h2>
 
         {/* Typewriter effect */}
-        <p className="mx-auto mt-2 max-w-3xl text-xl font-medium text-neutral-600 dark:text-neutral-400 md:text-2xl">
+        <div className="mx-auto mt-2 max-w-3xl text-xl font-medium text-neutral-600 dark:text-neutral-400 md:text-2xl">
           <TypewriterComponent
             options={{
               strings: [
@@ -63,7 +63,7 @@ export default function Hero() {
               cursor: "|"
             }}
           />
-        </p>
+        </div>
       </div>
     </motion.section>
   );
