@@ -6,7 +6,7 @@ import { MapPin, Phone, Mail } from "lucide-react";
 export default function Footer() {
   return (
     <footer className="bg-neutral-100 py-12 dark:bg-neutral-900">
-      <div className="container mx-auto max-w-6xl px-6">
+      <div className="container mx-auto px-6">
         <div className="grid gap-8 md:grid-cols-3">
           {/* Address */}
           <div>
