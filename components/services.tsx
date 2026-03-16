@@ -23,6 +23,21 @@ export default function Services() {
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } },
   };
+  const scrollToSection = (event: React.MouseEvent<HTMLAnchorElement>, targetId: string) => {
+    event.preventDefault();
+
+    const target = document.getElementById(targetId);
+
+    if (!target) {
+      return;
+    }
+
+    const offset = 112;
+    const top = Math.max(0, target.getBoundingClientRect().top + window.scrollY - offset);
+
+    window.history.replaceState(null, "", `#${targetId}`);
+    window.scrollTo({ top, behavior: "smooth" });
+  };
 
   return (
     <motion.section
@@ -52,6 +67,8 @@ export default function Services() {
             <motion.div key={id} variants={itemVariants} className="h-full">
               <a
                 href={`#${id}`}
+                aria-label={`Learn more about ${title}`}
+                onClick={(event) => scrollToSection(event, id)}
                 className="block h-full rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#67AFA7] focus-visible:ring-offset-4 focus-visible:ring-offset-white dark:focus-visible:ring-offset-neutral-900"
               >
                 <Card
@@ -98,28 +115,33 @@ export default function Services() {
             </p>
           </div>
 
-          <div className="mt-12 space-y-8">
+          <div className="mt-12 space-y-6">
             {services.map(({ id, title, detail, highlights, outcomes, Icon }, index) => (
-              <motion.article key={id} id={id} variants={itemVariants} className="scroll-mt-28 md:scroll-mt-32">
-                <Card className="border-neutral-200/80 bg-white/80 shadow-sm dark:border-neutral-800 dark:bg-neutral-900/70">
-                  <CardContent className="grid gap-8 p-8 md:grid-cols-[auto_1fr] md:items-start">
-                    <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[#67AFA7]/15 text-[#2f6f69] dark:bg-[#67AFA7]/12 dark:text-[#9ed9d2]">
-                      <Icon className="h-8 w-8" />
-                    </div>
-
+              <motion.article
+                key={id}
+                id={id}
+                variants={itemVariants}
+                className="scroll-mt-28 md:scroll-mt-32"
+              >
+                <Card className="border-neutral-200/80 bg-white/80 shadow-none backdrop-blur-sm dark:border-neutral-800 dark:bg-neutral-900/70">
+                  <CardContent className="grid gap-8 p-6 md:grid-cols-[minmax(0,1fr)_16rem] md:gap-10 md:p-8">
                     <div>
-                      <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-                        <div>
-                          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#67AFA7]">
-                            Service {index + 1}
-                          </p>
-                          <h4 className="mt-2 text-2xl font-semibold text-neutral-900 dark:text-neutral-100">
-                            {title}
-                          </h4>
+                      <div className="flex flex-col gap-4 border-b border-neutral-200/80 pb-5 dark:border-neutral-800 md:flex-row md:items-start md:justify-between">
+                        <div className="flex items-start gap-4">
+                          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#67AFA7]/12 text-[#2f6f69] dark:bg-[#67AFA7]/10 dark:text-[#9ed9d2]">
+                            <Icon className="h-6 w-6" />
+                          </div>
+
+                          <div>
+                            <h4 className="mt-2 text-2xl font-semibold text-neutral-900 dark:text-neutral-100">
+                              {title}
+                            </h4>
+                          </div>
                         </div>
 
                         <a
                           href="#services"
+                          onClick={(event) => scrollToSection(event, "services")}
                           className="text-sm font-medium text-[#67AFA7] transition hover:text-[#4c8f88] dark:hover:text-[#8fd0c8]"
                         >
                           Back to overview
@@ -130,18 +152,21 @@ export default function Services() {
                         {detail}
                       </p>
 
-                      <div className="mt-6 grid gap-3 md:grid-cols-2">
+                      <ul className="mt-6 space-y-3">
                         {highlights.map((highlight) => (
-                          <div
-                            key={highlight}
-                            className="rounded-2xl bg-neutral-50 px-4 py-3 text-sm leading-6 text-neutral-700 dark:bg-neutral-800/70 dark:text-neutral-200"
-                          >
-                            {highlight}
-                          </div>
+                          <li key={highlight} className="flex items-start gap-3 text-sm leading-6 text-neutral-700 dark:text-neutral-200">
+                            <span className="mt-2 h-1.5 w-1.5 rounded-full bg-[#67AFA7]" aria-hidden />
+                            <span>{highlight}</span>
+                          </li>
                         ))}
-                      </div>
+                      </ul>
+                    </div>
 
-                      <p className="mt-6 text-sm font-medium leading-6 text-neutral-800 dark:text-neutral-100">
+                    <div className="border-t border-neutral-200/80 pt-6 dark:border-neutral-800 md:border-t-0 md:border-l md:pl-8 md:pt-0">
+                      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#67AFA7]">
+                        Best Fit
+                      </p>
+                      <p className="mt-4 text-sm leading-7 text-neutral-700 dark:text-neutral-200">
                         {outcomes}
                       </p>
                     </div>
