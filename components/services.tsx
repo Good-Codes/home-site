@@ -54,7 +54,7 @@ export default function Services() {
                   border-transparent bg-neutral-50 dark:bg-neutral-800/50 backdrop-blur-sm
                   transform transition duration-300 ease-in-out
                   hover:-translate-y-1 hover:scale-105
-                  hover:shadow-lg hover:shadow-blue-500/40 dark:hover:shadow-blue-300/30
+                  hover:shadow-lg hover:shadow-[#6A7A78] dark:hover:shadow-[#67AFA7]
                 "
               >
                 <CardContent className="flex flex-col items-center p-6">

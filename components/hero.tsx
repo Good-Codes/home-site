@@ -7,10 +7,15 @@ import TypewriterComponent from "typewriter-effect";
 import { Button } from "@/components/ui/button";
 import { motion } from 'framer-motion';
 
+import Image from "next/image";
+import { useTheme } from "next-themes";
+import MatrixBackground from "@/components/ui/matrix-background";
+
 /**
  * Hero section with clear hierarchy and dynamic typewriter effect.
  */
 export default function Hero() {
+  const { theme } = useTheme();
   const sectionVariants = {
     hidden: { opacity: 0, y: 30 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] } }
@@ -23,6 +28,7 @@ export default function Hero() {
       whileInView="visible"
       viewport={{ once: true }}
     >
+      <MatrixBackground />
       {/* Blurred gradient background */}
       <div
         aria-hidden
@@ -43,7 +49,7 @@ export default function Hero() {
         </h2>
 
         {/* Typewriter effect */}
-        <p className="mx-auto mt-2 max-w-3xl text-xl font-medium text-neutral-600 dark:text-neutral-400 md:text-2xl">
+        <div className="mx-auto mt-2 max-w-3xl text-xl font-medium text-neutral-600 dark:text-neutral-400 md:text-2xl">
           <TypewriterComponent
             options={{
               strings: [
@@ -57,18 +63,6 @@ export default function Hero() {
               cursor: "|"
             }}
           />
-        </p>
-
-        {/* Call to action */}
-        <div className="mt-10 flex flex-wrap justify-center gap-4">
-          <Link href="#contact" passHref>
-            <Button size="lg">Get a Quote</Button>
-          </Link>
-          <Link href="#services" passHref>
-            <Button variant="outline" size="lg">
-              Our Services
-            </Button>
-          </Link>
         </div>
       </div>
     </motion.section>
