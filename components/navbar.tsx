@@ -28,16 +28,19 @@ export default function Navbar() {
       variants={headerVariants}
       initial="hidden"
       animate="visible"
-      className="sticky top-0 z-50 w-full bg-background/70 backdrop-blur"
+      className="sticky top-0 z-50 w-full bg-background"
     >
-      <nav className="container mx-auto flex items-center justify-between px-6 py-4">
+      <nav className="container mx-auto flex items-center justify-between px-3 py-1.5 md:px-4 md:py-2">
         {/* Brand */}
-        <Link href="/" className="flex items-center">
+        <Link href="/" className="flex h-9 w-9 shrink-0 items-center md:h-10 md:w-10">
           <Image
-            src="/logo.png"
+            src={theme === "dark" ? "/dark_mode_logo.png" : "/light_mode_logo.png"}
             alt="GoodCode Logo"
-            width={120}
-            height={40}
+            width={50}
+            height={50}
+            sizes="(min-width: 768px) 50px, 50px"
+            className="h-full w-full object-contain"
+            priority
           />
         </Link>
 
@@ -49,9 +52,9 @@ export default function Navbar() {
         </div>
 
         {/* Desktop CTA */}
-        <div className="hidden md:flex md:items-center md:gap-2">
-          <Button variant="ghost" size="icon" onClick={toggleTheme}>
-            {theme === "dark" ? <Sun className="h-2 w-2" /> : <Moon className="h-2 w-2" />}
+        <div className="hidden md:flex md:items-center md:gap-1.5">
+          <Button variant="ghost" size="icon" onClick={toggleTheme} className="size-8">
+            {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
           </Button>
           <Link href="#contact">
             <Button size="sm">Get a Quote</Button>
@@ -61,13 +64,13 @@ export default function Navbar() {
         {/* Mobile menu */}
         <Sheet>
           <SheetTrigger asChild>
-            <Button variant="ghost" size="icon" className="md:hidden">
-              <Menu className="h-5 w-5" />
+            <Button variant="ghost" size="icon" className="size-8 md:hidden">
+              <Menu className="h-4 w-4" />
             </Button>
           </SheetTrigger>
           <SheetContent side="right" className="flex flex-col gap-6 p-6">
-            <Button variant="ghost" size="icon" onClick={toggleTheme} className="self-end">
-              {theme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+            <Button variant="ghost" size="icon" onClick={toggleTheme} className="size-8 self-end">
+              {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
             </Button>
             <NavLink href="/services">Services</NavLink>
             <NavLink href="/contact">Contact us</NavLink>
@@ -100,8 +103,8 @@ function NavLink({
       className="
         text-sm font-medium
         transition duration-300 ease-in-out
-        hover:text-blue-600 dark:hover:text-blue-400
-        hover:[text-shadow:0_0_8px_rgba(59,130,246,0.7)]
+        hover:text-[#67AFA7] dark:hover:text-[#67AFA7]
+        hover:[text-shadow:0_0_20px_#67AFA7] dark:hover:[text-shadow:0_0_20px_#67AFA7]
       "
     >
       {children}
