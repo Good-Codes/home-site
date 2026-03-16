@@ -11,6 +11,7 @@ export default function Page() {
       <Hero />
       <Services />
       <Contact />
+      <About />
     </main>
   );
 }
