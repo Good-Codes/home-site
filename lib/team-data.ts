@@ -56,14 +56,7 @@ export const team: TeamMember[] = [
     slug: "eric-russell",
     name: "Eric Russell",
     role: "Intern",
-    bio: "Intern with a background in design, eager to bridge the gap between aesthetics and functionality in web products.",
+    bio: "I am a motivated software development intern with a strong interest in building efficient and user-focused applications. Currently gaining hands-on experience in a fast-paced development environment, I am developing my skills in coding, problem-solving, and collaboration. I am passionate about learning new technologies and contributing to innovative projects.",
     image: "/team/eric.jpg",
-  },
-  {
-    slug: "sophie-chen",
-    name: "Sophie Chen",
-    role: "Intern",
-    bio: "Intern with a strong interest in frontend development, excited to contribute to real projects and grow her skills.",
-    image: "/team/sophie.jpg",
   },
 ];
