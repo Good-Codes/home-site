@@ -22,10 +22,10 @@ export default function MatrixBackground() {
     }
 
     function draw() {
-      ctx.fillStyle = "rgba(0,0,0,0.05)"
+      ctx.fillStyle = "rgba(0, 0, 0, 0.01)"
       ctx.fillRect(0, 0, canvas.width, canvas.height)
 
-      ctx.fillStyle = "#2D4159" // your logo blue
+      ctx.fillStyle = "#67AFA7" // your logo blue
       ctx.font = `${fontSize}px monospace`
 
       for (let i = 0; i < drops.length; i++) {
@@ -47,9 +47,12 @@ export default function MatrixBackground() {
   }, [])
 
   return (
-    <canvas
-      ref={canvasRef}
-      className="absolute top-0 left-0 -z-10 w-full h-full opacity-30"
-    />
+    <>
+      <canvas
+        ref={canvasRef}
+        className="absolute top-0 left-0 -z-10 w-full h-full opacity-20"
+      />
+      <div className="pointer-events-none absolute bottom-0 left-0 w-full h-40 bg-gradient-to-t from-neutral-100 from-10% via-neutral-100/70 via-40% to-transparent dark:from-neutral-950 dark:from-10% dark:via-neutral-950/80 dark:via-40%" />
+    </>
   )
 }

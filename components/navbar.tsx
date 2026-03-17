@@ -108,7 +108,7 @@ function NavLink({
         text-sm font-medium
         transition duration-300 ease-in-out
         hover:text-[#67AFA7] dark:hover:text-[#67AFA7]
-        hover:[text-shadow:0_0_20px_#67AFA7] dark:hover:[text-shadow:0_0_20px_#67AFA7]
+        hover:[text-shadow:0_0_10px_#67AFA7] dark:hover:[text-shadow:0_0_10px_#67AFA7]
       "
     >
       {children}
