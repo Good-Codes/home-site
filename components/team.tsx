@@ -53,7 +53,14 @@ export default function Team() {
           {team.map(({ slug, name, role, bio, image }) => (
             <motion.div key={slug} variants={cardVariants} className="w-full sm:w-[calc(50%-1rem)] lg:w-[calc(33.333%-1.34rem)]">
               <Link href={`/about/${slug}`} className="block h-full">
-                <Card className="h-full overflow-hidden bg-neutral-50 transition-shadow hover:shadow-lg dark:bg-neutral-900">
+                <Card
+                  className="
+                    h-full overflow-hidden bg-neutral-50 dark:bg-neutral-900
+                    transform transition duration-300 ease-in-out
+                    hover:-translate-y-1 hover:scale-100
+                    hover:shadow-lg hover:shadow-[#6A7A78] dark:hover:shadow-[#67AFA7]
+                  "
+                >
                 {/* Photo */}
                 <div className="relative h-56 w-full bg-neutral-200 dark:bg-neutral-800">
                   {/* <Image
