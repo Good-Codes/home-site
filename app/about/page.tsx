@@ -9,7 +9,6 @@ export default function AboutPage() {
     <main>
       <About />
       <Team />
-      <Footer />
     </main>
   );
 }
