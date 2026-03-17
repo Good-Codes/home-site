@@ -7,7 +7,6 @@ import Footer from "@/components/footer";
 export default function AboutPage() {
   return (
     <main>
-      <About />
       <Team />
     </main>
   );
