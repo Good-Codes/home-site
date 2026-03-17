@@ -7,10 +7,13 @@ export default function MatrixBackground() {
   useEffect(() => {
     const canvas = canvasRef.current!
     const ctx = canvas.getContext("2d")!
-    const parent = canvas.parentElement!
 
-    canvas.width = parent.offsetWidth
-    canvas.height = parent.offsetHeight
+    const resizeCanvas = () => {
+      canvas.width = window.innerWidth
+      canvas.height = window.innerHeight
+    }
+
+    resizeCanvas()
 
     const letters = "01"
     const fontSize = 14
@@ -25,7 +28,7 @@ export default function MatrixBackground() {
       ctx.fillStyle = "rgba(0, 0, 0, 0.01)"
       ctx.fillRect(0, 0, canvas.width, canvas.height)
 
-      ctx.fillStyle = "#2D4159" // your logo blue
+      ctx.fillStyle = "#67AFA7" // your logo blue
       ctx.font = `${fontSize}px monospace`
 
       for (let i = 0; i < drops.length; i++) {
@@ -43,13 +46,18 @@ export default function MatrixBackground() {
 
     const interval = setInterval(draw, 33)
 
-    return () => clearInterval(interval)
+    window.addEventListener('resize', resizeCanvas)
+
+    return () => {
+      clearInterval(interval)
+      window.removeEventListener('resize', resizeCanvas)
+    }
   }, [])
 
   return (
     <canvas
       ref={canvasRef}
-      className="absolute top-0 left-0 -z-10 w-full h-full opacity-60"
+      className="fixed inset-0 -z-10 opacity-15"
     />
   )
 }

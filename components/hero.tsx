@@ -22,7 +22,7 @@ export default function Hero() {
   };
   return (
     <motion.section
-      className="relative isolate w-full overflow-hidden bg-background py-24 md:py-32"
+      className="relative isolate w-full overflow-hidden bg-background min-h-screen flex items-center"
       variants={sectionVariants}
       initial="hidden"
       whileInView="visible"
