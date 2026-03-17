@@ -66,6 +66,14 @@ export default function Footer() {
               </li>
               <li>
                 <Link
+                  href="/projects"
+                  className="text-neutral-600 transition-colors duration-300 hover:text-[#67AFA7] dark:text-neutral-300 dark:hover:text-[#6A7A78]"
+                >
+                  Our Project
+                </Link>
+              </li>
+              <li>
+                <Link
                   href="/contact"
                   className="text-neutral-600 transition-colors duration-300 hover:text-[#67AFA7] dark:text-neutral-300 dark:hover:text-[#6A7A78]"
                 >
