@@ -22,7 +22,7 @@ export default function Hero() {
   };
   return (
     <motion.section
-      className="relative isolate w-full overflow-hidden bg-background min-h-screen flex items-center"
+      className="relative isolate w-full overflow-hidden bg-background min-h-[45vh] flex items-center"
       variants={sectionVariants}
       initial="hidden"
       whileInView="visible"
@@ -34,7 +34,7 @@ export default function Hero() {
         aria-hidden
         className="pointer-events-none absolute inset-0 -z-10 flex justify-center"
       >
-        <div className="aspect-square w-[80rem] rounded-full bg-gradient-to-br from-neutral-200/50 via-neutral-100 to-white dark:from-neutral-800/50 dark:via-neutral-900 dark:to-black blur-3xl" />
+        {/* <div className="aspect-square w-[80rem] rounded-full bg-gradient-to-br from-neutral-200/50 via-neutral-100 to-white dark:from-neutral-800/50 dark:via-neutral-900 dark:to-black blur-3xl" /> */}
       </div>
 
       <div className="container mx-auto px-6 text-center">

@@ -40,9 +40,9 @@ export default function About() {
       viewport={{ once: true }}
     >
       {/* Decorative background ring */}
-      <div className="pointer-events-none absolute inset-y-0 right-1/2 -z-10 w-[120%] translate-x-1/2 rotate-45 overflow-hidden blur-2xl">
+      {/* <div className="pointer-events-none absolute inset-y-0 right-1/2 -z-10 w-[120%] translate-x-1/2 rotate-45 overflow-hidden blur-2xl">
         <div className="aspect-[4/3] w-full bg-gradient-to-tr from-neutral-200 via-white to-neutral-300 dark:from-neutral-800 dark:via-neutral-900 dark:to-black" />
-      </div>
+      </div> */}
 
       <div className="container mx-auto grid max-w-6xl grid-cols-1 gap-12 px-6 md:grid-cols-2 md:gap-20">
         {/* Copy */}
