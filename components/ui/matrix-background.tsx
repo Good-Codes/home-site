@@ -25,7 +25,7 @@ export default function MatrixBackground() {
       ctx.fillStyle = "rgba(0, 0, 0, 0.01)"
       ctx.fillRect(0, 0, canvas.width, canvas.height)
 
-      ctx.fillStyle = "#67AFA7" // your logo blue
+      ctx.fillStyle = "#2D4159" // your logo blue
       ctx.font = `${fontSize}px monospace`
 
       for (let i = 0; i < drops.length; i++) {
