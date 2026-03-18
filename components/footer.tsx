@@ -20,7 +20,7 @@ export default function Footer() {
             <div className="relative h-28 w-28 overflow-hidden rounded-full">
               <Image
                 src={logoSrc}
-                alt="Good Code Logo"
+                alt="Good Code"
                 fill
                 className="object-cover"
                 priority={false}
