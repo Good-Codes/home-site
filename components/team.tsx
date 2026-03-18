@@ -15,6 +15,11 @@ import {
 import { team } from "@/lib/team-data";
 
 // ── Animation variants ────────────────────────────────────────────
+const headingVariants = {
+  hidden: { opacity: 0, y: 30 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] } },
+};
+
 const containerVariants = {
   hidden: {},
   visible: { transition: { staggerChildren: 0.15 } },
@@ -38,15 +43,25 @@ function truncateWords(text: string, maxWords: number) {
 // ── Component ─────────────────────────────────────────────────────
 export default function Team() {
   return (
-    <section className="bg-white py-24 dark:bg-neutral-950">
+    <section
+      id="team"
+      className="bg-white py-24 dark:bg-neutral-950"
+    >
       <div className="container mx-auto max-w-6xl px-6">
         {/* Section heading */}
-        <h2 className="text-center text-3xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100 md:text-4xl">
-          Meet the team
-        </h2>
-        <p className="mx-auto mt-4 max-w-2xl text-center text-base text-neutral-600 dark:text-neutral-400">
-          A small, senior‑led crew that cares deeply about craft, collaboration and quality.
-        </p>
+        <motion.div
+          variants={headingVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+        >
+          <h2 className="text-center text-3xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100 md:text-4xl">
+            Meet the team
+          </h2>
+          <p className="mx-auto mt-4 max-w-2xl text-center text-base text-neutral-600 dark:text-neutral-400">
+            A small, senior‑led crew that cares deeply about craft, collaboration and quality.
+          </p>
+        </motion.div>
 
         {/* Card grid */}
         <motion.div
