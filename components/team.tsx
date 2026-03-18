@@ -29,6 +29,12 @@ const cardVariants = {
   },
 };
 
+function truncateWords(text: string, maxWords: number) {
+  const words = text.trim().split(/\s+/);
+  if (words.length <= maxWords) return text;
+  return `${words.slice(0, maxWords).join(" ")}...`;
+}
+
 // ── Component ─────────────────────────────────────────────────────
 export default function Team() {
   return (
@@ -52,10 +58,10 @@ export default function Team() {
         >
           {team.map(({ slug, name, role, bio, image }) => (
             <motion.div key={slug} variants={cardVariants} className="w-full sm:w-[calc(50%-1rem)] lg:w-[calc(33.333%-1.34rem)]">
-              <Link href={`/about/${slug}`} className="block h-full">
+              <Link href={`/about-us/${slug}`} className="block h-full">
                 <Card
                   className="
-                    h-full overflow-hidden bg-neutral-50 dark:bg-neutral-900
+                    flex h-full min-h-[25rem] flex-col overflow-hidden bg-neutral-50 dark:bg-neutral-900
                     transform transition duration-300 ease-in-out
                     hover:-translate-y-1 hover:scale-100
                     hover:shadow-lg hover:shadow-[#6A7A78] dark:hover:shadow-[#67AFA7]
@@ -78,10 +84,17 @@ export default function Team() {
                 </CardHeader>
 
                 {/* Bio */}
-                <CardContent className="flex-1 pb-6">
-                  <p className="text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
-                    {bio}
+                <CardContent className="flex flex-1 flex-col justify-between pb-6">
+                  <p className="min-h-[4.5rem] text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
+                    {truncateWords(bio, 18)}
                   </p>
+                  <div className="mt-4 sm:hidden">
+                    <span
+                      className="inline-flex items-center rounded-md border border-neutral-300 px-3 py-1.5 text-xs font-medium text-neutral-800 dark:border-neutral-700 dark:text-neutral-200"
+                    >
+                      Read more
+                    </span>
+                  </div>
                 </CardContent>
               </Card>
               </Link>

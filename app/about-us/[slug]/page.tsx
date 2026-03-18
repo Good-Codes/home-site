@@ -35,7 +35,7 @@ export default async function BioPage({ params }: { params: Promise<{ slug: stri
     <main className="min-h-screen bg-white py-24 dark:bg-neutral-950">
       <div className="container mx-auto max-w-3xl px-6">
         {/* Back link */}
-        <Link href="/about" className="text-sm text-neutral-500 hover:text-neutral-900 dark:hover:text-neutral-100">
+        <Link href="/about-us" className="text-sm text-neutral-500 hover:text-neutral-900 dark:hover:text-neutral-100">
           &larr; Back to team
         </Link>
 
