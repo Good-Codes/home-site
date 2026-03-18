@@ -1,50 +1,40 @@
 // components/footer.tsx
+"use client";
+
 import React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { MapPin, Phone, Mail } from "lucide-react";
+import { useTheme } from "next-themes";
 
 export default function Footer() {
+  const { resolvedTheme } = useTheme();
+  const logoSrc = resolvedTheme === "dark" ? "/dark_mode_logo.png" : "/light_mode_logo.png";
+
   return (
-    <footer className="bg-neutral-100 py-12 dark:bg-neutral-900">
-      <div className="container mx-auto max-w-6xl px-6">
-        <div className="grid place-items-center gap-8 text-center md:grid-cols-3">
-          {/* Address */}
-          <div className="w-full">
-            <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-neutral-600 dark:text-neutral-400">
-              Visit Us
-            </h3>
-            <address className="not-italic text-neutral-600 dark:text-neutral-300">
-              <MapPin className="mx-auto mb-2 inline-block h-5 w-5" />
-              <p>123 Code Street</p>
-              <p>Polokwane City, PLK 10101</p>
-              <p>South Africa</p>
-            </address>
+    <footer className="bg-neutral-100 py-4 dark:bg-neutral-900">
+      <div className="container mx-auto max-w-7xl px-4">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-4">
+          {/* Logo column */}
+          <div className="flex flex-col items-center justify-start">
+            <div className="relative h-28 w-28 overflow-hidden rounded-full">
+              <Image
+                src={logoSrc}
+                alt="Good Code"
+                fill
+                className="object-cover"
+                priority={false}
+              />
+            </div>
+            {/* Copyright */}
+            <p className="mt-3 text-center text-sm text-neutral-500 dark:text-neutral-400">
+              &copy; {new Date().getFullYear()} Good Code. All rights reserved.
+            </p>
           </div>
 
-          {/* Contact */}
-          <div className="w-full">
-            <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-neutral-600 dark:text-neutral-400">
-              Contact
-            </h3>
-            <ul className="space-y-2 text-neutral-600 dark:text-neutral-300">
-              <li className="flex items-center justify-center gap-2">
-                <Phone className="h-4 w-4" />
-                <a href="tel:+27123456789" className="hover:text-[#67AFA7] dark:hover:text-[#6A7A78]">
-                  +27 12 345 6789
-                </a>
-              </li>
-              <li className="flex items-center justify-center gap-2">
-                <Mail className="h-4 w-4" />
-                <a href="mailto:info@goodcode.com" className="hover:text-[#67AFA7] dark:hover:text-[#6A7A78]">
-                  info@goodcode.com
-                </a>
-              </li>
-            </ul>
-          </div>
-
-          {/* Quick links */}
-          <div className="w-full">
-            <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-neutral-600 dark:text-neutral-400">
+          {/* Quick Links */}
+          <div className="text-center">
+            <h3 className="mb-2 text-sm font-semibold uppercase tracking-wider text-neutral-600 dark:text-neutral-400">
               Company
             </h3>
             <ul className="space-y-2">
@@ -53,15 +43,15 @@ export default function Footer() {
                   href="/about-us"
                   className="text-neutral-600 transition-colors duration-300 hover:text-[#67AFA7] dark:text-neutral-300 dark:hover:text-[#6A7A78]"
                 >
-                  About Us
+                  Services
                 </Link>
               </li>
               <li>
                 <Link
-                  href="/services"
-                  className="text-neutral-600 transition-colors duration-300 hover:text-[#67AFA7] dark:text-neutral-300 dark:hover:text-[#6A7A78]"
+                  href="/projects"
+                  className="text-neutral-600 transition-colors duration-300 hover:text-[#67AFA7] dark:text-neutral-300 dark:hover:text-[#67AFA7]"
                 >
-                  Services
+                  Our Projects
                 </Link>
               </li>
               <li>
@@ -82,11 +72,40 @@ export default function Footer() {
               </li>
             </ul>
           </div>
-        </div>
 
-        {/* Bottom bar */}
-        <div className="mt-12 border-t border-neutral-200 pt-8 text-center text-sm text-neutral-500 dark:border-neutral-800 dark:text-neutral-400">
-          <p>&copy; {new Date().getFullYear()} Good Code. All rights reserved.</p>
+          {/* Address */}
+          <div className="text-center">
+            <h3 className="mb-2 text-sm font-semibold uppercase tracking-wider text-neutral-600 dark:text-neutral-400">
+              Visit Us
+            </h3>
+            <address className="not-italic text-neutral-600 dark:text-neutral-300">
+              <MapPin className="mx-auto mb-2 inline-block h-5 w-5" />
+              <p>123 Code Street</p>
+              <p>Polokwane City, PLK 10101</p>
+              <p>South Africa</p>
+            </address>
+          </div>
+
+          {/* Contact */}
+          <div className="text-center">
+            <h3 className="mb-2 text-sm font-semibold uppercase tracking-wider text-neutral-600 dark:text-neutral-400">
+              Contact
+            </h3>
+            <ul className="space-y-2 text-neutral-600 dark:text-neutral-300">
+              <li className="flex items-center justify-center gap-2">
+                <Phone className="h-4 w-4" />
+                <a href="tel:+27123456789" className="hover:text-[#67AFA7] dark:hover:text-[#67AFA7]">
+                  +27 12 345 6789
+                </a>
+              </li>
+              <li className="flex items-center justify-center gap-2">
+                <Mail className="h-4 w-4" />
+                <a href="mailto:info@goodcode.com" className="hover:text-[#67AFA7] dark:hover:text-[#67AFA7]">
+                  info@goodcode.com
+                </a>
+              </li>
+            </ul>
+          </div>
         </div>
       </div>
     </footer>
