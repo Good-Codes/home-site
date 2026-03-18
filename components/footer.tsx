@@ -40,8 +40,8 @@ export default function Footer() {
             <ul className="space-y-2">
               <li>
                 <Link
-                  href="/services"
-                  className="text-neutral-600 transition-colors duration-300 hover:text-[#67AFA7] dark:text-neutral-300 dark:hover:text-[#67AFA7]"
+                  href="/about-us"
+                  className="text-neutral-600 transition-colors duration-300 hover:text-[#67AFA7] dark:text-neutral-300 dark:hover:text-[#6A7A78]"
                 >
                   Services
                 </Link>
@@ -56,18 +56,18 @@ export default function Footer() {
               </li>
               <li>
                 <Link
-                  href="/contact"
-                  className="text-neutral-600 transition-colors duration-300 hover:text-[#67AFA7] dark:text-neutral-300 dark:hover:text-[#67AFA7]"
+                  href="/our-projects"
+                  className="text-neutral-600 transition-colors duration-300 hover:text-[#67AFA7] dark:text-neutral-300 dark:hover:text-[#6A7A78]"
                 >
-                  Contact us
+                  Our Projects
                 </Link>
               </li>
               <li>
                 <Link
-                  href="/about"
-                  className="text-neutral-600 transition-colors duration-300 hover:text-[#67AFA7] dark:text-neutral-300 dark:hover:text-[#67AFA7]"
+                  href="/contact-us"
+                  className="text-neutral-600 transition-colors duration-300 hover:text-[#67AFA7] dark:text-neutral-300 dark:hover:text-[#6A7A78]"
                 >
-                  About us
+                  Contact us
                 </Link>
               </li>
             </ul>
