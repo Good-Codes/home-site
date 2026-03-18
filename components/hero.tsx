@@ -22,7 +22,7 @@ export default function Hero() {
   };
   return (
     <motion.section
-      className="relative isolate w-full overflow-hidden bg-background min-h-[45vh] flex items-center"
+      className="relative isolate w-full overflow-hidden bg-background min-h-[55vh] flex items-center"
       variants={sectionVariants}
       initial="hidden"
       whileInView="visible"
@@ -34,7 +34,6 @@ export default function Hero() {
         aria-hidden
         className="pointer-events-none absolute inset-0 -z-10 flex justify-center"
       >
-        {/* <div className="aspect-square w-[80rem] rounded-full bg-gradient-to-br from-neutral-200/50 via-neutral-100 to-white dark:from-neutral-800/50 dark:via-neutral-900 dark:to-black blur-3xl" /> */}
       </div>
 
       <div className="container mx-auto px-6 text-center">
@@ -44,12 +43,12 @@ export default function Hero() {
         </h1>
 
         {/* Secondary subtitle */}
-        <h2 className="mx-auto mt-4 max-w-3xl text-2xl font-semibold text-neutral-700 dark:text-neutral-300 md:text-3xl">
+        <h2 className="mx-auto mt-4 max-w-3xl text-2xl font-semibold text-neutral-900 dark:text-neutral-100 md:text-3xl">
           Empowering your business with
         </h2>
 
         {/* Typewriter effect */}
-        <div className="mx-auto mt-2 max-w-3xl text-xl font-medium text-neutral-600 dark:text-neutral-400 md:text-2xl">
+        <div className="mx-auto mt-2 max-w-3xl text-xl font-bold text-neutral-900 dark:text-neutral-100 md:text-2xl">
           <TypewriterComponent
             options={{
               strings: [
@@ -63,6 +62,16 @@ export default function Hero() {
               cursor: "|"
             }}
           />
+        </div>
+
+        {/* CTAs */}
+        <div className="mt-10 flex flex-wrap justify-center gap-4">
+          <Link href="#services">
+            <Button variant="outline" size="lg">View Services</Button>
+          </Link>
+          <Link href="/contact-us">
+            <Button size="lg">Get a Quote</Button>
+          </Link>
         </div>
       </div>
     </motion.section>

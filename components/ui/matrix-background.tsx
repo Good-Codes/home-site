@@ -52,7 +52,6 @@ export default function MatrixBackground() {
         ref={canvasRef}
         className="absolute top-0 left-0 -z-10 w-full h-full opacity-20"
       />
-      <div className="pointer-events-none absolute bottom-0 left-0 w-full h-40 bg-gradient-to-t from-neutral-100 from-10% via-neutral-100/70 via-40% to-transparent dark:from-neutral-950 dark:from-10% dark:via-neutral-950/80 dark:via-40%" />
     </>
   )
 }
