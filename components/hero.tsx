@@ -40,7 +40,7 @@ export default function Hero() {
       <div className="container mx-auto px-6 text-center">
         {/* Primary title */}
         <h1 className="mx-auto max-w-4xl text-5xl font-bold tracking-tight text-neutral-900 dark:text-neutral-100 md:text-7xl">
-          Welcome to Good Code 
+          Welcome to Good Code !
         </h1>
 
         {/* Secondary subtitle */}

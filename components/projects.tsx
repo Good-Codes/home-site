@@ -1,4 +1,7 @@
+"use client";
+
 import React from "react";
+import { motion } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 type Project = {
@@ -7,6 +10,20 @@ type Project = {
 	technologies: string[];
 	overview: string;
 	platformLink: string;
+};
+
+const containerVariants = {
+	hidden: {},
+	visible: { transition: { staggerChildren: 0.15 } },
+};
+
+const cardVariants = {
+	hidden: { opacity: 0, y: 30 },
+	visible: {
+		opacity: 1,
+		y: 0,
+		transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] },
+	},
 };
 
 const projects: Project[] = [
@@ -87,11 +104,17 @@ export default function Projects() {
 					Examples of solutions we have delivered across web, mobile, and cloud platforms.
 				</p>
 
-				<div className="mt-12 flex flex-wrap justify-center gap-8">
+				<motion.div
+					className="mt-12 flex flex-wrap justify-center gap-8"
+					variants={containerVariants}
+					initial="hidden"
+					whileInView="visible"
+					viewport={{ once: true }}
+				>
 					{projects.map((project) => (
-						<div key={project.name} className="w-full md:w-[calc(50%-1rem)]">
+						<motion.div key={project.name} variants={cardVariants} className="w-full md:w-[calc(50%-1rem)]">
 						<Card
-							className="h-full border-transparent bg-neutral-50 dark:bg-neutral-800/50"
+							className="h-full border-transparent bg-neutral-50 shadow-lg shadow-[#6A7A78] dark:bg-neutral-800/50 dark:shadow-[#67AFA7]"
 						>
 							<CardHeader>
 								<CardTitle className="text-xl text-neutral-900 dark:text-neutral-100">
@@ -144,9 +167,9 @@ export default function Projects() {
 								</div>
 							</CardContent>
 						</Card>
-						</div>
+						</motion.div>
 					))}
-				</div>
+				</motion.div>
 			</div>
 		</section>
 	);
