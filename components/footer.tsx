@@ -40,24 +40,16 @@ export default function Footer() {
             <ul className="space-y-2">
               <li>
                 <Link
-                  href="/about-us"
-                  className="text-neutral-600 transition-colors duration-300 hover:text-[#67AFA7] dark:text-neutral-300 dark:hover:text-[#6A7A78]"
+                  href="/services"
+                  className="text-neutral-600 transition-colors duration-300 hover:text-[#67AFA7] dark:text-neutral-300 dark:hover:text-[#6A7A78] text-sm"
                 >
                   Services
                 </Link>
               </li>
               <li>
                 <Link
-                  href="/projects"
-                  className="text-neutral-600 transition-colors duration-300 hover:text-[#67AFA7] dark:text-neutral-300 dark:hover:text-[#67AFA7]"
-                >
-                  Our Projects
-                </Link>
-              </li>
-              <li>
-                <Link
                   href="/our-projects"
-                  className="text-neutral-600 transition-colors duration-300 hover:text-[#67AFA7] dark:text-neutral-300 dark:hover:text-[#6A7A78]"
+                  className="text-neutral-600 transition-colors duration-300 hover:text-[#67AFA7] dark:text-neutral-300 dark:hover:text-[#6A7A78] text-sm"
                 >
                   Our Projects
                 </Link>
@@ -65,9 +57,17 @@ export default function Footer() {
               <li>
                 <Link
                   href="/contact-us"
-                  className="text-neutral-600 transition-colors duration-300 hover:text-[#67AFA7] dark:text-neutral-300 dark:hover:text-[#6A7A78]"
+                  className="text-neutral-600 transition-colors duration-300 hover:text-[#67AFA7] dark:text-neutral-300 dark:hover:text-[#6A7A78] text-sm"
                 >
                   Contact us
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/about-us"
+                  className="text-neutral-600 transition-colors duration-300 hover:text-[#67AFA7] dark:text-neutral-300 dark:hover:text-[#67AFA7] text-sm"
+                >
+                  About us
                 </Link>
               </li>
             </ul>
@@ -78,7 +78,7 @@ export default function Footer() {
             <h3 className="mb-2 text-sm font-semibold uppercase tracking-wider text-neutral-600 dark:text-neutral-400">
               Visit Us
             </h3>
-            <address className="not-italic text-neutral-600 dark:text-neutral-300">
+            <address className="not-italic text-neutral-600 dark:text-neutral-300 text-sm">
               <MapPin className="mx-auto mb-2 inline-block h-5 w-5" />
               <p>123 Code Street</p>
               <p>Polokwane City, PLK 10101</p>
@@ -94,13 +94,13 @@ export default function Footer() {
             <ul className="space-y-2 text-neutral-600 dark:text-neutral-300">
               <li className="flex items-center justify-center gap-2">
                 <Phone className="h-4 w-4" />
-                <a href="tel:+27123456789" className="hover:text-[#67AFA7] dark:hover:text-[#67AFA7]">
+                <a href="tel:+27123456789" className="hover:text-[#67AFA7] dark:hover:text-[#67AFA7] text-sm">
                   +27 12 345 6789
                 </a>
               </li>
               <li className="flex items-center justify-center gap-2">
                 <Mail className="h-4 w-4" />
-                <a href="mailto:info@goodcode.com" className="hover:text-[#67AFA7] dark:hover:text-[#67AFA7]">
+                <a href="mailto:info@goodcode.com" className="hover:text-[#67AFA7] dark:hover:text-[#67AFA7] text-sm">
                   info@goodcode.com
                 </a>
               </li>
