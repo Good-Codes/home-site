@@ -61,7 +61,7 @@ export default function Navbar() {
           <Button variant="ghost" size="icon" onClick={toggleTheme} className="size-8">
             {mounted && (theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />)}
           </Button>
-          <Link href="#contact">
+          <Link href="/contact-us">
             <Button size="sm">Get a Quote</Button>
           </Link>
         </div>
@@ -81,7 +81,7 @@ export default function Navbar() {
             <NavLink href="/our-projects">Our Projects</NavLink>
             <NavLink href="/contact-us">Contact us</NavLink>
             <NavLink href="/about-us">About us</NavLink>
-            <Link href="#contact">
+            <Link href="/contact-us">
               <Button size="sm" className="w-full">
                 Get a Quote
               </Button>

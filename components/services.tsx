@@ -1,10 +1,12 @@
 // services.tsx
 "use client";
 
-import React from "react";
+import React, { useRef } from "react";
+import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
-import { ArrowRight, Cloud, Code, LifeBuoy, Smartphone } from "lucide-react";
+import { ArrowRight, ChevronUp, Cloud, Code, LifeBuoy, Smartphone } from "lucide-react";
 import { motion } from "framer-motion";
+import MatrixHoverOverlay, { type MatrixHoverOverlayHandle } from "@/components/ui/matrix-overlay";
 
 /**
  * Services section showcasing the main offerings of GoodCode.
@@ -50,7 +52,7 @@ export default function Services() {
     >
       <div className="container mx-auto px-6 text-center">
         <h2 className="text-3xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100 md:text-4xl">
-          Our Services
+          Explore Our Services
         </h2>
         <p className="mx-auto mt-4 max-w-2xl text-neutral-600 dark:text-neutral-300">
           From concept to deployment, our tailored solutions help your business thrive in a digital world.
@@ -105,16 +107,6 @@ export default function Services() {
           whileInView="visible"
           viewport={{ once: true, amount: 0.2 }}
         >
-          <div className="mx-auto max-w-3xl text-center">
-            <h3 className="text-2xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100 md:text-3xl">
-              Explore Each Service
-            </h3>
-            <p className="mt-4 text-neutral-600 dark:text-neutral-300">
-              Use the cards above to jump to the service you care about, or browse the full set below for scope,
-              outcomes, and delivery focus.
-            </p>
-          </div>
-
           <div className="mt-12 space-y-6">
             {services.map(({ id, title, detail, highlights, outcomes, Icon }, index) => (
               <motion.article
@@ -139,13 +131,7 @@ export default function Services() {
                           </div>
                         </div>
 
-                        <a
-                          href="#services"
-                          onClick={(event) => scrollToSection(event, "services")}
-                          className="text-sm font-medium text-[#67AFA7] transition hover:text-[#4c8f88] dark:hover:text-[#8fd0c8]"
-                        >
-                          Back to overview
-                        </a>
+
                       </div>
 
                       <p className="mt-5 max-w-3xl text-base leading-7 text-neutral-600 dark:text-neutral-300">
@@ -162,13 +148,29 @@ export default function Services() {
                       </ul>
                     </div>
 
-                    <div className="border-t border-neutral-200/80 pt-6 dark:border-neutral-800 md:border-t-0 md:border-l md:pl-8 md:pt-0">
-                      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#67AFA7]">
-                        Best Fit
-                      </p>
-                      <p className="mt-4 text-sm leading-7 text-neutral-700 dark:text-neutral-200">
-                        {outcomes}
-                      </p>
+                    <div className="flex flex-col justify-between border-t border-neutral-200/80 pt-6 dark:border-neutral-800 md:border-t-0 md:border-l md:pl-8 md:pt-0">
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#67AFA7]">
+                          Best Fit
+                        </p>
+                        <p className="mt-4 text-sm leading-7 text-neutral-700 dark:text-neutral-200">
+                          {outcomes}
+                        </p>
+                      </div>
+                      <QuoteButton />
+                      <button
+                        onClick={() => {
+                          const target = document.getElementById("services");
+                          if (target) {
+                            const top = Math.max(0, target.getBoundingClientRect().top + window.scrollY - 112);
+                            window.scrollTo({ top, behavior: "smooth" });
+                          }
+                        }}
+                        className="mt-3 inline-flex items-center gap-1.5 text-xs font-medium text-neutral-400 transition hover:text-[#67AFA7] dark:text-neutral-500 dark:hover:text-[#67AFA7]"
+                      >
+                        <ChevronUp className="h-3.5 w-3.5" />
+                        Back to top
+                      </button>
                     </div>
                   </CardContent>
                 </Card>
@@ -178,6 +180,21 @@ export default function Services() {
         </motion.div>
       </div>
     </motion.section>
+  );
+}
+
+function QuoteButton() {
+  const overlayRef = useRef<MatrixHoverOverlayHandle>(null);
+
+  return (
+    <Link
+      href="/contact-us"
+      className="relative mt-6 inline-flex items-center justify-center overflow-hidden rounded-lg bg-[#67AFA7] px-5 py-2.5 text-sm font-medium text-white transition hover:bg-[#559e97]"
+      onMouseEnter={() => overlayRef.current?.runOnce()}
+    >
+      <MatrixHoverOverlay ref={overlayRef} />
+      <span className="relative z-30">Get a Quote</span>
+    </Link>
   );
 }
 
@@ -192,7 +209,6 @@ const services = [
       "Responsive websites and web apps tailored to your brand and conversion goals.",
       "Fast frontends, accessible interfaces, and technical SEO baked into the build.",
       "CMS, analytics, payment, and third-party API integrations aligned with your workflow.",
-      "Maintainable codebases that make future features easier to ship.",
     ],
     outcomes:
       "Ideal when you need a polished digital presence or a product-ready platform that can scale without constant rework.",
@@ -208,7 +224,6 @@ const services = [
       "Cross-platform or platform-specific app delivery based on your product requirements.",
       "User flows optimized for onboarding, retention, and everyday usability.",
       "Secure API connectivity, notifications, and offline-friendly behavior where needed.",
-      "Release support for testing, store readiness, and post-launch iteration.",
     ],
     outcomes:
       "Best for teams launching a new mobile product, extending an existing platform, or improving an app that is underperforming.",
@@ -224,7 +239,6 @@ const services = [
       "Cloud architecture planning for new systems and migrations from legacy environments.",
       "Deployment pipelines, hosting strategy, and environment management for reliable delivery.",
       "Performance, security, and observability improvements that reduce operational risk.",
-      "Scalable foundations for applications, data services, and internal tooling.",
     ],
     outcomes:
       "A fit for businesses that need dependable infrastructure, smoother releases, and a clearer path to scale.",
@@ -240,7 +254,6 @@ const services = [
       "Technology audits that surface process issues, architecture risks, and tooling gaps.",
       "Roadmaps for modernization, product delivery, and platform improvements.",
       "Practical guidance on team workflows, vendor decisions, and technical priorities.",
-      "Hands-on recommendations focused on near-term wins and sustainable long-term change.",
     ],
     outcomes:
       "Useful when you need a clearer technical direction, a second opinion on important decisions, or a plan to execute with less waste.",
