@@ -35,7 +35,7 @@ export default function About() {
               About
             </p>
             <h2 className="mt-1 text-2xl font-bold tracking-tight text-neutral-900 dark:text-neutral-100 sm:text-3xl">
-              Crafting Code That Feels Invisible
+              Building For Outcome, Not Just Output.
             </h2>
           </div>
         </div>

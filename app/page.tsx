@@ -13,7 +13,6 @@ export default function Page() {
       <Hero />
       <Services />
       <AboutLink />
-      <Contact />
     </main>
   );
 }

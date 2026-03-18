@@ -56,7 +56,7 @@ export default function Team() {
           viewport={{ once: true }}
         >
           <h2 className="text-center text-3xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100 md:text-4xl">
-            Meet the team
+            The Team Behind Your Next Digital Milestone
           </h2>
           <p className="mx-auto mt-4 max-w-2xl text-center text-base text-neutral-600 dark:text-neutral-400">
             A small, senior‑led crew that cares deeply about craft, collaboration and quality.
