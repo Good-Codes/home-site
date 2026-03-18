@@ -4,7 +4,7 @@
 import React, { useRef } from "react";
 import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
-import { ArrowRight, ChevronUp, Cloud, Code, LifeBuoy, Smartphone } from "lucide-react";
+import { ArrowRight, ChevronUp, Cloud, Code, LifeBuoy, Smartphone, Wrench } from "lucide-react";
 import { motion } from "framer-motion";
 import MatrixHoverOverlay, { type MatrixHoverOverlayHandle } from "@/components/ui/matrix-overlay";
 
@@ -51,9 +51,14 @@ export default function Services() {
       viewport={{ once: true }}
     >
       <div className="container mx-auto px-6 text-center">
-        <h2 className="text-3xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100 md:text-4xl">
-          Explore Our Services
-        </h2>
+        <div className="flex items-center justify-center gap-3">
+          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#67AFA7]/12 text-[#2f6f69] dark:bg-[#67AFA7]/10 dark:text-[#9ed9d2]">
+            <Wrench className="h-7 w-7" aria-hidden />
+          </div>
+          <h2 className="text-3xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100 md:text-4xl">
+            Explore Our Services
+          </h2>
+        </div>
         <p className="mx-auto mt-4 max-w-2xl text-neutral-600 dark:text-neutral-300">
           From concept to deployment, our tailored solutions help your business thrive in a digital world.
         </p>
