@@ -9,7 +9,15 @@ import { useTheme } from "next-themes";
 
 export default function Footer() {
   const { resolvedTheme } = useTheme();
-  const logoSrc = resolvedTheme === "dark" ? "/dark_mode_logo.png" : "/light_mode_logo.png";
+  const [mounted, setMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const logoSrc = mounted
+    ? resolvedTheme === "dark" ? "/dark_mode_logo.png" : "/light_mode_logo.png"
+    : "/light_mode_logo.png";
 
   return (
     <footer className="bg-neutral-100 py-4 dark:bg-neutral-900">
