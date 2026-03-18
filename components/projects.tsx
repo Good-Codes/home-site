@@ -3,6 +3,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { FileText } from "lucide-react";
 
 type Project = {
 	name: string;
@@ -97,9 +98,14 @@ export default function Projects() {
 	return (
 		<section className="bg-white py-24 dark:bg-neutral-900">
 			<div className="container mx-auto max-w-6xl px-6">
-				<h1 className="text-center text-3xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100 md:text-4xl">
+			<div className="flex items-center justify-center gap-3">
+				<div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#67AFA7]/12 text-[#2f6f69] dark:bg-[#67AFA7]/10 dark:text-[#9ed9d2]">
+					<FileText className="h-7 w-7" aria-hidden />
+				</div>
+				<h1 className="text-3xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100 md:text-4xl">
 					Our Projects
 				</h1>
+			</div>
 				<p className="mx-auto mt-4 max-w-2xl text-center text-neutral-600 dark:text-neutral-300">
 					Examples of solutions we have delivered across web, mobile, and cloud platforms.
 				</p>

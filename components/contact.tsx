@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { motion } from 'framer-motion';
+import { Phone } from 'lucide-react';
 
 export default function Contact() {
   const [formData, setFormData] = useState({
@@ -72,9 +73,14 @@ export default function Contact() {
       viewport={{ once: true }}
     >
       <div className="container mx-auto px-6 text-center">
-        <h2 className="text-3xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100 md:text-4xl">
-          Get in Touch
-        </h2>
+        <div className="flex items-center justify-center gap-3">
+          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#67AFA7]/12 text-[#2f6f69] dark:bg-[#67AFA7]/10 dark:text-[#9ed9d2]">
+            <Phone className="h-7 w-7" aria-hidden />
+          </div>
+          <h2 className="text-3xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100 md:text-4xl">
+            Get in Touch
+          </h2>
+        </div>
         <p className="mx-auto mt-4 max-w-2xl text-neutral-600 dark:text-neutral-300">
           Tell us about your project, and we’ll get back to you with a quote.
         </p>
