@@ -25,7 +25,7 @@ export default function Footer() {
         <div className="grid grid-cols-1 gap-6 md:grid-cols-4">
           {/* Logo column */}
           <div className="flex flex-col items-center justify-start">
-            <div className="relative h-28 w-28 overflow-hidden rounded-full">
+            <div className="relative h-20 w-20 overflow-hidden rounded-full">
               <Image
                 src={logoSrc}
                 alt="Good Code"
