@@ -120,7 +120,7 @@ export default function Projects() {
 					{projects.map((project) => (
 						<motion.div key={project.name} variants={cardVariants} className="w-full md:w-[calc(50%-1rem)]">
 						<Card
-							className="flex h-full flex-col border-transparent bg-neutral-50 shadow-lg shadow-[#6A7A78] dark:bg-neutral-800/50 dark:shadow-[#67AFA7]"
+							className="flex h-full flex-col border-transparent bg-neutral-50 shadow-lg shadow-[#67AFA7] dark:bg-neutral-800/50 dark:shadow-[#67AFA7]"
 						>
 							<CardHeader>
 								<CardTitle className="text-xl text-neutral-900 dark:text-neutral-100">
@@ -166,7 +166,7 @@ export default function Projects() {
 										href={project.platformLink}
 										target="_blank"
 										rel="noopener noreferrer"
-										className="mt-3 inline-flex text-sm text-[#6A7A78] underline hover:text-[#566461] dark:text-[#67AFA7] dark:hover:text-[#86c9c2]"
+										className="mt-3 inline-flex text-sm text-[#67AFA7] underline hover:text-[#559e97] dark:text-[#67AFA7] dark:hover:text-[#86c9c2]"
 									>
 										{project.platformLink}
 									</a>
