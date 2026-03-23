@@ -2,7 +2,6 @@
 "use client";
 
 import React from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import {
@@ -71,7 +70,7 @@ export default function Team() {
           whileInView="visible"
           viewport={{ once: true }}
         >
-          {team.map(({ slug, name, role, bio, image }) => (
+          {team.map(({ slug, name, role, bio }) => (
             <motion.div key={slug} variants={cardVariants} className="w-full sm:w-[calc(50%-1rem)] lg:w-[calc(33.333%-1.34rem)]">
               <div className="group block h-full">
                 <Card

@@ -6,16 +6,12 @@ import Link from "next/link";
 import TypewriterComponent from "typewriter-effect";
 import { Button } from "@/components/ui/button";
 import { motion } from 'framer-motion';
-
-import Image from "next/image";
-import { useTheme } from "next-themes";
 import MatrixBackground from "@/components/ui/matrix-background";
 
 /**
  * Hero section with clear hierarchy and dynamic typewriter effect.
  */
 export default function Hero() {
-  const { theme } = useTheme();
   const sectionVariants = {
     hidden: { opacity: 0, y: 30 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] } }
@@ -39,7 +35,7 @@ export default function Hero() {
       <div className="container mx-auto px-6 text-center">
         {/* Primary title */}
         <h1 className="mx-auto max-w-4xl text-5xl font-bold tracking-tight text-neutral-900 dark:text-neutral-100 md:text-7xl">
-          Welcome to Good Code !
+          Welcome to Good Code
         </h1>
 
         {/* Secondary subtitle */}

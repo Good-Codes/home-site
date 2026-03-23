@@ -2,7 +2,6 @@
 "use client";
 
 import React, { useState } from "react";
-import Link from "next/link";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -57,9 +56,9 @@ export default function Contact() {
 
       setStatus("success");
       setFormData({ name: "", email: "", phone: "", details: "" }); // reset form
-    } catch (error: any) {
+    } catch (error: unknown) {
       setStatus("error");
-      setErrorMessage(error.message || "Failed to send message. Please try again.");
+      setErrorMessage(error instanceof Error ? error.message : "Failed to send message. Please try again.");
     }
   };
 
@@ -166,7 +165,7 @@ export default function Contact() {
               animate={{ opacity: 1 }}
               className="col-span-2 text-center text-neutral-600 dark:text-neutral-300"
             >
-              Thank you! We'll get back to you soon.
+              Thank you! We&apos;ll get back to you soon.
             </motion.p>
           )}
           {status === "error" && (

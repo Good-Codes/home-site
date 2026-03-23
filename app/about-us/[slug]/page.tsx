@@ -4,7 +4,6 @@
 
 import React from "react";
 import { notFound } from "next/navigation";
-import Image from "next/image";
 import Link from "next/link";
 import { team } from "@/lib/team-data";
 import { Button } from "@/components/ui/button";

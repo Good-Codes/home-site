@@ -113,7 +113,7 @@ export default function Services() {
           viewport={{ once: true, amount: 0.2 }}
         >
           <div className="mt-12 space-y-6">
-            {services.map(({ id, title, detail, highlights, outcomes, Icon }, index) => (
+            {services.map(({ id, title, detail, highlights, outcomes, Icon }) => (
               <motion.article
                 key={id}
                 id={id}
