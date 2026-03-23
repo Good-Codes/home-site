@@ -120,7 +120,7 @@ export default function Projects() {
 					{projects.map((project) => (
 						<motion.div key={project.name} variants={cardVariants} className="w-full md:w-[calc(50%-1rem)]">
 						<Card
-							className="h-full border-transparent bg-neutral-50 shadow-lg shadow-[#6A7A78] dark:bg-neutral-800/50 dark:shadow-[#67AFA7]"
+							className="flex h-full flex-col border-transparent bg-neutral-50 shadow-lg shadow-[#67AFA7] dark:bg-neutral-800/50 dark:shadow-[#67AFA7]"
 						>
 							<CardHeader>
 								<CardTitle className="text-xl text-neutral-900 dark:text-neutral-100">
@@ -128,7 +128,7 @@ export default function Projects() {
 								</CardTitle>
 							</CardHeader>
 
-							<CardContent className="space-y-6">
+							<CardContent className="flex h-full flex-1 flex-col gap-6">
 								<div>
 									<h2 className="text-sm font-semibold uppercase tracking-wide text-neutral-700 dark:text-neutral-200">
 										Client:
@@ -158,7 +158,7 @@ export default function Projects() {
 									</p>
 								</div>
 
-								<div>
+								<div className="mt-auto">
 									<h2 className="text-sm font-semibold uppercase tracking-wide text-neutral-700 dark:text-neutral-200">
 										Platform Link:
 									</h2>
@@ -166,7 +166,7 @@ export default function Projects() {
 										href={project.platformLink}
 										target="_blank"
 										rel="noopener noreferrer"
-										className="mt-3 inline-flex text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 underline"
+										className="mt-3 inline-flex text-sm text-[#67AFA7] underline hover:text-[#559e97] dark:text-[#67AFA7] dark:hover:text-[#86c9c2]"
 									>
 										{project.platformLink}
 									</a>

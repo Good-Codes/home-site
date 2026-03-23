@@ -73,13 +73,13 @@ export default function Team() {
         >
           {team.map(({ slug, name, role, bio, image }) => (
             <motion.div key={slug} variants={cardVariants} className="w-full sm:w-[calc(50%-1rem)] lg:w-[calc(33.333%-1.34rem)]">
-              <Link href={`/about-us/${slug}`} className="block h-full">
+              <div className="group block h-full">
                 <Card
                   className="
                     flex h-full min-h-[25rem] flex-col overflow-hidden bg-neutral-50 dark:bg-neutral-900
                     transform transition duration-300 ease-in-out
                     hover:-translate-y-1 hover:scale-100
-                    hover:shadow-lg hover:shadow-[#6A7A78] dark:hover:shadow-[#67AFA7]
+                    hover:shadow-lg hover:shadow-[#67AFA7] dark:hover:shadow-[#67AFA7]
                   "
                 >
                 {/* Photo */}
@@ -103,16 +103,18 @@ export default function Team() {
                   <p className="min-h-[4.5rem] text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
                     {truncateWords(bio, 18)}
                   </p>
-                  <div className="mt-4 sm:hidden">
-                    <span
-                      className="inline-flex items-center rounded-md border border-neutral-300 px-3 py-1.5 text-xs font-medium text-neutral-800 dark:border-neutral-700 dark:text-neutral-200"
-                    >
-                      Read more
-                    </span>
+                  <div className="mt-4 opacity-100 transition-opacity duration-300 sm:opacity-0 sm:group-hover:opacity-100">
+                    <Link href={`/about-us/${slug}`}>
+                      <span
+                        className="inline-flex items-center rounded-md border border-neutral-300 px-3 py-1.5 text-xs font-medium text-neutral-800 transition-colors hover:bg-neutral-100 dark:border-neutral-700 dark:text-neutral-200 dark:hover:bg-neutral-800"
+                      >
+                        Read more
+                      </span>
+                    </Link>
                   </div>
                 </CardContent>
               </Card>
-              </Link>
+              </div>
             </motion.div>
           ))}
         </motion.div>
