@@ -2,6 +2,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -18,6 +19,7 @@ export default function Contact() {
   });
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState("");
+  const router = useRouter();
 
   const sectionVariants = {
     hidden: { opacity: 0, y: 30 },
@@ -55,7 +57,8 @@ export default function Contact() {
       }
 
       setStatus("success");
-      setFormData({ name: "", email: "", phone: "", details: "" }); // reset form
+      setFormData({ name: "", email: "", phone: "", details: "" });
+      router.push("/thank-you");
     } catch (error: unknown) {
       setStatus("error");
       setErrorMessage(error instanceof Error ? error.message : "Failed to send message. Please try again.");
@@ -148,26 +151,12 @@ export default function Contact() {
           </motion.div>
 
           <motion.div variants={fieldVariants} className="md:col-span-2">
-            <Button
-              size="lg"
-              type="submit"
-              className="w-full"
-              disabled={status === "loading"}
-            >
-              {status === "loading" ? "Sending..." : "Submit"}
-            </Button>
+              <Button size="lg" type="submit" className="w-full">
+                Submit
+              </Button>
           </motion.div>
 
           {/* Status messages */}
-          {status === "success" && (
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="col-span-2 text-center text-neutral-600 dark:text-neutral-300"
-            >
-              Thank you! We&apos;ll get back to you soon.
-            </motion.p>
-          )}
           {status === "error" && (
             <motion.p
               initial={{ opacity: 0 }}
