@@ -7,6 +7,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { team } from "@/lib/team-data";
 import { Button } from "@/components/ui/button";
+import Image from "next/image";
 
 // This generates the page metadata (browser tab title) dynamically.
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
@@ -40,12 +41,12 @@ export default async function BioPage({ params }: { params: Promise<{ slug: stri
 
         {/* Photo */}
         <div className="relative mt-8 h-72 w-full overflow-hidden rounded-xl bg-neutral-200 dark:bg-neutral-800 sm:h-96">
-          {/* <Image
+          <Image
             src={member.image}
             alt={`Photo of ${member.name}`}
             fill
             className="object-cover"
-          /> */}
+          />
         </div>
 
         {/* Name & role */}
