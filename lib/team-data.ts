@@ -26,9 +26,9 @@ export const team: TeamMember[] = [
   },
   {
     slug: "pierre-van-zyl",
-    name: "Pierre Van Zyl",
-    role: "Frontend Developer",
-    bio: "React and Next.js specialist focused on performance, accessibility, and pixel‑perfect interfaces.",
+    name: "Pierre van Zyl",
+    role: "Senior Software Developer | Backend & Systems Engineer | FinTech, Trading Platforms, Financial Integrations | Computer Science Graduate",
+    bio: "Pierre van Zyl is a software developer with over six years of experience building backend systems, financial platforms, and business integrations. His work focuses on designing reliable systems that handle complex business logic, financial transactions, and high-integrity data workflows. He has extensive experience working on trading platforms, financial integrations, and enterprise software, including order matching systems, financial transaction processing, API integrations, and accounting platform integrations such as Sage. Alongside his professional work, he continues to expand his expertise through formal computer science studies focused on networking, databases, and distributed systems, strengthening his practical experience with strong theoretical foundations. His core strengths include backend development, financial systems, API design, database modeling, systems architecture, debugging distributed behavior, and automated testing for system reliability.",
     image: "/pierre.jpg",
   },
   {
