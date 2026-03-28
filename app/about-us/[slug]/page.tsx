@@ -9,12 +9,23 @@ import { team } from "@/lib/team-data";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 
-// This generates the page metadata (browser tab title) dynamically.
+// This generates the page metadata dynamically per team member.
+// It now includes a description and Open Graph tags so that sharing
+// a member's page on social media shows their photo, name, and bio.
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const member = team.find((m) => m.slug === slug);
   if (!member) return { title: "Not Found" };
-  return { title: `${member.name} – Good Code` };
+
+  return {
+    title: member.name,
+    description: `${member.name} — ${member.role} at Good Code. ${member.bio.slice(0, 120)}`,
+    openGraph: {
+      title: `${member.name} – Good Code`,
+      description: member.bio.slice(0, 160),
+      images: [{ url: member.image, alt: `Photo of ${member.name}` }],
+    },
+  };
 }
 
 // Pre-build a page for every team member at build time (better performance).
