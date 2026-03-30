@@ -69,9 +69,13 @@ export default async function BioPage({ params }: { params: Promise<{ slug: stri
         </p>
 
         {/* Bio */}
-        <p className="mt-6 text-base leading-relaxed text-neutral-600 dark:text-neutral-400">
-          {member.bio}
-        </p>
+        <div className="mt-6 space-y-4">
+          {member.bio.split("\n\n").map((paragraph, i) => (
+            <p key={i} className="text-base leading-relaxed text-neutral-600 dark:text-neutral-400">
+              {paragraph}
+            </p>
+          ))}
+        </div>
 
         {/* CTA */}
         <div className="mt-10">
