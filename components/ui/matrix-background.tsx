@@ -26,7 +26,7 @@ export default function MatrixBackground() {
     }
 
     function draw() {
-      ctx.fillStyle = isDark() ? "rgba(0, 0, 0, 0.05)" : "rgba(230, 230, 230, 0.05)"
+      ctx.fillStyle = isDark() ? "rgba(0, 0, 0, 0.05)" : "rgba(255, 255, 255, 0.1)"
       ctx.fillRect(0, 0, canvas.width, canvas.height)
 
       ctx.font = `${fontSize}px monospace`
