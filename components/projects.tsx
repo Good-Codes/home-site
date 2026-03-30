@@ -33,7 +33,7 @@ const projects: Project[] = [
 		client: "AO Group",
 		technologies: [ "Python", "Django Rest Framework", "Cartrack API", "Intellidrive API", "TransUnion API", "Experian API", "DirectDebit", "Signio", "Notion"],
 		overview:
-			"Enhancement and maintenance of an existing dealership management platform. Integration of Cartrack and Intellidrive for vehicle tracking and mileage data. Integration of TransUnion for vehicle retail and trade valuations and Experian for credit risk assessment. Implementation of DirectDebit for payment scheduling and Signio for dealership application capture. Development of an application scoring system using credit bureau data.",
+		"We strengthened a dealership management platform so teams could make faster, better-informed decisions across vehicle sales and finance operations. The work improved visibility into vehicle location and mileage, brought trusted valuation and credit insight into the workflow, and supported more consistent deal assessment. We also streamlined application capture and payment scheduling, helping the business reduce friction for staff while improving confidence in lending-related decisions.",
 		platformLink: "https://flexidrive.co.za/",
 	},
 	{
@@ -41,7 +41,7 @@ const projects: Project[] = [
 		client: "Fininly (Maxcrowdfund derivative)",
 		technologies: ["C# .NET", "ABP Boilerplate", "Angular", "Event-Driven Architecture", "Sumsub (KYC)", "OPP (Online Payment Platform)", "SQL Server"],
 		overview:
-			"Development of a multi-tenant crowdfunding platform. Implementation of event-driven architecture using C# .NET ABP Boilerplate. Development of Angular frontend with advanced session management functionality. Integration of Sumsub for KYC (Know your customer) verification and OPP (Online Payment Platform) for payment processing. SQL Server database implementation with planned cloud migration.",
+			"We delivered a multi-tenant crowdfunding platform designed to support growth, investor trust, and operational control. The platform enabled secure onboarding, compliant identity verification, and dependable payment handling, while giving the business a foundation to serve multiple tenants without duplicating effort. It also established a scalable operational model that could evolve with future cloud migration plans.",
 		platformLink: "https://www.fininly.com/",
 	},
 	{
@@ -49,7 +49,7 @@ const projects: Project[] = [
 		client: "Maxcrowdfund (Netherlands)",
 		technologies: ["Vue.js", "Express.js", "Directus CMS", "Azure Pipelines", "Azure Cloud", "JavaScript"],
 		overview:
-			"Development of a crowdfunding loan platform for a Netherlands-based client. Implementation of Vue.js frontend with Directus CMS for rapid model and endpoint configuration. Development of Express.js microservices for Payments, Schedules, Individual, and Company modules. Migration from self-hosted infrastructure to Azure Pipelines and Azure cloud environment.",
+			"We delivered a crowdfunding loan platform that helped the client launch and operate with greater speed, flexibility, and control. The solution supported core lending functions across payments, repayment schedules, and both individual and company journeys, making the platform easier to manage as business requirements evolved. We also supported the shift to a more resilient cloud-based delivery model, improving operational reliability over time.",
 		platformLink: "https://app.maxcrowdfund.com/",
 	},
 	{
@@ -57,7 +57,7 @@ const projects: Project[] = [
 		client: "AO Group",
 		technologies: ["React", "Next.js", "Tailwind CSS", "Python", "Django Rest Framework", "PostgreSQL", "Docker", "CircleCI", "DigitalOcean", "OpenAPI", "Google Docs API", "SonarCloud"],
 		overview:
-			"Development of a currency trading and payment administration platform. Implementation of React frontend using Next.js and Tailwind CSS with OpenAPI client generation. Development of Python/Django Rest Framework backend with PostgreSQL database. Integration of Google Docs API for file management. Containerization using Docker. Establishment of CI/CD pipeline using CircleCI and DigitalOcean with automated testing and SonarCloud code quality analysis.",
+			"We built a platform that gave the business a clearer, more controlled way to manage currency trading and payment administration. The solution brought trading activity, payment operations, and document handling into a more cohesive workflow, reducing manual overhead and improving day-to-day efficiency. It also created a stronger operational foundation for reliable releases, quality control, and long-term maintainability.",
 		platformLink: "https://www.currencyassist.com/",
 	},
     {
@@ -65,7 +65,7 @@ const projects: Project[] = [
         client: "Mashlab Digital",
         technologies: ["React", "Redux", "Redux-Saga", "Java", "SpringBoot", "Maven", "AWS (S3, EC2)", "SQL Server", "GitHub"],
         overview:
-            "Development of a buy-now-pay-later platform. Implementation of React frontend using Redux and Redux-Saga for state management. Development of Java backend services using SpringBoot and Maven. Deployment on AWS infrastructure including S3 for document storage and EC2 for hosting. SQL Server database management and automated GitHub-based deployment workflows.",
+			"We helped deliver a buy-now-pay-later platform focused on smoother customer journeys and dependable internal operations. The solution supported the full flow from user interaction to document handling and transaction processing, giving the business a stronger foundation for scaling responsibly. It also improved release reliability, helping the platform evolve without compromising operational confidence.",
         platformLink: "https://www.zilch.com/",
     },
 	{
@@ -73,7 +73,7 @@ const projects: Project[] = [
 		client: "Sybrin Systems Limited Works",
 		technologies: ["Angular 5", "MVC (C#)", "SQL Server", "Redux", "JWT", ".NET Framework"],
 		overview:
-			"Development of an enterprise corporate internet banking platform enabling business-to-bank transactions across upper Africa. Implementation of Angular 5 frontend with Redux for session management and JWT authentication. Development of MVC middleware services and multi-threaded transaction processing. SQL Server database design including stored procedures, triggers, views, and indexed clusters for high-performance data retrieval.",
+			"We developed an enterprise corporate internet banking platform that enabled businesses to transact with their banks more efficiently across upper Africa. The solution supported secure session handling, reliable transaction processing, and high-performance access to critical banking data, helping the platform meet the demands of enterprise usage. The result was a stronger operational backbone for business-to-bank interactions at scale.",
 		platformLink: "https://www.sybrin.com/c2b",
 	},
 	{
@@ -81,7 +81,7 @@ const projects: Project[] = [
 		client: "AO Group",
 		technologies: ["Python", "Odoo Web Library", "Postgress SQL", "Adumo Online API", "JWT", "Odoo App Store"],
 		overview:
-			"Development of a custom Odoo payment provider addon integrating the Adumo Online payment gateway to accept credit/debit card payments via PCI-compliant hosted payment pages. Implementation of JWT (HS256) request signing and callback verification using PyJWT, with separate staging and production API endpoints. Extension of Odoo's native payment.provider and payment.transaction flows to support redirect-based checkout, success/pending/failed transaction states, server-to-server webhooks plus customer return handling , and advanced capabilities including tokenization , partial refunds, and manual capture for authorized transactions.",
+			"We built a custom payment module that enabled merchants using Odoo to accept card payments through Adumo Online with greater confidence and control. The solution supported secure checkout journeys, dependable transaction status handling, and better alignment with real-world payment operations such as refunds, tokenized payments, and manual capture. It gave the business a practical way to extend Odoo's native commerce capabilities without compromising payment integrity.",
 		platformLink: "https://www.adumoonline.com/",
 	},
 	{
@@ -89,7 +89,7 @@ const projects: Project[] = [
 		client: "VALR Technologies",
 		technologies: ["Kotlin", "Kubernetes", "GitLab CI/CD", "Jira", "REST APIs", "Docker"],
 		overview:
-			"Development and maintenance of an end-to-end automated testing framework for a high-volume cryptocurrency exchange platform. Implemented Kotlin-based test suites to validate trading engine workflows, order matching logic, wallet operations, funding flows, and liquidation scenarios. Integrated tests into GitLab CI/CD pipelines to enable automated regression and environment-specific deployments. Managed containerized test execution within Kubernetes clusters to ensure scalability and environment parity across staging and production-like systems. Collaborated with product and engineering teams via Jira for test case tracking, defect management, and release validation. Focused on ensuring transactional integrity, risk controls, and performance reliability in a real-time trading environment.",
+			"We developed and maintained an end-to-end automation platform that helped a high-volume cryptocurrency exchange protect confidence in its most critical workflows. The coverage focused on the business functions that matter most in a live trading environment, including trading activity, wallet operations, funding flows, and liquidation scenarios. By improving regression confidence and release readiness, the platform supported stronger transactional integrity, risk control, and operational reliability.",
 		platformLink: "https://www.valr.com/en/",
 	},
 ];
@@ -140,6 +140,15 @@ export default function Projects() {
 
 								<div>
 									<h2 className="text-sm font-semibold uppercase tracking-wide text-neutral-700 dark:text-neutral-200">
+										Project Overview:
+									</h2>
+									<p className="mt-3 text-sm leading-relaxed text-neutral-600 dark:text-neutral-300">
+										{project.overview}
+									</p>
+								</div>
+
+								<div>
+									<h2 className="text-sm font-semibold uppercase tracking-wide text-neutral-700 dark:text-neutral-200">
 										Technologies Used:
 									</h2>
 									<ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-neutral-600 dark:text-neutral-300">
@@ -147,15 +156,6 @@ export default function Projects() {
 											<li key={technology}>{technology}</li>
 										))}
 									</ul>
-								</div>
-
-								<div>
-									<h2 className="text-sm font-semibold uppercase tracking-wide text-neutral-700 dark:text-neutral-200">
-										Project Overview:
-									</h2>
-									<p className="mt-3 text-sm leading-relaxed text-neutral-600 dark:text-neutral-300">
-										{project.overview}
-									</p>
 								</div>
 
 								<div className="mt-auto">

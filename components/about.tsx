@@ -35,23 +35,22 @@ export default function About() {
               About
             </p>
             <h2 className="mt-1 text-2xl font-bold tracking-tight text-neutral-900 dark:text-neutral-100 sm:text-3xl">
-              Building For Outcome, Not Just Output.
+              Restoring Trust In Technology.
             </h2>
           </div>
         </div>
 
         <p className="mx-auto mt-10 max-w-2xl text-base leading-relaxed text-neutral-600 dark:text-neutral-300">
-          Good Code partners with startups and established teams to design, build,
-          and scale dependable digital products. From initial strategy through
-          delivery and beyond, we create web, mobile, and cloud solutions that are
-          fast, maintainable, and tied to clear business outcomes.
+          The brand is centered around restoring trust in technology. We founded
+          Good Code to bridge the widening gap between business expectations and
+          technical delivery. Too often, that gap is filled with complexity and
+          inflated costs.
         </p>
         <p className="mx-auto mt-4 max-w-2xl text-base leading-relaxed text-neutral-600 dark:text-neutral-300">
-          We prioritise transparency at every stage—keeping you informed with
-          regular progress updates and honest communication. Our senior‑led team
-          brings deep technical expertise across the full stack, so whether you
-          need a customer‑facing application, internal tooling, or cloud
-          infrastructure, we deliver work you can rely on.
+          Our purpose is to eliminate the black box of development, replacing
+          exploitation with radical transparency. We exist to prove that
+          technical excellence and moral integrity are not mutually exclusive;
+          they are the twin pillars of true success.
         </p>
 
         <Button

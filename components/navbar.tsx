@@ -51,9 +51,9 @@ export default function Navbar() {
         {/* Desktop links */}
         <div className="hidden gap-6 md:flex">
           <NavLink href="/services">Services</NavLink>
+          <NavLink href="/about-us">About us</NavLink>
           <NavLink href="/our-projects">Our Projects</NavLink>
           <NavLink href="/contact-us">Contact us</NavLink>
-          <NavLink href="/about-us">About us</NavLink>
         </div>
 
         {/* Desktop CTA */}
@@ -78,6 +78,7 @@ export default function Navbar() {
               {mounted && (theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />)}
             </Button>
             <NavLink href="/services">Services</NavLink>
+            <NavLink href="/about-us">About us</NavLink>
             <NavLink href="/our-projects">Our Projects</NavLink>
             <NavLink href="/contact-us">Contact us</NavLink>
             <NavLink href="/about-us">About us</NavLink>
