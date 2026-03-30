@@ -26,16 +26,25 @@ export default function MatrixBackground() {
     }
 
     function draw() {
-      ctx.fillStyle = isDark() ? "rgba(0, 0, 0, 0.01)" : "rgba(255, 255, 255, 0.08)"
+      ctx.fillStyle = isDark() ? "rgba(0, 0, 0, 0.05)" : "rgba(230, 230, 230, 0.05)"
       ctx.fillRect(0, 0, canvas.width, canvas.height)
 
-      ctx.fillStyle = isDark() ? "#67AFA7" : "#979797" // your logo blue
       ctx.font = `${fontSize}px monospace`
 
       for (let i = 0; i < drops.length; i++) {
         const text = letters[Math.floor(Math.random() * letters.length)]
 
+        // Bright head: leading character glows white/light
+        ctx.fillStyle = isDark() ? "#ffffff" : "#b8b8b8"
         ctx.fillText(text, i * fontSize, drops[i] * fontSize)
+
+        // Trail: draw one row back in the normal color
+        const trailText = letters[Math.floor(Math.random() * letters.length)]
+        const sparkle = Math.random() > 0.95
+        ctx.fillStyle = sparkle
+          ? (isDark() ? "#ffffff" : "#292929")
+          : (isDark() ? "#67AFA7" : "#a0b2b0")
+        ctx.fillText(trailText, i * fontSize, (drops[i] - 1) * fontSize)
 
         if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
           drops[i] = 0
@@ -45,7 +54,7 @@ export default function MatrixBackground() {
       }
     }
 
-    const interval = setInterval(draw, 33)
+    const interval = setInterval(draw, 55)
 
     return () => clearInterval(interval)
   }, [])
