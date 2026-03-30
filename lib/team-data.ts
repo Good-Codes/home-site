@@ -41,22 +41,22 @@ export const team: TeamMember[] = [
   {
     slug: "benjamin-taylor",
     name: "Benjamin Taylor",
-    role: "Software Development Intern | Photographer | Music Educator",
+    role: "Software Developer",
     bio: "Benjamin Taylor is a software developer with a growing focus on web development and a strong interest in building clean, maintainable, and user-friendly applications. He is dedicated to expanding his technical skills across both front-end and full-stack development, with a particular emphasis on learning, adaptability, and thoughtful problem-solving. In addition to his work in software, Benjamin brings a creative perspective shaped by his background in photography and music education. These experiences have strengthened his attention to detail, communication skills, and ability to approach challenges with both structure and creativity. His combination of technical curiosity and creative discipline supports his development as a well-rounded contributor in the tech industry.",
     image: "/benjamin.jpg",
   },
   {
     slug: "kokie-molepo",
     name: "Kokie Molepo",
-    role: "Intern",
-    bio: "Intern who brings enthusiasm, creativity, and a willingness to dive into new challenges headfirst.",
+    role: "Software Developer",
+    bio: "Kokeletso Molepo is a software developer with a strong drive for continuous growth and self-improvement. As a disciplined and goal-oriented individual, Kokeletso takes pride in consistency, commitment, and the ability to follow through on objectives with focus and determination. With a passion for problem-solving and skill development, Kokeletso has built a solid foundation in web and programming technologies, including HTML, CSS, JavaScript, Python, and C. This technical background is further supported by certifications in Responsive Web Design and JavaScript Algorithms and Data Structures, reflecting both capability and dedication to mastering core development principles. Kokeletso approaches challenges with curiosity and a structured mindset, steadily building expertise and striving to contribute meaningfully within the software development field.",
     image: "/kokie.jpg",
   },
   {
     slug: "eric-russell",
     name: "Eric Russell",
-    role: "Intern",
-    bio: "I am a motivated software development intern with a strong interest in building efficient and user-focused applications. Currently gaining hands-on experience in a fast-paced development environment, I am developing my skills in coding, problem-solving, and collaboration. I am passionate about learning new technologies and contributing to innovative projects.",
+    role: "Software Developer",
+    bio: "Eric Russell is an IT professional who values careful planning, attention to detail, and well-defined guidelines in his work. He has a strong passion for computer hardware, with solid knowledge of specifications, system functionality, and the assembly process, and enjoys understanding how components interact within a system. He has a foundational background in Python programming, supporting his analytical thinking and problem-solving abilities. Eric has completed the learning material for the CompTIA A+ Core 1 certification and is currently preparing to sit for the exam, demonstrating his commitment to building a strong technical foundation. Known for being dependable, curious, and disciplined in his approach, Eric is committed to continuous learning and actively seeks opportunities to grow within the IT field. He aims to build a career in technology where he can apply his knowledge, gain hands-on experience, and develop into a skilled and well-rounded professional.",
     image: "/eric.jpg",
   },
 ];
