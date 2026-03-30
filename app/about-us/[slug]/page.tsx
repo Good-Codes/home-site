@@ -79,7 +79,7 @@ export default async function BioPage({ params }: { params: Promise<{ slug: stri
 
         {/* CTA */}
         <div className="mt-10">
-          <Link href="#contact">
+          <Link href="/contact-us">
             <Button size="sm">Get in touch</Button>
           </Link>
         </div>
