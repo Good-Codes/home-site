@@ -21,11 +21,15 @@ export default function MatrixBackground() {
       drops[i] = 1
     }
 
+    function isDark() {
+      return document.documentElement.classList.contains("dark")
+    }
+
     function draw() {
-      ctx.fillStyle = "rgba(0, 0, 0, 0.01)"
+      ctx.fillStyle = isDark() ? "rgba(0, 0, 0, 0.01)" : "rgba(255, 255, 255, 0.08)"
       ctx.fillRect(0, 0, canvas.width, canvas.height)
 
-      ctx.fillStyle = "#67AFA7" // your logo blue
+      ctx.fillStyle = isDark() ? "#67AFA7" : "#979797" // your logo blue
       ctx.font = `${fontSize}px monospace`
 
       for (let i = 0; i < drops.length; i++) {
