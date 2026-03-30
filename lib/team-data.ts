@@ -41,8 +41,8 @@ export const team: TeamMember[] = [
   {
     slug: "benjamin-taylor",
     name: "Benjamin Taylor",
-    role: "Intern",
-    bio: "Intern with a passion for learning and a fresh perspective on modern web development trends.",
+    role: "Software Development Intern | Photographer | Music Educator",
+    bio: "Benjamin Taylor is a software development intern currently building skills in web development, with a focus on writing clean, maintainable code and creating user-friendly applications. He is passionate about learning and growing within the tech space, with an interest in both front-end and full-stack development. Alongside his technical journey, he has a background in photography and music education, which strengthens his creative thinking, adaptability, and attention to detail.",
     image: "/benjamin.jpg",
   },
   {
