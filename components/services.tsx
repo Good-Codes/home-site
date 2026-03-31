@@ -64,7 +64,7 @@ export default function Services() {
         </p>
 
         <motion.div
-          className="mt-12 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4"
+          className="mt-12 grid grid-cols-2 gap-3 sm:gap-8 lg:grid-cols-4"
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
@@ -86,17 +86,17 @@ export default function Services() {
                     hover:border-[#67AFA7]/30 dark:hover:shadow-[#67AFA7]
                   "
                 >
-                  <CardContent className="flex h-full flex-col items-center p-6 text-center">
-                    <Icon className="h-10 w-10 text-neutral-800 dark:text-neutral-100" />
-                    <h3 className="mt-4 text-lg font-medium text-neutral-900 dark:text-neutral-100">
+                  <CardContent className="flex h-full flex-col items-center p-3 sm:p-6 text-center">
+                    <Icon className="h-7 w-7 sm:h-10 sm:w-10 text-neutral-800 dark:text-neutral-100" />
+                    <h3 className="mt-2 sm:mt-4 text-sm sm:text-lg font-medium leading-tight text-neutral-900 dark:text-neutral-100">
                       {title}
                     </h3>
-                    <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-300">
+                    <p className="mt-1 sm:mt-2 text-xs sm:text-sm text-neutral-600 dark:text-neutral-300 hidden sm:block">
                       {desc}
                     </p>
-                    <span className="mt-5 inline-flex items-center gap-2 text-sm font-medium text-[#67AFA7]">
+                    <span className="mt-3 sm:mt-5 inline-flex items-center gap-1 sm:gap-2 text-xs sm:text-sm font-medium text-[#67AFA7]">
                       Learn more
-                      <ArrowRight className="h-4 w-4" />
+                      <ArrowRight className="h-3 w-3 sm:h-4 sm:w-4" />
                     </span>
                   </CardContent>
                 </Card>

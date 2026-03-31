@@ -68,28 +68,53 @@ export default function Navbar() {
         </div>
 
         {/* Mobile menu */}
-        <Sheet>
-          <SheetTrigger asChild>
-            <Button variant="ghost" size="icon" className="size-8 md:hidden">
-              <Menu className="h-4 w-4" />
-            </Button>
-          </SheetTrigger>
-          <SheetContent side="right" className="flex flex-col gap-6 p-6">
-            <Button variant="ghost" size="icon" onClick={toggleTheme} className="size-8 self-end">
-              {mounted && (theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />)}
-            </Button>
-            <NavLink href="/">Home</NavLink>
-            <NavLink href="/services">Services</NavLink>
-            <NavLink href="/about-us">About us</NavLink>
-            <NavLink href="/our-projects">Our Projects</NavLink>
-            <NavLink href="/contact-us">Contact us</NavLink>
-            <Link href="/contact-us">
-              <Button size="sm" className="w-full">
-                Get a Quote
+        <div className="flex items-center gap-1 md:hidden">
+          <Button variant="ghost" size="icon" onClick={toggleTheme} className="size-8">
+            {mounted && (theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />)}
+          </Button>
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="icon" className="size-8">
+                <Menu className="h-4 w-4" />
               </Button>
-            </Link>
-          </SheetContent>
-        </Sheet>
+            </SheetTrigger>
+            <SheetContent side="right" className="flex flex-col p-0 gap-0">
+              {/* Header area with logo */}
+              <div className="flex items-center gap-3 border-b border-neutral-200 px-6 pt-6 pb-5 dark:border-neutral-800">
+                {mounted && (
+                  <Image
+                    src={theme === "dark" ? "/dark_mode_logo.png" : "/light_mode_logo.png"}
+                    alt="GoodCode Logo"
+                    width={36}
+                    height={36}
+                    className="object-contain"
+                  />
+                )}
+                <span className="text-base font-semibold text-neutral-900 dark:text-neutral-100">
+                  Good Code
+                </span>
+              </div>
+
+              {/* Navigation links */}
+              <nav className="flex flex-1 flex-col gap-1 px-4 py-4">
+                <MobileNavLink href="/">Home</MobileNavLink>
+                <MobileNavLink href="/services">Services</MobileNavLink>
+                <MobileNavLink href="/about-us">About Us</MobileNavLink>
+                <MobileNavLink href="/our-projects">Our Projects</MobileNavLink>
+                <MobileNavLink href="/contact-us">Contact Us</MobileNavLink>
+              </nav>
+
+              {/* Footer area */}
+              <div className="border-t border-neutral-200 px-4 py-4 dark:border-neutral-800">
+                <Link href="/contact-us">
+                  <Button size="sm" className="w-full">
+                    Get a Quote
+                  </Button>
+                </Link>
+              </div>
+            </SheetContent>
+          </Sheet>
+        </div>
       </nav>
     </motion.header>
   );
@@ -113,6 +138,33 @@ function NavLink({
         transition duration-300 ease-in-out
         hover:text-[#67AFA7] dark:hover:text-[#67AFA7]
         hover:[text-shadow:0_0_10px_#67AFA7] dark:hover:[text-shadow:0_0_10px_#67AFA7]
+      "
+    >
+      {children}
+    </Link>
+  );
+}
+
+/**
+ * Mobile navigation link — larger tap target, hover/active styling.
+ */
+function MobileNavLink({
+  href,
+  children,
+}: {
+  href: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <Link
+      href={href}
+      className="
+        rounded-lg px-3 py-2.5 text-[15px] font-medium
+        text-neutral-700 dark:text-neutral-200
+        transition duration-200 ease-in-out
+        hover:bg-neutral-100 hover:text-[#67AFA7]
+        dark:hover:bg-neutral-800 dark:hover:text-[#67AFA7]
+        active:scale-[0.98]
       "
     >
       {children}
