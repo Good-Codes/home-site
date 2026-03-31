@@ -51,11 +51,11 @@ export default function Services() {
       viewport={{ once: true }}
     >
       <div className="container mx-auto px-6 text-center">
-        <div className="flex items-center justify-center gap-3">
-          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#67AFA7]/12 text-[#2f6f69] dark:bg-[#67AFA7]/10 dark:text-[#9ed9d2]">
-            <Wrench className="h-7 w-7" aria-hidden />
+        <div className="flex flex-col items-center justify-center gap-2 sm:flex-row sm:gap-3">
+          <div className="flex h-11 w-11 sm:h-14 sm:w-14 items-center justify-center rounded-2xl bg-[#67AFA7]/12 text-[#2f6f69] dark:bg-[#67AFA7]/10 dark:text-[#9ed9d2]">
+            <Wrench className="h-5 w-5 sm:h-7 sm:w-7" aria-hidden />
           </div>
-          <h2 className="text-3xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100 md:text-4xl">
+          <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100 md:text-4xl">
             Explore Our Services
           </h2>
         </div>
@@ -105,12 +105,8 @@ export default function Services() {
           ))}
         </motion.div>
 
-        <motion.div
+        <div
           className="mt-20 border-t border-neutral-200 pt-16 text-left dark:border-neutral-800"
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, amount: 0.2 }}
         >
           <div className="mt-12 space-y-6">
             {services.map(({ id, title, detail, highlights, outcomes, Icon }) => (
@@ -118,6 +114,9 @@ export default function Services() {
                 key={id}
                 id={id}
                 variants={itemVariants}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true }}
                 className="scroll-mt-28 md:scroll-mt-32"
               >
                 <Card className="border-neutral-200/80 bg-white/80 shadow-none backdrop-blur-sm dark:border-neutral-800 dark:bg-neutral-900/70">
@@ -182,7 +181,7 @@ export default function Services() {
               </motion.article>
             ))}
           </div>
-        </motion.div>
+        </div>
       </div>
     </motion.section>
   );
