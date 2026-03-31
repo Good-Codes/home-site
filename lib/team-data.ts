@@ -27,7 +27,7 @@ export const team: TeamMember[] = [
   {
     slug: "pierre-van-zyl",
     name: "Pierre van Zyl",
-    role: "Chief Technical Officer | C.T.O.",
+    role: "Chief Technology Officer | C.T.O.",
     bio: "Pierre van Zyl serves as C.T.O and is a senior software engineer with over six years of experience building backend systems, financial platforms, and business integrations. His work focuses on designing reliable systems that handle complex business logic, financial transactions, and high-integrity data workflows.\n\nHe has extensive experience working on trading platforms, financial integrations, and enterprise software, including order matching systems, financial transaction processing, API integrations, and accounting platform integrations such as Sage.\n\nAlongside his professional work, he expanded his expertise through the completetion of his formal computer science studies through the University of the People, which was focused on networking, databases, and distributed systems, strengthening his practical experience with strong theoretical foundations.\n\nHis core strengths include backend development, financial systems, API design, database modeling, systems architecture, debugging distributed behavior, and automated testing for system reliability.",
     image: "/pierre.jpg",
   },
