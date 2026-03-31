@@ -96,22 +96,22 @@ const projects: Project[] = [
 
 export default function Projects() {
 	return (
-		<section className="bg-white py-24 dark:bg-neutral-900">
-			<div className="container mx-auto max-w-6xl px-6">
-			<div className="flex items-center justify-center gap-3">
-				<div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#67AFA7]/12 text-[#2f6f69] dark:bg-[#67AFA7]/10 dark:text-[#9ed9d2]">
-					<FileText className="h-7 w-7" aria-hidden />
+		<section className="bg-white py-12 sm:py-24 dark:bg-neutral-900">
+			<div className="container mx-auto max-w-6xl px-4 sm:px-6">
+			<div className="flex items-center justify-center gap-2 sm:gap-3">
+				<div className="flex h-10 w-10 sm:h-14 sm:w-14 items-center justify-center rounded-2xl bg-[#67AFA7]/12 text-[#2f6f69] dark:bg-[#67AFA7]/10 dark:text-[#9ed9d2]">
+					<FileText className="h-5 w-5 sm:h-7 sm:w-7" aria-hidden />
 				</div>
-				<h1 className="text-3xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100 md:text-4xl">
+				<h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100 md:text-4xl">
 					Our Projects
 				</h1>
 			</div>
-				<p className="mx-auto mt-4 max-w-2xl text-center text-neutral-600 dark:text-neutral-300">
+				<p className="mx-auto mt-3 sm:mt-4 max-w-2xl text-center text-sm sm:text-base text-neutral-600 dark:text-neutral-300">
 					Examples of solutions we have delivered across web, mobile, and cloud platforms.
 				</p>
 
 				<motion.div
-					className="mt-12 flex flex-wrap justify-center gap-8"
+					className="mt-8 sm:mt-12 flex flex-wrap justify-center gap-4 sm:gap-8"
 					variants={containerVariants}
 					initial="hidden"
 					whileInView="visible"
@@ -120,55 +120,57 @@ export default function Projects() {
 					{projects.map((project) => (
 						<motion.div key={project.name} variants={cardVariants} className="w-full md:w-[calc(50%-1rem)]">
 						<Card
-							className="flex h-full flex-col border-transparent bg-neutral-50 shadow-lg shadow-[#67AFA7] dark:bg-neutral-800/50 dark:shadow-[#67AFA7]"
+							className="flex h-full flex-col border-transparent bg-neutral-50 shadow-md sm:shadow-lg shadow-[#67AFA7] dark:bg-neutral-800/50 dark:shadow-[#67AFA7]"
 						>
-							<CardHeader>
-								<CardTitle className="text-xl text-neutral-900 dark:text-neutral-100">
+							<CardHeader className="p-4 sm:p-6">
+								<CardTitle className="text-base sm:text-xl text-neutral-900 dark:text-neutral-100">
 									 {project.name}
 								</CardTitle>
 							</CardHeader>
 
-							<CardContent className="flex h-full flex-1 flex-col gap-6">
+							<CardContent className="flex h-full flex-1 flex-col gap-3 sm:gap-6 px-4 sm:px-6">
 								<div>
-									<h2 className="text-sm font-semibold uppercase tracking-wide text-neutral-700 dark:text-neutral-200">
+									<h2 className="text-xs sm:text-sm font-semibold uppercase tracking-wide text-neutral-700 dark:text-neutral-200">
 										Client:
 									</h2>
-									<p className="mt-3 text-sm text-neutral-600 dark:text-neutral-300">
+									<p className="mt-1 sm:mt-3 text-xs sm:text-sm text-neutral-600 dark:text-neutral-300">
 										{project.client}
 									</p>
 								</div>
 
 								<div>
-									<h2 className="text-sm font-semibold uppercase tracking-wide text-neutral-700 dark:text-neutral-200">
+									<h2 className="text-xs sm:text-sm font-semibold uppercase tracking-wide text-neutral-700 dark:text-neutral-200">
 										Project Overview:
 									</h2>
-									<p className="mt-3 text-sm leading-relaxed text-neutral-600 dark:text-neutral-300">
+									<p className="mt-1 sm:mt-3 text-xs sm:text-sm leading-relaxed text-neutral-600 dark:text-neutral-300">
 										{project.overview}
 									</p>
 								</div>
 
 								<div>
-									<h2 className="text-sm font-semibold uppercase tracking-wide text-neutral-700 dark:text-neutral-200">
-										Technologies Used:
+									<h2 className="text-xs sm:text-sm font-semibold uppercase tracking-wide text-neutral-700 dark:text-neutral-200">
+										Technologies:
 									</h2>
-									<ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-neutral-600 dark:text-neutral-300">
+									<div className="mt-1.5 sm:mt-3 flex flex-wrap gap-1.5 sm:gap-2">
 										{project.technologies.map((technology) => (
-											<li key={technology}>{technology}</li>
+											<span
+												key={technology}
+												className="inline-flex rounded-full border border-neutral-200 bg-white px-2 py-0.5 text-[10px] sm:text-xs text-neutral-600 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-300"
+											>
+												{technology}
+											</span>
 										))}
-									</ul>
+									</div>
 								</div>
 
 								<div className="mt-auto">
-									<h2 className="text-sm font-semibold uppercase tracking-wide text-neutral-700 dark:text-neutral-200">
-										Platform Link:
-									</h2>
 									<a 
 										href={project.platformLink}
 										target="_blank"
 										rel="noopener noreferrer"
-										className="mt-3 inline-flex text-sm text-[#67AFA7] underline hover:text-[#559e97] dark:text-[#67AFA7] dark:hover:text-[#86c9c2]"
+										className="mt-1 sm:mt-3 inline-flex text-xs sm:text-sm text-[#67AFA7] underline break-all hover:text-[#559e97] dark:text-[#67AFA7] dark:hover:text-[#86c9c2]"
 									>
-										{project.platformLink}
+										Visit Platform &rarr;
 									</a>
 								</div>
 							</CardContent>

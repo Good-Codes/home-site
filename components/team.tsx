@@ -65,25 +65,25 @@ export default function Team() {
 
         {/* Card grid */}
         <motion.div
-          className="mt-16 flex flex-wrap justify-center gap-8"
+          className="mt-16 flex flex-wrap justify-center gap-4 sm:gap-8"
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
         >
           {team.map(({ slug, name, role, bio, image }) => (
-            <motion.div key={slug} variants={cardVariants} className="w-full sm:w-[calc(50%-1rem)] lg:w-[calc(33.333%-1.34rem)]">
+            <motion.div key={slug} variants={cardVariants} className="w-[calc(50%-1rem)] lg:w-[calc(33.333%-1.34rem)]">
               <div className="group block h-full">
                 <Card
                   className="
-                    flex h-full min-h-[25rem] flex-col overflow-hidden bg-neutral-50 dark:bg-neutral-900
+                    flex h-full flex-col overflow-hidden bg-neutral-50 dark:bg-neutral-900
                     transform transition duration-300 ease-in-out
                     hover:-translate-y-1 hover:scale-100
                     hover:shadow-lg hover:shadow-[#67AFA7] dark:hover:shadow-[#67AFA7]
                   "
                 >
                 {/* Photo */}
-                <div className="relative h-56 w-full bg-neutral-200 dark:bg-neutral-800">
+                <div className="relative h-28 sm:h-56 w-full bg-neutral-200 dark:bg-neutral-800">
                   <Image
                     src={image}
                     alt={`Photo of ${name}`}
@@ -93,20 +93,23 @@ export default function Team() {
                 </div>
 
                 {/* Name & role */}
-                <CardHeader>
-                  <CardTitle className="text-base">{name}</CardTitle>
-                  <CardDescription>{role}</CardDescription>
+                <CardHeader className="p-3 sm:p-6 gap-0.5 sm:gap-1.5">
+                  <CardTitle className="text-xs sm:text-base leading-tight">{name}</CardTitle>
+                  <CardDescription className="text-[11px] sm:text-sm">{role}</CardDescription>
                 </CardHeader>
 
                 {/* Bio */}
-                <CardContent className="flex flex-1 flex-col justify-between pb-6">
-                  <p className="min-h-[4.5rem] text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
+                <CardContent className="flex flex-1 flex-col justify-between px-3 pb-3 pt-0 sm:px-6 sm:pb-6 sm:pt-0">
+                  <p className="hidden sm:block min-h-[4.5rem] text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
                     {truncateWords(bio, 18)}
                   </p>
-                  <div className="mt-4 opacity-100 transition-opacity duration-300 sm:opacity-0 sm:group-hover:opacity-100">
+                  <p className="sm:hidden text-[11px] leading-relaxed text-neutral-600 dark:text-neutral-400">
+                    {truncateWords(bio, 10)}
+                  </p>
+                  <div className="mt-2 sm:mt-4 opacity-100 transition-opacity duration-300 sm:opacity-0 sm:group-hover:opacity-100">
                     <Link href={`/about-us/${slug}`}>
                       <span
-                        className="inline-flex items-center rounded-md border border-neutral-300 px-3 py-1.5 text-xs font-medium text-neutral-800 transition-colors hover:bg-neutral-100 dark:border-neutral-700 dark:text-neutral-200 dark:hover:bg-neutral-800"
+                        className="inline-flex items-center rounded-md border border-neutral-300 px-2 py-1 text-[10px] sm:px-3 sm:py-1.5 sm:text-xs font-medium text-neutral-800 transition-colors hover:bg-neutral-100 dark:border-neutral-700 dark:text-neutral-200 dark:hover:bg-neutral-800"
                       >
                         Read more
                       </span>

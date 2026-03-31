@@ -50,6 +50,7 @@ export default function Navbar() {
 
         {/* Desktop links */}
         <div className="hidden gap-6 md:flex">
+          <NavLink href="/">Home</NavLink>
           <NavLink href="/services">Services</NavLink>
           <NavLink href="/about-us">About us</NavLink>
           <NavLink href="/our-projects">Our Projects</NavLink>
@@ -77,11 +78,11 @@ export default function Navbar() {
             <Button variant="ghost" size="icon" onClick={toggleTheme} className="size-8 self-end">
               {mounted && (theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />)}
             </Button>
+            <NavLink href="/">Home</NavLink>
             <NavLink href="/services">Services</NavLink>
             <NavLink href="/about-us">About us</NavLink>
             <NavLink href="/our-projects">Our Projects</NavLink>
             <NavLink href="/contact-us">Contact us</NavLink>
-            <NavLink href="/about-us">About us</NavLink>
             <Link href="/contact-us">
               <Button size="sm" className="w-full">
                 Get a Quote
