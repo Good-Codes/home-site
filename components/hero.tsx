@@ -14,7 +14,7 @@ export default function Hero() {
   const prefersReducedMotion = useReducedMotion();
 
   return (
-    <section className="relative isolate overflow-hidden bg-[#f7f8f5] text-neutral-950">
+    <section className="relative isolate overflow-hidden bg-white text-neutral-950">
       <div className="container mx-auto max-w-7xl px-6 pb-6 pt-12 sm:pt-16 lg:pt-20">
         <motion.div
           className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_24rem] lg:items-end"
@@ -25,7 +25,7 @@ export default function Hero() {
           <div>
             <div className="mb-5 flex items-center gap-3 text-sm font-medium text-[#2f6f69]">
               <span className="h-px w-10 bg-[#67AFA7]" aria-hidden />
-              <span>Human-led digital solutions</span>
+              <span>Good tech built by good people</span>
             </div>
 
             <h1 className="max-w-4xl text-5xl font-semibold leading-[1.02] tracking-tight sm:text-6xl lg:text-7xl">
@@ -35,8 +35,7 @@ export default function Hero() {
 
           <div className="lg:pb-1">
             <p className="text-base leading-7 text-neutral-700 sm:text-lg">
-              We design and build websites, systems, and digital tools that help businesses move clearly, confidently,
-              and beautifully online.
+              We design and build digital tools that help businesses move clearly, effectively, and meaningfully online.
             </p>
 
             <div className="mt-6 flex flex-col gap-3 sm:flex-row lg:flex-col xl:flex-row">
