@@ -15,7 +15,7 @@ export default function Hero() {
 
   return (
     <section className="relative isolate overflow-hidden bg-white text-neutral-950">
-      <div className="container mx-auto max-w-7xl px-6 pb-6 pt-12 sm:pt-16 lg:pt-20">
+      <div className="container mx-auto max-w-7xl px-6 pb-6 pt-8 sm:pt-10 lg:pt-12">
         <motion.div
           className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_24rem] lg:items-end"
           initial={prefersReducedMotion ? false : { opacity: 0, y: 22 }}
@@ -65,7 +65,7 @@ export default function Hero() {
         </motion.div>
 
         <motion.div
-          className="mt-8 border-t border-neutral-900/10 pt-5 sm:mt-10 lg:mt-12"
+          className="mt-8 sm:mt-10 lg:mt-12"
           initial={prefersReducedMotion ? false : { opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.25, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
