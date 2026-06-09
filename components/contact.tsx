@@ -10,6 +10,12 @@ import { Button } from "@/components/ui/button";
 import { motion } from 'framer-motion';
 import { Phone } from 'lucide-react';
 
+const packageLabels: Record<string, string> = {
+  starter: "Starter",
+  business: "Business",
+  "business-plus": "Business Plus",
+};
+
 export default function Contact() {
   const [formData, setFormData] = useState({
     name: "",
@@ -33,6 +39,27 @@ export default function Contact() {
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: 'easeOut' } }
   };
+
+  React.useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const selectedPackage = params.get("package");
+    const selectedService = params.get("service");
+    const packageLabel = selectedPackage ? packageLabels[selectedPackage] : undefined;
+
+    const details = packageLabel
+      ? `I'm interested in the ${packageLabel} website package.`
+      : selectedService === "website-pricing"
+        ? "I'm interested in a Good Code website package."
+        : "";
+
+    if (!details) {
+      return;
+    }
+
+    setFormData((current) => (
+      current.details ? current : { ...current, details }
+    ));
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });

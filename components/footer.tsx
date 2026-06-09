@@ -16,6 +16,7 @@ const headingClass =
 const navLinks = [
   { href: "/", label: "Home" },
   { href: "/services", label: "Services" },
+  { href: "/website-pricing", label: "Pricing" },
   { href: "/our-projects", label: "Our Projects" },
   { href: "/contact-us", label: "Contact Us" },
   { href: "/about-us", label: "About Us" },

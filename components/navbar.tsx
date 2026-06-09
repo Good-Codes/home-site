@@ -53,6 +53,7 @@ export default function Navbar() {
           <div className="hidden gap-6 md:flex">
             <NavLink href="/">Home</NavLink>
             <NavLink href="/services">Services</NavLink>
+            <NavLink href="/website-pricing">Pricing</NavLink>
             <NavLink href="/about-us">About us</NavLink>
             <NavLink href="/our-projects">Our Projects</NavLink>
             <NavLink href="/contact-us">Contact us</NavLink>
@@ -144,6 +145,7 @@ export default function Navbar() {
                 {[
                   { href: "/", label: "Home" },
                   { href: "/services", label: "Services" },
+                  { href: "/website-pricing", label: "Pricing" },
                   { href: "/about-us", label: "About Us" },
                   { href: "/our-projects", label: "Our Projects" },
                   { href: "/contact-us", label: "Contact Us" },
