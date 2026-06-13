@@ -53,7 +53,7 @@ export default function HomeProcess() {
       };
 
   return (
-    <section className="bg-white py-24 text-neutral-950 dark:bg-neutral-900 dark:text-neutral-100 sm:py-28">
+    <section className="bg-white py-24 text-neutral-950 dark:bg-neutral-950 dark:text-neutral-100 sm:py-28">
       <div className="container mx-auto max-w-7xl px-6">
         <motion.div
           {...motionProps}
@@ -83,7 +83,7 @@ export default function HomeProcess() {
                   <span className="font-mono text-sm text-neutral-400 dark:text-neutral-500">
                     {String(index + 1).padStart(2, "0")}
                   </span>
-                  <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-[#f0dfd0] text-[#8a5c3d] dark:bg-[#8a5c3d]/20 dark:text-[#d6a477] sm:mt-6">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-neutral-100 text-neutral-700 dark:bg-white/[0.06] dark:text-neutral-300 sm:mt-6">
                     <Icon className="h-5 w-5" aria-hidden />
                   </div>
                 </div>

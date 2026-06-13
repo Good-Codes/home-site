@@ -103,7 +103,7 @@ export default function Services() {
   return (
     <section
       id="services"
-      className="relative overflow-hidden border-y border-neutral-200 bg-[#fbfaf7] py-24 text-neutral-950 dark:border-white/10 dark:bg-neutral-950 dark:text-neutral-100 sm:py-28"
+      className="relative overflow-hidden border-y border-neutral-200 bg-white py-24 text-neutral-950 dark:border-white/10 dark:bg-neutral-950 dark:text-neutral-100 sm:py-28"
     >
       <div className="container mx-auto max-w-7xl px-6">
         <motion.div
@@ -133,13 +133,13 @@ export default function Services() {
             <Link
               key={id}
               href={`#${id}`}
-              className="group flex min-h-64 flex-col justify-between rounded-lg border border-neutral-200 bg-white/75 p-5 shadow-sm shadow-neutral-950/[0.03] transition duration-300 hover:-translate-y-0.5 hover:border-[#67AFA7]/50 hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#67AFA7] focus-visible:ring-offset-4 focus-visible:ring-offset-[#fbfaf7] dark:border-white/10 dark:bg-white/[0.04] dark:shadow-black/20 dark:hover:border-[#67AFA7]/40 dark:hover:bg-white/[0.06] dark:focus-visible:ring-offset-neutral-950"
+              className="group flex min-h-64 flex-col justify-between rounded-lg border border-neutral-200 bg-white p-5 shadow-sm shadow-neutral-950/[0.03] transition duration-300 hover:-translate-y-0.5 hover:border-[#67AFA7]/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#67AFA7] focus-visible:ring-offset-4 focus-visible:ring-offset-white dark:border-white/10 dark:bg-white/[0.04] dark:shadow-black/20 dark:hover:border-[#67AFA7]/40 dark:hover:bg-white/[0.06] dark:focus-visible:ring-offset-neutral-950"
             >
               <span className="flex items-center justify-between gap-4">
-                <span className="text-xs font-semibold uppercase tracking-[0.18em] text-[#8a5c3d] dark:text-[#d6a477]">
+                <span className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500 dark:text-neutral-400">
                   {eyebrow}
                 </span>
-                <Icon className="h-5 w-5 text-[#2f6f69] transition group-hover:scale-105 dark:text-[#9ed9d2]" aria-hidden />
+                <Icon className="h-5 w-5 text-neutral-500 transition group-hover:scale-105 group-hover:text-[#2f6f69] dark:text-neutral-400 dark:group-hover:text-[#9ed9d2]" aria-hidden />
               </span>
 
               <span>
@@ -171,7 +171,7 @@ export default function Services() {
                 <span className="font-mono text-sm text-neutral-400 dark:text-neutral-500">
                   {String(index + 1).padStart(2, "0")}
                 </span>
-                <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-[#67AFA7]/12 text-[#2f6f69] dark:bg-[#67AFA7]/10 dark:text-[#9ed9d2] md:mt-8">
+                <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-neutral-100 text-neutral-700 dark:bg-white/[0.06] dark:text-neutral-300 md:mt-8">
                   <Icon className="h-5 w-5" aria-hidden />
                 </div>
               </div>

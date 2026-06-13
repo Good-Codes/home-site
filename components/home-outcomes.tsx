@@ -54,7 +54,7 @@ export default function HomeOutcomes() {
       };
 
   return (
-    <section className="border-y border-neutral-200 bg-[#f6f2ed] py-24 text-neutral-950 dark:border-white/10 dark:bg-[#111111] dark:text-neutral-100 sm:py-28">
+    <section className="border-y border-neutral-200 bg-white py-24 text-neutral-950 dark:border-white/10 dark:bg-neutral-950 dark:text-neutral-100 sm:py-28">
       <div className="container mx-auto max-w-7xl px-6">
         <motion.div
           {...motionProps}
@@ -79,8 +79,8 @@ export default function HomeOutcomes() {
           className="mt-14 grid gap-px overflow-hidden rounded-lg border border-neutral-200 bg-neutral-200 dark:border-white/10 dark:bg-white/10 md:grid-cols-2"
         >
           {outcomes.map(({ title, description, Icon }) => (
-            <article key={title} className="bg-[#fbfaf7] p-6 dark:bg-neutral-950 sm:p-8">
-              <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-[#67AFA7]/12 text-[#2f6f69] dark:bg-[#67AFA7]/10 dark:text-[#9ed9d2]">
+            <article key={title} className="bg-white p-6 dark:bg-neutral-950 sm:p-8">
+              <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-neutral-100 text-neutral-700 dark:bg-white/[0.06] dark:text-neutral-300">
                 <Icon className="h-5 w-5" aria-hidden />
               </div>
               <h3 className="mt-8 text-2xl font-semibold text-neutral-950 dark:text-white">
@@ -99,7 +99,7 @@ export default function HomeOutcomes() {
         >
           <Link
             href="/our-projects"
-            className="inline-flex items-center gap-2 text-sm font-semibold text-[#2f6f69] transition hover:text-[#1f5550] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#67AFA7] focus-visible:ring-offset-4 focus-visible:ring-offset-[#f6f2ed] dark:text-[#9ed9d2] dark:hover:text-white dark:focus-visible:ring-offset-[#111111]"
+            className="inline-flex items-center gap-2 text-sm font-semibold text-[#2f6f69] transition hover:text-[#1f5550] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#67AFA7] focus-visible:ring-offset-4 focus-visible:ring-offset-white dark:text-[#9ed9d2] dark:hover:text-white dark:focus-visible:ring-offset-neutral-950"
           >
             View selected projects
             <ArrowUpRight className="h-4 w-4" aria-hidden />

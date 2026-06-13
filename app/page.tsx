@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 
 import AboutLink from "@/components/about-link";
 import Hero from "@/components/hero";
+import HomeConnectionField from "@/components/home-connection-field";
 import HomeFinalCta from "@/components/home-final-cta";
 import HomeOutcomes from "@/components/home-outcomes";
 import HomeProcess from "@/components/home-process";
@@ -18,6 +19,7 @@ export default function Page() {
     <main>
       <Hero />
       <Services />
+      <HomeConnectionField />
       <HomeProcess />
       <HomeOutcomes />
       <AboutLink />

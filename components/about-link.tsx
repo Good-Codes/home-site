@@ -26,7 +26,7 @@ const principles = [
 
 export default function AboutLink() {
   return (
-    <section className="bg-white py-24 text-neutral-950 dark:bg-neutral-900 dark:text-neutral-100 sm:py-28">
+    <section className="bg-white py-24 text-neutral-950 dark:bg-neutral-950 dark:text-neutral-100 sm:py-28">
       <div className="container mx-auto max-w-7xl px-6">
         <div className="grid gap-12 lg:grid-cols-[minmax(0,0.72fr)_minmax(22rem,0.42fr)] lg:items-start">
           <div>
@@ -65,7 +65,7 @@ export default function AboutLink() {
           <div className="border-y border-neutral-200 dark:border-white/10">
             {principles.map(({ title, description, Icon }) => (
               <article key={title} className="flex gap-5 border-b border-neutral-200 py-6 last:border-b-0 dark:border-white/10">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#f0dfd0] text-[#8a5c3d] dark:bg-[#8a5c3d]/20 dark:text-[#d6a477]">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-neutral-100 text-neutral-700 dark:bg-white/[0.06] dark:text-neutral-300">
                   <Icon className="h-5 w-5" aria-hidden />
                 </div>
                 <div>
