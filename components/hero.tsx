@@ -28,7 +28,7 @@ export default function Hero() {
               <span>Good tech built by good people</span>
             </div>
 
-            <h1 className="max-w-4xl text-5xl font-semibold leading-[1.02] tracking-tight sm:text-6xl lg:text-7xl">
+            <h1 className="max-w-4xl text-5xl font-semibold leading-[1.02] sm:text-6xl lg:text-7xl">
               Built by people. Powered by good code.
             </h1>
           </div>
