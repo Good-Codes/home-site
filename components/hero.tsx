@@ -14,7 +14,7 @@ export default function Hero() {
   const prefersReducedMotion = useReducedMotion();
 
   return (
-    <section className="relative isolate overflow-hidden bg-white text-neutral-950">
+    <section className="relative isolate overflow-hidden bg-white text-neutral-950 dark:bg-neutral-950 dark:text-neutral-100">
       <div className="container mx-auto max-w-7xl px-6 pb-6 pt-8 sm:pt-10 lg:pt-12">
         <motion.div
           className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_24rem] lg:items-end"
@@ -23,7 +23,7 @@ export default function Hero() {
           transition={{ delay: 0.1, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
         >
           <div>
-            <div className="mb-5 flex items-center gap-3 text-sm font-medium text-[#2f6f69]">
+            <div className="mb-5 flex items-center gap-3 text-sm font-medium text-[#2f6f69] dark:text-[#9ed9d2]">
               <span className="h-px w-10 bg-[#67AFA7]" aria-hidden />
               <span>Good tech built by good people</span>
             </div>
@@ -34,7 +34,7 @@ export default function Hero() {
           </div>
 
           <div className="lg:pb-1">
-            <p className="text-base leading-7 text-neutral-700 sm:text-lg">
+            <p className="text-base leading-7 text-neutral-700 dark:text-neutral-300 sm:text-lg">
               We design and build digital tools that help businesses move clearly, effectively, and meaningfully online.
             </p>
 
@@ -53,7 +53,7 @@ export default function Hero() {
                 asChild
                 variant="outline"
                 size="lg"
-                className="border-neutral-300 bg-white text-neutral-950 hover:bg-neutral-50"
+                className="border-neutral-300 bg-white text-neutral-950 hover:bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800"
               >
                 <Link href="#services">
                   Explore services
@@ -70,10 +70,10 @@ export default function Hero() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.25, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
         >
-          <div className="flex flex-col gap-4 text-sm font-medium text-neutral-700 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col gap-4 text-sm font-medium text-neutral-700 dark:text-neutral-300 sm:flex-row sm:items-center sm:justify-between">
             <p>Strategy, design, development, hosting, and ongoing support, all under one roof.</p>
             <ul
-              className="flex flex-wrap gap-x-6 gap-y-2 font-semibold uppercase text-neutral-950"
+              className="flex flex-wrap gap-x-6 gap-y-2 font-semibold uppercase text-neutral-950 dark:text-neutral-100"
               aria-label="Good Code capabilities"
             >
               {["Strategy", "Design", "Development", "Support"].map((item) => (
@@ -90,15 +90,24 @@ export default function Hero() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
       >
-        <div className="relative overflow-hidden bg-white sm:rounded-t-lg sm:border-x sm:border-t sm:border-neutral-900/10 sm:shadow-2xl sm:shadow-neutral-950/10">
+        <div className="relative aspect-[1916/821] overflow-hidden bg-white dark:bg-neutral-950 sm:rounded-t-lg sm:border-x sm:border-t sm:border-neutral-900/10 sm:shadow-2xl sm:shadow-neutral-950/10 dark:sm:border-white/10 dark:sm:shadow-black/40">
           <Image
             src="/team_potrait.png"
-            alt="Conceptual artwork of the Good Code team formed from thousands of tiny people, symbolising collaboration and human connection."
-            width={1916}
-            height={821}
+            alt=""
+            aria-hidden="true"
+            fill
             priority
             sizes="(min-width: 1916px) 1916px, 100vw"
-            className="h-auto w-full"
+            className="object-cover opacity-100 transition-opacity duration-700 ease-in-out dark:opacity-0"
+          />
+          <Image
+            src="/team_potrait_dark.png"
+            alt=""
+            aria-hidden="true"
+            fill
+            priority
+            sizes="(min-width: 1916px) 1916px, 100vw"
+            className="object-cover opacity-0 transition-opacity duration-700 ease-in-out dark:opacity-100"
           />
         </div>
         <figcaption className="sr-only">
