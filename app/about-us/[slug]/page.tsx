@@ -43,15 +43,15 @@ export default async function BioPage({ params }: { params: Promise<{ slug: stri
   if (!member) notFound();
 
   return (
-    <main className="min-h-screen bg-white py-24 dark:bg-neutral-950">
+    <main className="min-h-screen bg-white py-24 text-neutral-950 dark:bg-neutral-950 dark:text-neutral-100">
       <div className="container mx-auto max-w-3xl px-6">
         {/* Back link */}
-        <Link href="/about-us" className="text-sm text-neutral-500 hover:text-neutral-900 dark:hover:text-neutral-100">
+        <Link href="/about-us" className="text-sm font-medium text-neutral-500 transition hover:text-[#2f6f69] dark:hover:text-[#9ed9d2]">
           &larr; Back to team
         </Link>
 
         {/* Photo */}
-        <div className="relative mt-8 h-72 w-full overflow-hidden rounded-xl bg-neutral-200 dark:bg-neutral-800 sm:h-96">
+        <div className="relative mt-8 h-72 w-full overflow-hidden rounded-lg border border-neutral-200 bg-neutral-100 dark:border-white/10 dark:bg-white/[0.06] sm:h-96">
           <Image
             src={member.image}
             alt={`Photo of ${member.name}`}
@@ -61,7 +61,7 @@ export default async function BioPage({ params }: { params: Promise<{ slug: stri
         </div>
 
         {/* Name & role */}
-        <h1 className="mt-8 text-3xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100 md:text-4xl">
+        <h1 className="mt-8 text-4xl font-semibold leading-tight text-neutral-950 dark:text-white md:text-5xl">
           {member.name}
         </h1>
         <p className="mt-2 text-lg text-neutral-500 dark:text-neutral-400">

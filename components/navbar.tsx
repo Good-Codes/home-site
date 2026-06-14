@@ -31,7 +31,7 @@ export default function Navbar() {
         variants={headerVariants}
         initial="hidden"
         animate="visible"
-        className="sticky top-0 z-50 w-full bg-background"
+        className="sticky top-0 z-50 w-full border-b border-neutral-200 bg-white/90 backdrop-blur-xl dark:border-white/10 dark:bg-neutral-950/90"
       >
         <nav className="container mx-auto flex items-center justify-between px-3 py-1.5 md:px-4 md:py-2">
           {/* Brand */}
@@ -98,9 +98,9 @@ export default function Navbar() {
             {/* Glass panel */}
             <motion.div
               className="
-                fixed inset-x-4 top-4 z-[70] overflow-hidden rounded-2xl
-                border border-white/20 shadow-2xl shadow-black/20
-                bg-white/75 dark:bg-neutral-900/75
+                fixed inset-x-4 top-4 z-[70] overflow-hidden rounded-lg
+                border border-neutral-200 shadow-2xl shadow-black/20
+                bg-white/90 dark:border-white/10 dark:bg-neutral-950/90
                 backdrop-blur-2xl backdrop-saturate-150
               "
               initial={{ opacity: 0, scale: 0.92, y: -20 }}
@@ -160,11 +160,11 @@ export default function Navbar() {
                       href={href}
                       onClick={() => setMenuOpen(false)}
                       className="
-                        block rounded-xl px-3 py-2.5 text-[15px] font-medium
+                        block rounded-md px-3 py-2.5 text-[15px] font-medium
                         text-neutral-700 dark:text-neutral-200
                         transition duration-200
-                        hover:bg-white/60 dark:hover:bg-white/10
-                        hover:text-[#67AFA7] dark:hover:text-[#67AFA7]
+                        hover:bg-neutral-100 dark:hover:bg-white/10
+                        hover:text-[#2f6f69] dark:hover:text-[#9ed9d2]
                         active:scale-[0.98]
                       "
                     >
@@ -180,7 +180,7 @@ export default function Navbar() {
               {/* CTA */}
               <div className="px-4 py-4">
                 <Link href="/contact-us" onClick={() => setMenuOpen(false)}>
-                  <Button size="sm" className="w-full rounded-xl">
+                  <Button size="sm" className="w-full rounded-md bg-[#67AFA7] text-white hover:bg-[#559e97]">
                     Get a Quote
                   </Button>
                 </Link>
@@ -209,8 +209,7 @@ function NavLink({
       className="
         text-sm font-medium
         transition duration-300 ease-in-out
-        hover:text-[#67AFA7] dark:hover:text-[#67AFA7]
-        hover:[text-shadow:0_0_10px_#67AFA7] dark:hover:[text-shadow:0_0_10px_#67AFA7]
+        hover:text-[#2f6f69] dark:hover:text-[#9ed9d2]
       "
     >
       {children}

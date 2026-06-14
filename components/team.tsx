@@ -45,7 +45,7 @@ export default function Team() {
   return (
     <section
       id="team"
-      className="bg-white py-24 dark:bg-neutral-950"
+      className="bg-white py-24 text-neutral-950 dark:bg-neutral-950 dark:text-neutral-100 sm:py-28"
     >
       <div className="container mx-auto max-w-6xl px-6">
         {/* Section heading */}
@@ -55,11 +55,14 @@ export default function Team() {
           whileInView="visible"
           viewport={{ once: true }}
         >
-          <h2 className="text-center text-3xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100 md:text-4xl">
+          <p className="text-center text-xs font-semibold uppercase tracking-[0.22em] text-[#2f6f69] dark:text-[#9ed9d2]">
+            The team
+          </p>
+          <h2 className="mx-auto mt-4 max-w-3xl text-center text-4xl font-semibold leading-tight text-neutral-950 dark:text-white sm:text-5xl">
             The Team Behind Your Next Digital Milestone
           </h2>
-          <p className="mx-auto mt-4 max-w-2xl text-center text-base text-neutral-600 dark:text-neutral-400">
-            A small, senior‑led crew that cares deeply about craft, collaboration and quality.
+          <p className="mx-auto mt-5 max-w-2xl text-center text-base leading-7 text-neutral-600 dark:text-neutral-300">
+            A small, senior-led team that cares deeply about craft, collaboration, and quality.
           </p>
         </motion.div>
 
@@ -76,14 +79,13 @@ export default function Team() {
               <div className="group block h-full">
                 <Card
                   className="
-                    flex h-full flex-col overflow-hidden bg-neutral-50 dark:bg-neutral-900
+                    flex h-full flex-col overflow-hidden border-neutral-200 bg-white shadow-sm shadow-neutral-950/[0.03] dark:border-white/10 dark:bg-white/[0.04] dark:shadow-black/20
                     transform transition duration-300 ease-in-out
-                    hover:-translate-y-1 hover:scale-100
-                    hover:shadow-lg hover:shadow-[#67AFA7] dark:hover:shadow-[#67AFA7]
+                    hover:-translate-y-0.5 hover:scale-100 hover:border-[#67AFA7]/50
                   "
                 >
                 {/* Photo */}
-                <div className="relative h-28 sm:h-56 w-full bg-neutral-200 dark:bg-neutral-800">
+                <div className="relative h-28 w-full bg-neutral-100 dark:bg-white/[0.06] sm:h-56">
                   <Image
                     src={image}
                     alt={`Photo of ${name}`}
@@ -100,16 +102,16 @@ export default function Team() {
 
                 {/* Bio */}
                 <CardContent className="flex flex-1 flex-col justify-between px-3 pb-3 pt-0 sm:px-6 sm:pb-6 sm:pt-0">
-                  <p className="hidden sm:block min-h-[4.5rem] text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
+                  <p className="hidden min-h-[4.5rem] text-sm leading-relaxed text-neutral-600 dark:text-neutral-300 sm:block">
                     {truncateWords(bio, 18)}
                   </p>
-                  <p className="sm:hidden text-[11px] leading-relaxed text-neutral-600 dark:text-neutral-400">
+                  <p className="text-[11px] leading-relaxed text-neutral-600 dark:text-neutral-300 sm:hidden">
                     {truncateWords(bio, 10)}
                   </p>
                   <div className="mt-2 sm:mt-4 opacity-100 transition-opacity duration-300 sm:opacity-0 sm:group-hover:opacity-100">
                     <Link href={`/about-us/${slug}`}>
                       <span
-                        className="inline-flex items-center rounded-md border border-neutral-300 px-2 py-1 text-[10px] sm:px-3 sm:py-1.5 sm:text-xs font-medium text-neutral-800 transition-colors hover:bg-neutral-100 dark:border-neutral-700 dark:text-neutral-200 dark:hover:bg-neutral-800"
+                        className="inline-flex items-center rounded-md border border-neutral-300 px-2 py-1 text-[10px] font-medium text-neutral-800 transition-colors hover:border-[#67AFA7]/50 hover:text-[#2f6f69] dark:border-neutral-700 dark:text-neutral-200 dark:hover:border-[#67AFA7]/50 dark:hover:text-[#9ed9d2] sm:px-3 sm:py-1.5 sm:text-xs"
                       >
                         Read more
                       </span>

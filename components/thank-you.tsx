@@ -1,56 +1,42 @@
 "use client";
 
-import React from "react";
 import Link from "next/link";
-import TypewriterComponent from "typewriter-effect";
-import { Button } from "@/components/ui/button";
+import { CheckCircle2 } from "lucide-react";
 import { motion } from "framer-motion";
-import MatrixBackground from "@/components/ui/matrix-background";
+
+import { Button } from "@/components/ui/button";
 
 export default function ThankYou() {
   const sectionVariants = {
-    hidden: { opacity: 0, y: 30 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] } }
+    hidden: { opacity: 0, y: 24 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] } },
   };
 
   return (
     <motion.section
-      className="relative isolate w-full overflow-hidden bg-background min-h-[100vh] flex items-center"
+      className="flex min-h-screen items-center border-b border-neutral-200 bg-white py-24 text-neutral-950 dark:border-white/10 dark:bg-neutral-950 dark:text-neutral-100"
       variants={sectionVariants}
       initial="hidden"
-      whileInView="visible"
-      viewport={{ once: true }}
+      animate="visible"
     >
-      <MatrixBackground />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 -z-10 flex justify-center"
-      />
-
-      <div className="container mx-auto px-6 text-center">
-        <h1 className="mx-auto max-w-4xl text-5xl font-bold tracking-tight text-neutral-900 dark:text-neutral-100 md:text-7xl">
-          Thank You
-        </h1>
-
-        <div className="mx-auto mt-2 max-w-3xl text-xl font-bold text-neutral-900 dark:text-neutral-100 md:text-2xl">
-          <TypewriterComponent
-            options={{
-              strings: [
-                "Your message has been sent.",
-                "Our team will contact you shortly.",
-                "We look forward to creating some Good Code together!"
-              ],
-              autoStart: true,
-              loop: true,
-              cursor: "|"
-            }}
-          />
+      <div className="container mx-auto max-w-4xl px-6 text-center">
+        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-lg bg-neutral-100 text-neutral-700 dark:bg-white/[0.06] dark:text-neutral-300">
+          <CheckCircle2 className="h-6 w-6" aria-hidden />
         </div>
+        <p className="mt-8 text-xs font-semibold uppercase tracking-[0.22em] text-[#2f6f69] dark:text-[#9ed9d2]">
+          Message sent
+        </p>
+        <h1 className="mx-auto mt-4 max-w-3xl text-5xl font-semibold leading-tight text-neutral-950 dark:text-white md:text-7xl">
+          Thank you.
+        </h1>
+        <p className="mx-auto mt-6 max-w-2xl text-base leading-7 text-neutral-600 dark:text-neutral-300">
+          Your message has been sent. Our team will review it and get back to you shortly.
+        </p>
 
-        <div className="mt-10 flex flex-wrap justify-center gap-4">
-          <Link href="/">
-            <Button size="lg">Back to Home</Button>
-          </Link>
+        <div className="mt-10 flex flex-wrap justify-center gap-3">
+          <Button asChild size="lg" className="bg-[#67AFA7] text-white hover:bg-[#559e97]">
+            <Link href="/">Back to Home</Link>
+          </Button>
         </div>
       </div>
     </motion.section>

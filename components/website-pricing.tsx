@@ -1,5 +1,4 @@
 import Link from "next/link";
-import MatrixBackground from "@/components/ui/matrix-background";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -156,7 +155,7 @@ function SectionHeading({
       <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#2f6f69] dark:text-[#9ed9d2]">
         {eyebrow}
       </p>
-      <h2 className="mt-3 text-3xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100 md:text-4xl">
+      <h2 className="mt-3 text-3xl font-semibold text-neutral-900 dark:text-neutral-100 md:text-4xl">
         {title}
       </h2>
       {description && (
@@ -188,7 +187,7 @@ function BrandButton({
         variant === "solid" &&
           "bg-[#67AFA7] text-white hover:bg-[#559e97] focus-visible:ring-[#67AFA7]/50",
         variant === "outline" &&
-          "border-neutral-300 bg-white/80 text-neutral-900 hover:bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-900/60 dark:text-neutral-100 dark:hover:bg-neutral-800",
+          "border-neutral-300 bg-white text-neutral-900 hover:bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-950 dark:text-neutral-100 dark:hover:bg-white/[0.06]",
         className,
       )}
     >
@@ -200,22 +199,12 @@ function BrandButton({
 export default function WebsitePricing() {
   return (
     <>
-      <section className="relative isolate overflow-hidden bg-background py-20 sm:py-24 lg:py-28">
-        <MatrixBackground />
-        <div
-          aria-hidden
-          className="absolute inset-0 -z-20 bg-[linear-gradient(to_right,rgba(103,175,167,0.12)_1px,transparent_1px),linear-gradient(to_bottom,rgba(103,175,167,0.10)_1px,transparent_1px)] bg-[size:36px_36px]"
-        />
-        <div
-          aria-hidden
-          className="absolute inset-x-0 bottom-0 -z-10 h-px bg-neutral-200 dark:bg-neutral-800"
-        />
-
+      <section className="relative isolate overflow-hidden border-b border-neutral-200 bg-white py-20 text-neutral-950 dark:border-white/10 dark:bg-neutral-950 dark:text-neutral-100 sm:py-24 lg:py-28">
         <div className="container mx-auto max-w-6xl px-6 text-center">
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#2f6f69] dark:text-[#9ed9d2]">
             Website Services
           </p>
-          <h1 className="mx-auto mt-4 max-w-5xl text-4xl font-bold tracking-tight text-neutral-900 dark:text-neutral-100 sm:text-5xl md:text-6xl">
+          <h1 className="mx-auto mt-4 max-w-5xl text-4xl font-bold text-neutral-900 dark:text-neutral-100 sm:text-5xl md:text-6xl">
             Clear website packages for growing businesses
           </h1>
           <p className="mx-auto mt-6 max-w-3xl text-base leading-7 text-neutral-600 dark:text-neutral-300 sm:text-lg">
@@ -238,7 +227,7 @@ export default function WebsitePricing() {
             ].map(([label, value]) => (
               <div
                 key={label}
-                className="rounded-xl border border-neutral-200 bg-white/85 p-4 text-left shadow-sm backdrop-blur dark:border-neutral-800 dark:bg-neutral-900/75"
+                className="rounded-lg border border-neutral-200 bg-white p-4 text-left shadow-sm shadow-neutral-950/[0.03] dark:border-white/10 dark:bg-white/[0.04] dark:shadow-black/20"
               >
                 <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#2f6f69] dark:text-[#9ed9d2]">
                   {label}
@@ -252,7 +241,7 @@ export default function WebsitePricing() {
         </div>
       </section>
 
-      <section id="packages" className="bg-white py-20 dark:bg-neutral-900 sm:py-24">
+      <section id="packages" className="bg-white py-20 dark:bg-neutral-950 sm:py-24">
         <div className="container mx-auto max-w-7xl px-6">
           <SectionHeading
             eyebrow="Packages"
@@ -268,9 +257,9 @@ export default function WebsitePricing() {
                 <Card
                   key={tier.name}
                   className={cn(
-                    "relative h-full border-neutral-200 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-lg dark:border-neutral-800 dark:bg-neutral-900",
+                    "relative h-full rounded-lg border-neutral-200 bg-white shadow-sm shadow-neutral-950/[0.03] transition duration-300 hover:-translate-y-0.5 hover:border-[#67AFA7]/50 dark:border-white/10 dark:bg-white/[0.04] dark:shadow-black/20",
                     featured &&
-                      "border-[#67AFA7]/70 shadow-md shadow-[#67AFA7]/20 ring-1 ring-[#67AFA7]/20",
+                      "border-[#67AFA7]/70 ring-1 ring-[#67AFA7]/20",
                   )}
                 >
                   {tier.badge && (
@@ -288,7 +277,7 @@ export default function WebsitePricing() {
                       <span className="pb-1 text-sm font-medium text-neutral-500 dark:text-neutral-400">
                         from
                       </span>
-                      <span className="text-4xl font-semibold tracking-tight text-neutral-950 dark:text-white">
+                      <span className="text-4xl font-semibold text-neutral-950 dark:text-white">
                         {tier.price}
                       </span>
                     </div>
@@ -296,7 +285,7 @@ export default function WebsitePricing() {
                       {tier.fit}
                     </p>
 
-                    <ul className="mt-6 space-y-3 border-t border-neutral-200 pt-6 dark:border-neutral-800">
+                    <ul className="mt-6 space-y-3 border-t border-neutral-200 pt-6 dark:border-white/10">
                       {tier.features.map((feature) => (
                         <li
                           key={feature}
@@ -326,7 +315,7 @@ export default function WebsitePricing() {
         </div>
       </section>
 
-      <section className="bg-neutral-50 py-20 dark:bg-neutral-950 sm:py-24">
+      <section className="border-t border-neutral-200 bg-white py-20 dark:border-white/10 dark:bg-neutral-950 sm:py-24">
         <div className="container mx-auto grid max-w-7xl gap-8 px-6 lg:grid-cols-[minmax(0,1.25fr)_minmax(20rem,0.75fr)]">
           <div>
             <SectionHeading
@@ -336,9 +325,9 @@ export default function WebsitePricing() {
               className="text-left [&_*]:text-left"
             />
 
-            <div className="mt-8 overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
+            <div className="mt-8 overflow-hidden rounded-lg border border-neutral-200 bg-white shadow-sm shadow-neutral-950/[0.03] dark:border-white/10 dark:bg-white/[0.04] dark:shadow-black/20">
               <table className="w-full border-collapse text-sm">
-                <thead className="bg-neutral-100 text-left text-xs uppercase tracking-[0.16em] text-neutral-500 dark:bg-neutral-800/70 dark:text-neutral-400">
+                <thead className="bg-neutral-50 text-left text-xs uppercase tracking-[0.16em] text-neutral-500 dark:bg-white/[0.06] dark:text-neutral-400">
                   <tr>
                     <th scope="col" className="px-5 py-4 font-semibold">
                       Add-on
@@ -348,7 +337,7 @@ export default function WebsitePricing() {
                     </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-neutral-200 dark:divide-neutral-800">
+                <tbody className="divide-y divide-neutral-200 dark:divide-white/10">
                   {addOns.map(([item, price]) => (
                     <tr key={item}>
                       <th
@@ -368,9 +357,9 @@ export default function WebsitePricing() {
           </div>
 
           <div className="grid gap-6">
-            <Card className="border-neutral-200 bg-white shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
+            <Card className="rounded-lg border-neutral-200 bg-white shadow-sm shadow-neutral-950/[0.03] dark:border-white/10 dark:bg-white/[0.04] dark:shadow-black/20">
               <CardContent className="p-6">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#67AFA7]/12 text-[#2f6f69] dark:bg-[#67AFA7]/10 dark:text-[#9ed9d2]">
+                <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-neutral-100 text-neutral-700 dark:bg-white/[0.06] dark:text-neutral-300">
                   <Clock3 className="h-6 w-6" aria-hidden />
                 </div>
                 <h2 className="mt-5 text-2xl font-semibold text-neutral-900 dark:text-neutral-100">
@@ -380,9 +369,9 @@ export default function WebsitePricing() {
                   For work outside the original scope, ad-hoc changes are billed
                   at the relevant hourly rate after approval.
                 </p>
-                <div className="mt-6 overflow-hidden rounded-lg border border-neutral-200 dark:border-neutral-800">
+                <div className="mt-6 overflow-hidden rounded-lg border border-neutral-200 dark:border-white/10">
                   <table className="w-full text-sm">
-                    <tbody className="divide-y divide-neutral-200 dark:divide-neutral-800">
+                    <tbody className="divide-y divide-neutral-200 dark:divide-white/10">
                       {hourlyRates.map(([workType, rate]) => (
                         <tr key={workType}>
                           <th
@@ -402,9 +391,9 @@ export default function WebsitePricing() {
               </CardContent>
             </Card>
 
-            <Card className="border-[#67AFA7]/30 bg-[#67AFA7]/10 shadow-none dark:border-[#67AFA7]/20 dark:bg-[#67AFA7]/10">
+            <Card className="rounded-lg border-neutral-200 bg-white shadow-sm shadow-neutral-950/[0.03] dark:border-white/10 dark:bg-white/[0.04] dark:shadow-black/20">
               <CardContent className="p-6">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white text-[#2f6f69] shadow-sm dark:bg-neutral-900 dark:text-[#9ed9d2]">
+                <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-neutral-100 text-neutral-700 dark:bg-white/[0.06] dark:text-neutral-300">
                   <CreditCard className="h-6 w-6" aria-hidden />
                 </div>
                 <h2 className="mt-5 text-2xl font-semibold text-neutral-900 dark:text-neutral-100">
@@ -420,7 +409,7 @@ export default function WebsitePricing() {
         </div>
       </section>
 
-      <section className="bg-white py-20 dark:bg-neutral-900 sm:py-24">
+      <section className="border-t border-neutral-200 bg-white py-20 dark:border-white/10 dark:bg-neutral-950 sm:py-24">
         <div className="container mx-auto max-w-7xl px-6">
           <SectionHeading
             eyebrow="Care Plans"
@@ -432,17 +421,16 @@ export default function WebsitePricing() {
             {carePlans.map((plan) => (
               <Card
                 key={plan.name}
-                className="border-neutral-200 bg-neutral-50 shadow-none transition hover:-translate-y-0.5 hover:border-[#67AFA7]/50 dark:border-neutral-800 dark:bg-neutral-900"
+                className="rounded-lg border-neutral-200 bg-white shadow-sm shadow-neutral-950/[0.03] transition hover:-translate-y-0.5 hover:border-[#67AFA7]/50 dark:border-white/10 dark:bg-white/[0.04] dark:shadow-black/20"
               >
                 <CardContent className="p-6">
-                  <LifeBuoy
-                    className="h-6 w-6 text-[#2f6f69] dark:text-[#9ed9d2]"
-                    aria-hidden
-                  />
+                  <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-neutral-100 text-neutral-700 dark:bg-white/[0.06] dark:text-neutral-300">
+                    <LifeBuoy className="h-5 w-5" aria-hidden />
+                  </div>
                   <h3 className="mt-5 text-xl font-semibold text-neutral-900 dark:text-neutral-100">
                     {plan.name}
                   </h3>
-                  <p className="mt-3 text-3xl font-semibold tracking-tight text-neutral-950 dark:text-white">
+                  <p className="mt-3 text-3xl font-semibold text-neutral-950 dark:text-white">
                     {plan.price}
                   </p>
                   <p className="mt-4 text-sm leading-6 text-neutral-600 dark:text-neutral-300">
@@ -455,14 +443,14 @@ export default function WebsitePricing() {
         </div>
       </section>
 
-      <section className="bg-neutral-50 py-20 dark:bg-neutral-950 sm:py-24">
+      <section className="border-t border-neutral-200 bg-white py-20 dark:border-white/10 dark:bg-neutral-950 sm:py-24">
         <div className="container mx-auto max-w-7xl px-6">
           <div className="grid gap-12 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] lg:items-start">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#2f6f69] dark:text-[#9ed9d2]">
                 How it works
               </p>
-              <h2 className="mt-3 text-3xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100 md:text-4xl">
+              <h2 className="mt-3 text-3xl font-semibold text-neutral-900 dark:text-neutral-100 md:text-4xl">
                 From enquiry to go-live
               </h2>
               <p className="mt-4 text-base leading-7 text-neutral-600 dark:text-neutral-300">
@@ -475,9 +463,9 @@ export default function WebsitePricing() {
               {processSteps.map((step, index) => (
                 <li
                   key={step}
-                  className="rounded-xl border border-neutral-200 bg-white p-4 shadow-sm dark:border-neutral-800 dark:bg-neutral-900"
+                  className="rounded-lg border border-neutral-200 bg-white p-4 shadow-sm shadow-neutral-950/[0.03] dark:border-white/10 dark:bg-white/[0.04] dark:shadow-black/20"
                 >
-                  <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#67AFA7]/12 text-sm font-semibold text-[#2f6f69] dark:bg-[#67AFA7]/10 dark:text-[#9ed9d2]">
+                  <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-neutral-100 text-sm font-semibold text-[#2f6f69] dark:bg-white/[0.06] dark:text-[#9ed9d2]">
                     {index + 1}
                   </span>
                   <p className="mt-4 text-sm font-semibold text-neutral-900 dark:text-neutral-100">
@@ -490,13 +478,13 @@ export default function WebsitePricing() {
         </div>
       </section>
 
-      <section className="bg-white py-20 dark:bg-neutral-900 sm:py-24">
+      <section className="border-t border-neutral-200 bg-white py-20 dark:border-white/10 dark:bg-neutral-950 sm:py-24">
         <div className="container mx-auto grid max-w-7xl gap-10 px-6 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]">
           <div>
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#67AFA7]/12 text-[#2f6f69] dark:bg-[#67AFA7]/10 dark:text-[#9ed9d2]">
+            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-neutral-100 text-neutral-700 dark:bg-white/[0.06] dark:text-neutral-300">
               <HelpCircle className="h-6 w-6" aria-hidden />
             </div>
-            <h2 className="mt-5 text-3xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100 md:text-4xl">
+            <h2 className="mt-5 text-3xl font-semibold text-neutral-900 dark:text-neutral-100 md:text-4xl">
               Questions before you quote?
             </h2>
             <p className="mt-4 text-base leading-7 text-neutral-600 dark:text-neutral-300">
@@ -505,7 +493,7 @@ export default function WebsitePricing() {
             </p>
           </div>
 
-          <div className="divide-y divide-neutral-200 rounded-xl border border-neutral-200 bg-neutral-50 dark:divide-neutral-800 dark:border-neutral-800 dark:bg-neutral-950">
+          <div className="divide-y divide-neutral-200 rounded-lg border border-neutral-200 bg-white shadow-sm shadow-neutral-950/[0.03] dark:divide-white/10 dark:border-white/10 dark:bg-white/[0.04] dark:shadow-black/20">
             {faqs.map((faq) => (
               <details key={faq.question} className="group p-5">
                 <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-left text-base font-semibold text-neutral-900 outline-none transition hover:text-[#2f6f69] focus-visible:rounded-md focus-visible:ring-2 focus-visible:ring-[#67AFA7] dark:text-neutral-100 dark:hover:text-[#9ed9d2] [&::-webkit-details-marker]:hidden">
@@ -526,10 +514,10 @@ export default function WebsitePricing() {
 
       <section className="bg-neutral-950 py-20 text-white dark:bg-black sm:py-24">
         <div className="container mx-auto max-w-5xl px-6 text-center">
-          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-xl bg-[#67AFA7]/15 text-[#9ed9d2]">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-lg bg-[#67AFA7]/15 text-[#9ed9d2]">
             <ShieldCheck className="h-7 w-7" aria-hidden />
           </div>
-          <h2 className="mx-auto mt-6 max-w-3xl text-3xl font-semibold tracking-tight md:text-4xl">
+          <h2 className="mx-auto mt-6 max-w-3xl text-3xl font-semibold md:text-4xl">
             Ready to price your website properly?
           </h2>
           <p className="mx-auto mt-4 max-w-2xl text-base leading-7 text-neutral-300">

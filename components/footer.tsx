@@ -8,10 +8,10 @@ import { MapPin, Phone, Mail } from "lucide-react";
 import { useTheme } from "next-themes";
 
 const linkClass =
-  "text-sm text-neutral-600 transition-colors duration-300 hover:text-[#67AFA7] dark:text-neutral-300 dark:hover:text-[#67AFA7]";
+  "text-sm text-neutral-600 transition-colors duration-300 hover:text-[#2f6f69] dark:text-neutral-300 dark:hover:text-[#9ed9d2]";
 
 const headingClass =
-  "mb-2 text-xs font-semibold uppercase tracking-wider text-neutral-600 dark:text-neutral-400";
+  "mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500 dark:text-neutral-400";
 
 const navLinks = [
   { href: "/", label: "Home" },
@@ -35,7 +35,7 @@ export default function Footer() {
     : "/light_mode_logo.png";
 
   return (
-    <footer className="bg-neutral-100 py-6 dark:bg-neutral-900">
+    <footer className="border-t border-neutral-200 bg-white py-8 dark:border-white/10 dark:bg-neutral-950">
       <div className="container mx-auto max-w-7xl px-4">
         {/* ── Mobile layout (< md): compact horizontal strip ── */}
         <div className="flex flex-col items-center gap-4 md:hidden">

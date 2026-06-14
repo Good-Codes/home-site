@@ -55,7 +55,7 @@ export default function AboutLink() {
                 asChild
                 variant="outline"
                 size="lg"
-                className="border-neutral-300 bg-white text-neutral-950 hover:bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800"
+                className="border-neutral-300 bg-white text-neutral-950 hover:bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-950 dark:text-neutral-100 dark:hover:bg-white/[0.06]"
               >
                 <Link href="/contact-us">Talk to us</Link>
               </Button>

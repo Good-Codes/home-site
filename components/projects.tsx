@@ -96,17 +96,17 @@ const projects: Project[] = [
 
 export default function Projects() {
 	return (
-		<section className="bg-white py-12 sm:py-24 dark:bg-neutral-900">
+		<section className="bg-white py-20 text-neutral-950 dark:bg-neutral-950 dark:text-neutral-100 sm:py-28">
 			<div className="container mx-auto max-w-6xl px-4 sm:px-6">
 			<div className="flex items-center justify-center gap-2 sm:gap-3">
-				<div className="flex h-10 w-10 sm:h-14 sm:w-14 items-center justify-center rounded-2xl bg-[#67AFA7]/12 text-[#2f6f69] dark:bg-[#67AFA7]/10 dark:text-[#9ed9d2]">
-					<FileText className="h-5 w-5 sm:h-7 sm:w-7" aria-hidden />
+				<div className="flex h-10 w-10 items-center justify-center rounded-lg bg-neutral-100 text-neutral-700 dark:bg-white/[0.06] dark:text-neutral-300 sm:h-11 sm:w-11">
+					<FileText className="h-5 w-5" aria-hidden />
 				</div>
-				<h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100 md:text-4xl">
+				<h1 className="text-3xl font-semibold text-neutral-950 dark:text-white sm:text-4xl md:text-5xl">
 					Our Projects
 				</h1>
 			</div>
-				<p className="mx-auto mt-3 sm:mt-4 max-w-2xl text-center text-sm sm:text-base text-neutral-600 dark:text-neutral-300">
+				<p className="mx-auto mt-4 max-w-2xl text-center text-sm leading-7 text-neutral-600 dark:text-neutral-300 sm:text-base">
 					Examples of solutions we have delivered across web, mobile, and cloud platforms.
 				</p>
 
@@ -120,7 +120,7 @@ export default function Projects() {
 					{projects.map((project) => (
 						<motion.div key={project.name} variants={cardVariants} className="w-full md:w-[calc(50%-1rem)]">
 						<Card
-							className="flex h-full flex-col border-transparent bg-neutral-50 shadow-md sm:shadow-lg shadow-[#67AFA7] dark:bg-neutral-800/50 dark:shadow-[#67AFA7]"
+							className="flex h-full flex-col border-neutral-200 bg-white shadow-sm shadow-neutral-950/[0.03] transition duration-300 hover:-translate-y-0.5 hover:border-[#67AFA7]/50 dark:border-white/10 dark:bg-white/[0.04] dark:shadow-black/20"
 						>
 							<CardHeader className="p-4 sm:p-6">
 								<CardTitle className="text-base sm:text-xl text-neutral-900 dark:text-neutral-100">
@@ -130,7 +130,7 @@ export default function Projects() {
 
 							<CardContent className="flex h-full flex-1 flex-col gap-3 sm:gap-6 px-4 sm:px-6">
 								<div>
-									<h2 className="text-xs sm:text-sm font-semibold uppercase tracking-wide text-neutral-700 dark:text-neutral-200">
+									<h2 className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500 dark:text-neutral-400 sm:text-sm">
 										Client:
 									</h2>
 									<p className="mt-1 sm:mt-3 text-xs sm:text-sm text-neutral-600 dark:text-neutral-300">
@@ -139,7 +139,7 @@ export default function Projects() {
 								</div>
 
 								<div>
-									<h2 className="text-xs sm:text-sm font-semibold uppercase tracking-wide text-neutral-700 dark:text-neutral-200">
+									<h2 className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500 dark:text-neutral-400 sm:text-sm">
 										Project Overview:
 									</h2>
 									<p className="mt-1 sm:mt-3 text-xs sm:text-sm leading-relaxed text-neutral-600 dark:text-neutral-300">
@@ -148,14 +148,14 @@ export default function Projects() {
 								</div>
 
 								<div>
-									<h2 className="text-xs sm:text-sm font-semibold uppercase tracking-wide text-neutral-700 dark:text-neutral-200">
+									<h2 className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500 dark:text-neutral-400 sm:text-sm">
 										Technologies:
 									</h2>
 									<div className="mt-1.5 sm:mt-3 flex flex-wrap gap-1.5 sm:gap-2">
 										{project.technologies.map((technology) => (
 											<span
 												key={technology}
-												className="inline-flex rounded-full border border-neutral-200 bg-white px-2 py-0.5 text-[10px] sm:text-xs text-neutral-600 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-300"
+												className="inline-flex rounded-full border border-neutral-200 bg-white px-2 py-0.5 text-[10px] text-neutral-600 dark:border-white/10 dark:bg-neutral-950 dark:text-neutral-300 sm:text-xs"
 											>
 												{technology}
 											</span>

@@ -95,28 +95,31 @@ export default function Contact() {
   return (
     <motion.section
       id="contact"
-      className="bg-neutral-50 dark:bg-neutral-900 py-24"
+      className="bg-white py-24 text-neutral-950 dark:bg-neutral-950 dark:text-neutral-100 sm:py-28"
       variants={sectionVariants}
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true }}
     >
-      <div className="container mx-auto px-6 text-center">
-        <div className="flex items-center justify-center gap-3">
-          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#67AFA7]/12 text-[#2f6f69] dark:bg-[#67AFA7]/10 dark:text-[#9ed9d2]">
-            <Phone className="h-7 w-7" aria-hidden />
+      <div className="container mx-auto max-w-7xl px-6">
+        <div className="mx-auto max-w-3xl text-center">
+          <div className="mx-auto flex h-11 w-11 items-center justify-center rounded-lg bg-neutral-100 text-neutral-700 dark:bg-white/[0.06] dark:text-neutral-300">
+            <Phone className="h-5 w-5" aria-hidden />
           </div>
-          <h2 className="text-3xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100 md:text-4xl">
+          <p className="mt-8 text-xs font-semibold uppercase tracking-[0.22em] text-[#2f6f69] dark:text-[#9ed9d2]">
+            Contact
+          </p>
+          <h2 className="mt-4 text-4xl font-semibold leading-tight text-neutral-950 dark:text-white sm:text-5xl">
             Get in Touch
           </h2>
+          <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-neutral-600 dark:text-neutral-300">
+            Tell us about your project, and we'll get back to you with a practical next step.
+          </p>
         </div>
-        <p className="mx-auto mt-4 max-w-2xl text-neutral-600 dark:text-neutral-300">
-          Tell us about your project, and we’ll get back to you with a quote.
-        </p>
 
         <motion.form
           onSubmit={handleSubmit}
-          className="mx-auto mt-10 grid max-w-2xl gap-6 md:grid-cols-2"
+          className="mx-auto mt-12 grid max-w-3xl gap-6 rounded-lg border border-neutral-200 bg-white p-6 shadow-sm shadow-neutral-950/[0.03] dark:border-white/10 dark:bg-white/[0.04] dark:shadow-black/20 md:grid-cols-2 md:p-8"
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
@@ -178,7 +181,7 @@ export default function Contact() {
           </motion.div>
 
           <motion.div variants={fieldVariants} className="md:col-span-2">
-              <Button size="lg" type="submit" className="w-full">
+              <Button size="lg" type="submit" className="w-full bg-[#67AFA7] text-white hover:bg-[#559e97] focus-visible:ring-[#67AFA7]">
                 Submit
               </Button>
           </motion.div>

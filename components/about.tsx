@@ -19,55 +19,51 @@ export default function About() {
   return (
     <motion.section
       id="about"
-      className="relative isolate overflow-hidden bg-neutral-50 pt-24 pb-12 dark:bg-neutral-950"
+      className="relative isolate overflow-hidden border-b border-neutral-200 bg-white py-24 text-neutral-950 dark:border-white/10 dark:bg-neutral-950 dark:text-neutral-100 sm:py-28"
       variants={sectionVariants}
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true }}
     >
-      <div className="container mx-auto max-w-3xl px-6 text-center">
-        <div className="flex items-center justify-center gap-3">
-          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#67AFA7]/12 text-[#2f6f69] dark:bg-[#67AFA7]/10 dark:text-[#9ed9d2]">
-            <HelpCircle className="h-7 w-7" aria-hidden />
-          </div>
-          <div className="text-left">
-            <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[#67AFA7]">
-              About
+      <div className="container mx-auto max-w-7xl px-6">
+        <div className="grid gap-10 lg:grid-cols-[0.42fr_minmax(0,0.7fr)] lg:items-start">
+          <div>
+            <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-neutral-100 text-neutral-700 dark:bg-white/[0.06] dark:text-neutral-300">
+              <HelpCircle className="h-5 w-5" aria-hidden />
+            </div>
+            <p className="mt-8 text-xs font-semibold uppercase tracking-[0.22em] text-[#2f6f69] dark:text-[#9ed9d2]">
+              About Good Code
             </p>
-            <h2 className="mt-1 text-2xl font-bold tracking-tight text-neutral-900 dark:text-neutral-100 sm:text-3xl">
-              Restoring Trust In Technology.
+            <h2 className="mt-4 max-w-xl text-4xl font-semibold leading-tight text-neutral-950 dark:text-white sm:text-5xl">
+              Restoring trust in technology.
             </h2>
           </div>
+
+          <div>
+            <p className="max-w-2xl text-base leading-7 text-neutral-600 dark:text-neutral-300">
+              Good Code was founded to bridge the widening gap between business expectations and technical delivery. Too often, that gap is filled with complexity, inflated costs, and unclear ownership.
+            </p>
+            <p className="mt-5 max-w-2xl text-base leading-7 text-neutral-600 dark:text-neutral-300">
+              Our purpose is to remove the black box from development. We believe technical excellence and moral clarity belong together: clear tradeoffs, reliable delivery, and software clients can understand.
+            </p>
+
+            <Button
+              variant="outline"
+              size="lg"
+              className="mt-9 border-neutral-300 bg-white text-neutral-950 hover:bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-950 dark:text-neutral-100 dark:hover:bg-white/[0.06]"
+              onClick={() => {
+                const target = document.getElementById("team");
+                if (target) {
+                  const top = Math.max(0, target.getBoundingClientRect().top + window.scrollY - 112);
+                  window.scrollTo({ top, behavior: "smooth" });
+                }
+              }}
+            >
+              Meet the Team
+              <ChevronDown className="ml-1.5 h-4 w-4" />
+            </Button>
+          </div>
         </div>
-
-        <p className="mx-auto mt-10 max-w-2xl text-base leading-relaxed text-neutral-600 dark:text-neutral-300">
-          The brand is centered around restoring trust in technology. We founded
-          Good Code to bridge the widening gap between business expectations and
-          technical delivery. Too often, that gap is filled with complexity and
-          inflated costs.
-        </p>
-        <p className="mx-auto mt-4 max-w-2xl text-base leading-relaxed text-neutral-600 dark:text-neutral-300">
-          Our purpose is to eliminate the black box of development, replacing
-          exploitation with radical transparency. We exist to prove that
-          technical excellence and moral integrity are not mutually exclusive;
-          they are the twin pillars of true success.
-        </p>
-
-        <Button
-          variant="outline"
-          size="lg"
-          className="mt-10"
-          onClick={() => {
-            const target = document.getElementById("team");
-            if (target) {
-              const top = Math.max(0, target.getBoundingClientRect().top + window.scrollY - 112);
-              window.scrollTo({ top, behavior: "smooth" });
-            }
-          }}
-        >
-          Meet the Team
-          <ChevronDown className="ml-1.5 h-4 w-4" />
-        </Button>
       </div>
     </motion.section>
   );
