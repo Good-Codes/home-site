@@ -2,14 +2,15 @@
 
 import Link from "next/link";
 import { CheckCircle2 } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion, type Variants } from "framer-motion";
 
 import { Button } from "@/components/ui/button";
+import { smoothEase } from "@/lib/motion";
 
 export default function ThankYou() {
-  const sectionVariants = {
+  const sectionVariants: Variants = {
     hidden: { opacity: 0, y: 24 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] } },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: smoothEase } },
   };
 
   return (

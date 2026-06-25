@@ -2,18 +2,19 @@
 "use client";
 
 import React from "react";
-import { motion } from "framer-motion";
+import { motion, type Variants } from "framer-motion";
 import { HelpCircle, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { smoothEase } from "@/lib/motion";
 
 /**
  * About section – conveys Good Code's story, ethos, and differentiators.
  * Layout with generous whitespace, subtle depth, and animated highlights.
  */
 export default function About() {
-  const sectionVariants = {
+  const sectionVariants: Variants = {
     hidden: { opacity: 0, y: 30 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] } }
+    visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: smoothEase } }
   };
 
   return (

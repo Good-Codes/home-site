@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ArrowUpRight, Gauge, LockKeyhole, Network, Workflow } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { motion, useReducedMotion } from "framer-motion";
+import { smoothEase } from "@/lib/motion";
 
 const outcomes: Outcome[] = [
   {
@@ -42,7 +43,7 @@ export default function HomeOutcomes() {
   const prefersReducedMotion = useReducedMotion();
   const transition = {
     duration: 0.7,
-    ease: [0.22, 1, 0.36, 1] as [number, number, number, number],
+    ease: smoothEase,
   };
   const motionProps = prefersReducedMotion
     ? {}

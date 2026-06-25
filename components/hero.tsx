@@ -6,6 +6,7 @@ import { ArrowRight, Layers3 } from "lucide-react";
 import { motion, useReducedMotion } from "framer-motion";
 
 import { Button } from "@/components/ui/button";
+import { smoothEase } from "@/lib/motion";
 
 /**
  * Homepage hero anchored by the Good Code team mosaic artwork.
@@ -20,7 +21,7 @@ export default function Hero() {
           className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_24rem] lg:items-end"
           initial={prefersReducedMotion ? false : { opacity: 0, y: 22 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+          transition={{ delay: 0.1, duration: 0.7, ease: smoothEase }}
         >
           <div>
             <div className="mb-5 flex items-center gap-3 text-sm font-medium text-[#2f6f69] dark:text-[#9ed9d2]">
@@ -68,7 +69,7 @@ export default function Hero() {
           className="mt-8 sm:mt-10 lg:mt-12"
           initial={prefersReducedMotion ? false : { opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.25, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+          transition={{ delay: 0.25, duration: 0.7, ease: smoothEase }}
         >
           <div className="flex flex-col gap-4 text-sm font-medium text-neutral-700 dark:text-neutral-300 sm:flex-row sm:items-center sm:justify-between">
             <p>Strategy, design, development, hosting, and ongoing support, all under one roof.</p>
@@ -88,7 +89,7 @@ export default function Hero() {
         className="relative mx-auto w-full max-w-[1916px] px-0 sm:px-6"
         initial={prefersReducedMotion ? false : { opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+        transition={{ delay: 0.2, duration: 0.8, ease: smoothEase }}
       >
         <div className="relative aspect-[1916/821] overflow-hidden bg-white dark:bg-neutral-950 sm:rounded-t-lg sm:border-x sm:border-t sm:border-neutral-900/10 sm:shadow-2xl sm:shadow-neutral-950/10 dark:sm:border-white/10 dark:sm:shadow-black/40">
           <Image

@@ -3,6 +3,7 @@
 import { Code2, Compass, MessageSquare, Rocket } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { motion, useReducedMotion } from "framer-motion";
+import { smoothEase } from "@/lib/motion";
 
 const steps: ProcessStep[] = [
   {
@@ -41,7 +42,7 @@ export default function HomeProcess() {
   const prefersReducedMotion = useReducedMotion();
   const transition = {
     duration: 0.7,
-    ease: [0.22, 1, 0.36, 1] as [number, number, number, number],
+    ease: smoothEase,
   };
   const motionProps = prefersReducedMotion
     ? {}

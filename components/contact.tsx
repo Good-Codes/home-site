@@ -7,8 +7,9 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { motion } from 'framer-motion';
+import { motion, type Variants } from 'framer-motion';
 import { Phone } from 'lucide-react';
+import { smoothEase } from "@/lib/motion";
 
 const packageLabels: Record<string, string> = {
   starter: "Starter",
@@ -27,15 +28,15 @@ export default function Contact() {
   const [errorMessage, setErrorMessage] = useState("");
   const router = useRouter();
 
-  const sectionVariants = {
+  const sectionVariants: Variants = {
     hidden: { opacity: 0, y: 30 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] } }
+    visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: smoothEase } }
   };
-  const containerVariants = {
+  const containerVariants: Variants = {
     hidden: {},
     visible: { transition: { staggerChildren: 0.15 } }
   };
-  const fieldVariants = {
+  const fieldVariants: Variants = {
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: 'easeOut' } }
   };

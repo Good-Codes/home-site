@@ -7,7 +7,8 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Menu, Sun, Moon, X } from "lucide-react";
 import { useTheme } from "next-themes";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, type Variants } from "framer-motion";
+import { smoothEase } from "@/lib/motion";
 
 /**
  * Primary site navigation bar.
@@ -20,9 +21,9 @@ export default function Navbar() {
   React.useEffect(() => setMounted(true), []);
   const toggleTheme = () => setTheme(theme === "dark" ? "light" : "dark");
 
-  const headerVariants = {
+  const headerVariants: Variants = {
     hidden: { opacity: 0, y: -50 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] } }
+    visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: smoothEase } }
   };
 
   return (
