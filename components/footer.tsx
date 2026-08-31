@@ -60,18 +60,18 @@ export default function Footer() {
 
           {/* Contact row */}
           <div className="flex flex-wrap justify-center gap-x-5 gap-y-1 text-xs text-neutral-600 dark:text-neutral-300">
-            <a href="tel:+27123456789" className={linkClass}>
-              <Phone className="mr-1 inline h-3.5 w-3.5" />+27 12 345 6789
+            <a href="tel:+27835603912" className={linkClass}>
+              <Phone className="mr-1 inline h-3.5 w-3.5" />+27 83 560 3912
             </a>
-            <a href="mailto:info@goodcode.com" className={linkClass}>
-              <Mail className="mr-1 inline h-3.5 w-3.5" />info@goodcode.com
+            <a href="mailto:2bc.katlego@gmail.com" className={linkClass}>
+              <Mail className="mr-1 inline h-3.5 w-3.5" />2bc.katlego@gmail.com
             </a>
           </div>
 
           {/* Address — single line */}
           <p className="text-center text-xs text-neutral-500 dark:text-neutral-400">
             <MapPin className="mr-1 inline h-3.5 w-3.5" />
-            123 Code Street, Polokwane City, PLK 10101, South Africa
+            16 Kigelia Street, Polokwane City, 0699, South Africa
           </p>
         </div>
 
@@ -112,8 +112,8 @@ export default function Footer() {
             <h3 className={headingClass}>Visit Us</h3>
             <address className="not-italic text-sm text-neutral-600 dark:text-neutral-300">
               <MapPin className="mx-auto mb-2 inline-block h-5 w-5" />
-              <p>123 Code Street</p>
-              <p>Polokwane City, PLK 10101</p>
+              <p>16 Kigelia Street</p>
+              <p>Polokwane City, 0699</p>
               <p>South Africa</p>
             </address>
           </div>
@@ -124,14 +124,14 @@ export default function Footer() {
             <ul className="space-y-2 text-neutral-600 dark:text-neutral-300">
               <li className="flex items-center justify-center gap-2">
                 <Phone className="h-4 w-4" />
-                <a href="tel:+27123456789" className={linkClass}>
-                  +27 12 345 6789
+                <a href="tel:+27835603912" className={linkClass}>
+                  +27 83 560 3912
                 </a>
               </li>
               <li className="flex items-center justify-center gap-2">
                 <Mail className="h-4 w-4" />
-                <a href="mailto:info@goodcode.com" className={linkClass}>
-                  info@goodcode.com
+                <a href="mailto:2bc.katlego@gmail.com" className={linkClass}>
+                  2bc.katlego@gmail.com
                 </a>
               </li>
             </ul>
