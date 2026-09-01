@@ -1,0 +1,174 @@
+export type ProjectProofTag =
+  | "payments"
+  | "multi-tenant"
+  | "banking"
+  | "cloud"
+  | "identity"
+  | "integrations"
+  | "workflow"
+  | "test-automation";
+
+export type Project = {
+  name: string;
+  client: string;
+  technologies: string[];
+  overview: string;
+  platformLink: string;
+  proofTags: ProjectProofTag[];
+};
+
+export const projects: Project[] = [
+  {
+    name: "FlexiDrive",
+    client: "AO Group",
+    technologies: [
+      "Python",
+      "Django Rest Framework",
+      "Cartrack API",
+      "Intellidrive API",
+      "TransUnion API",
+      "Experian API",
+      "DirectDebit",
+      "Signio",
+      "Notion",
+    ],
+    overview:
+      "We strengthened a dealership management platform so teams could make faster, better-informed decisions across vehicle sales and finance operations. The work improved visibility into vehicle location and mileage, brought trusted valuation and credit insight into the workflow, and supported more consistent deal assessment. We also streamlined application capture and payment scheduling, helping the business reduce friction for staff while improving confidence in lending-related decisions.",
+    platformLink: "https://flexidrive.co.za/",
+    proofTags: ["payments", "integrations", "workflow"],
+  },
+  {
+    name: "Fininly",
+    client: "Fininly (Maxcrowdfund derivative)",
+    technologies: [
+      "C# .NET",
+      "ABP Boilerplate",
+      "Angular",
+      "Event-Driven Architecture",
+      "Sumsub (KYC)",
+      "OPP (Online Payment Platform)",
+      "SQL Server",
+    ],
+    overview:
+      "We delivered a multi-tenant crowdfunding platform designed to support growth, investor trust, and operational control. The platform enabled secure onboarding, compliant identity verification, and dependable payment handling, while giving the business a foundation to serve multiple tenants without duplicating effort. It also established a scalable operational model that could evolve with future cloud migration plans.",
+    platformLink: "https://www.fininly.com/",
+    proofTags: ["payments", "multi-tenant", "identity", "cloud"],
+  },
+  {
+    name: "Maximise",
+    client: "Maxcrowdfund (Netherlands)",
+    technologies: [
+      "Vue.js",
+      "Express.js",
+      "Directus CMS",
+      "Azure Pipelines",
+      "Azure Cloud",
+      "JavaScript",
+    ],
+    overview:
+      "We delivered a crowdfunding loan platform that helped the client launch and operate with greater speed, flexibility, and control. The solution supported core lending functions across payments, repayment schedules, and both individual and company journeys, making the platform easier to manage as business requirements evolved. We also supported the shift to a more resilient cloud-based delivery model, improving operational reliability over time.",
+    platformLink: "https://app.maxcrowdfund.com/",
+    proofTags: ["payments", "cloud", "workflow"],
+  },
+  {
+    name: "Currency Assist Magic System",
+    client: "AO Group",
+    technologies: [
+      "React",
+      "Next.js",
+      "Tailwind CSS",
+      "Python",
+      "Django Rest Framework",
+      "PostgreSQL",
+      "Docker",
+      "CircleCI",
+      "DigitalOcean",
+      "OpenAPI",
+      "Google Docs API",
+      "SonarCloud",
+    ],
+    overview:
+      "We built a platform that gave the business a clearer, more controlled way to manage currency trading and payment administration. The solution brought trading activity, payment operations, and document handling into a more cohesive workflow, reducing manual overhead and improving day-to-day efficiency. It also created a stronger operational foundation for reliable releases, quality control, and long-term maintainability.",
+    platformLink: "https://www.currencyassist.com/",
+    proofTags: ["payments", "integrations", "workflow", "cloud"],
+  },
+  {
+    name: "PayZilch",
+    client: "Mashlab Digital",
+    technologies: [
+      "React",
+      "Redux",
+      "Redux-Saga",
+      "Java",
+      "SpringBoot",
+      "Maven",
+      "AWS (S3, EC2)",
+      "SQL Server",
+      "GitHub",
+    ],
+    overview:
+      "We helped deliver a buy-now-pay-later platform focused on smoother customer journeys and dependable internal operations. The solution supported the full flow from user interaction to document handling and transaction processing, giving the business a stronger foundation for scaling responsibly. It also improved release reliability, helping the platform evolve without compromising operational confidence.",
+    platformLink: "https://www.zilch.com/",
+    proofTags: ["payments", "cloud", "workflow"],
+  },
+  {
+    name: "Corporate Internet Banking Solution (C2B)",
+    client: "Sybrin Systems Limited Works",
+    technologies: [
+      "Angular 5",
+      "MVC (C#)",
+      "SQL Server",
+      "Redux",
+      "JWT",
+      ".NET Framework",
+    ],
+    overview:
+      "We developed an enterprise corporate internet banking platform that enabled businesses to transact with their banks more efficiently across upper Africa. The solution supported secure session handling, reliable transaction processing, and high-performance access to critical banking data, helping the platform meet the demands of enterprise usage. The result was a stronger operational backbone for business-to-bank interactions at scale.",
+    platformLink: "https://www.sybrin.com/c2b",
+    proofTags: ["banking", "payments", "workflow"],
+  },
+  {
+    name: "Adumo Online - Odoo Payment Gateway Custom Module",
+    client: "AO Group",
+    technologies: [
+      "Python",
+      "Odoo Web Library",
+      "Postgress SQL",
+      "Adumo Online API",
+      "JWT",
+      "Odoo App Store",
+    ],
+    overview:
+      "We built a custom payment module that enabled merchants using Odoo to accept card payments through Adumo Online with greater confidence and control. The solution supported secure checkout journeys, dependable transaction status handling, and better alignment with real-world payment operations such as refunds, tokenized payments, and manual capture. It gave the business a practical way to extend Odoo's native commerce capabilities without compromising payment integrity.",
+    platformLink: "https://www.adumoonline.com/",
+    proofTags: ["payments", "integrations"],
+  },
+  {
+    name: "End-to-End Test Automation Platform (Crypto Exchange)",
+    client: "VALR Technologies",
+    technologies: [
+      "Kotlin",
+      "Kubernetes",
+      "GitLab CI/CD",
+      "Jira",
+      "REST APIs",
+      "Docker",
+    ],
+    overview:
+      "We developed and maintained an end-to-end automation platform that helped a high-volume cryptocurrency exchange protect confidence in its most critical workflows. The coverage focused on the business functions that matter most in a live trading environment, including trading activity, wallet operations, funding flows, and liquidation scenarios. By improving regression confidence and release readiness, the platform supported stronger transactional integrity, risk control, and operational reliability.",
+    platformLink: "https://www.valr.com/en/",
+    proofTags: ["test-automation", "integrations", "cloud"],
+  },
+];
+
+export function getProjectsForProof(tags: ProjectProofTag[], limit = 2) {
+  return projects
+    .map((project) => ({
+      project,
+      score: project.proofTags.filter((tag) => tags.includes(tag)).length,
+    }))
+    .filter(({ score }) => score > 0)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, limit)
+    .map(({ project }) => project);
+}

@@ -202,15 +202,57 @@ export default function WebsitePricing() {
       <section className="relative isolate overflow-hidden border-b border-neutral-200 bg-white py-20 text-neutral-950 dark:border-white/10 dark:bg-neutral-950 dark:text-neutral-100 sm:py-24 lg:py-28">
         <div className="container mx-auto max-w-6xl px-6 text-center">
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#2f6f69] dark:text-[#9ed9d2]">
-            Website Services
+            Pricing
           </p>
           <h1 className="mx-auto mt-4 max-w-5xl text-4xl font-bold text-neutral-900 dark:text-neutral-100 sm:text-5xl md:text-6xl">
-            Clear website packages for growing businesses
+            Choose the right pricing path
           </h1>
           <p className="mx-auto mt-6 max-w-3xl text-base leading-7 text-neutral-600 dark:text-neutral-300 sm:text-lg">
-            Choose a scoped website package, add the extras you need, and get a
-            professional Good Code build with clear pricing from the start.
+            Marketing websites follow clear packages. Custom products need a
+            planning estimate before a specialist quotation.
           </p>
+
+          <div className="mx-auto mt-12 grid max-w-4xl gap-4 text-left sm:grid-cols-2">
+            <a
+              href="#packages"
+              className="rounded-lg border border-neutral-200 bg-white p-6 shadow-sm shadow-neutral-950/[0.03] transition hover:-translate-y-0.5 hover:border-[#67AFA7]/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#67AFA7] dark:border-white/10 dark:bg-white/[0.04] dark:shadow-black/20"
+            >
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#2f6f69] dark:text-[#9ed9d2]">
+                Option A
+              </p>
+              <h2 className="mt-3 text-xl font-semibold text-neutral-900 dark:text-neutral-100">
+                I need a business website
+              </h2>
+              <p className="mt-3 text-sm leading-6 text-neutral-600 dark:text-neutral-300">
+                For marketing sites, brochure websites, landing pages, blogs,
+                and standard business enquiries.
+              </p>
+              <span className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-[#2f6f69] dark:text-[#9ed9d2]">
+                Continue to website packages
+                <ArrowRight className="h-4 w-4" aria-hidden />
+              </span>
+            </a>
+
+            <Link
+              href="/custom-software-estimator"
+              className="rounded-lg border border-[#67AFA7]/70 bg-white p-6 shadow-sm shadow-neutral-950/[0.03] ring-1 ring-[#67AFA7]/20 transition hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#67AFA7] dark:bg-white/[0.04] dark:shadow-black/20"
+            >
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#2f6f69] dark:text-[#9ed9d2]">
+                Option B
+              </p>
+              <h2 className="mt-3 text-xl font-semibold text-neutral-900 dark:text-neutral-100">
+                I need a custom product or system
+              </h2>
+              <p className="mt-3 text-sm leading-6 text-neutral-600 dark:text-neutral-300">
+                For platforms, portals, mobile apps, workflows, integrations,
+                payments, data products, and cloud systems.
+              </p>
+              <span className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-[#2f6f69] dark:text-[#9ed9d2]">
+                Start Project Blueprint
+                <ArrowRight className="h-4 w-4" aria-hidden />
+              </span>
+            </Link>
+          </div>
 
           <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <BrandButton href={quoteHref()}>Get a quote</BrandButton>
@@ -311,6 +353,30 @@ export default function WebsitePricing() {
                 </Card>
               );
             })}
+          </div>
+        </div>
+      </section>
+
+      <section className="border-t border-neutral-200 bg-white py-16 dark:border-white/10 dark:bg-neutral-950">
+        <div className="container mx-auto max-w-5xl px-6">
+          <div className="rounded-lg border border-neutral-200 bg-white p-8 shadow-sm shadow-neutral-950/[0.03] dark:border-white/10 dark:bg-white/[0.04] dark:shadow-black/20 sm:p-10">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#2f6f69] dark:text-[#9ed9d2]">
+              Project Blueprint
+            </p>
+            <h2 className="mt-3 text-2xl font-semibold text-neutral-900 dark:text-neutral-100 md:text-3xl">
+              Building something more complex than a website?
+            </h2>
+            <p className="mt-4 max-w-2xl text-base leading-7 text-neutral-600 dark:text-neutral-300">
+              Estimate a platform, portal, mobile app, internal system, or
+              integrated product. You will receive a planning range and delivery
+              window—not a fixed quote.
+            </p>
+            <div className="mt-6">
+              <BrandButton href="/custom-software-estimator">
+                Estimate a custom product
+                <ArrowRight className="h-4 w-4" aria-hidden />
+              </BrandButton>
+            </div>
           </div>
         </div>
       </section>

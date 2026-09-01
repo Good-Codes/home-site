@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import WebsitePricing from "@/components/website-pricing";
 
 export const metadata: Metadata = {
-  title: "Website Pricing",
+  title: "Pricing",
   description:
-    "Compare Good Code website packages, add-ons, hourly rates, monthly care plans, payment terms, and get a clear quote for your business website.",
+    "Choose website packages or estimate a custom software product with Project Blueprint. Clear website pricing and indicative custom-product planning ranges from Good Code.",
 };
 
 export default function WebsitePricingPage() {
