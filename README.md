@@ -37,9 +37,11 @@ sudo nginx -t && sudo systemctl reload nginx
 
 Point DNS A records for `goodcode.co.za` and `www.goodcode.co.za` at `156.38.220.234`.
 
-Optional TLS after DNS is live:
+Optional TLS after DNS is live. Certbot is not installed on the VPS by default:
 
 ```bash
+sudo apt update
+sudo apt install -y certbot python3-certbot-nginx
 sudo certbot --nginx -d goodcode.co.za -d www.goodcode.co.za
 ```
 
