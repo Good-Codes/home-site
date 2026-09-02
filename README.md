@@ -6,31 +6,47 @@ First, run the development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font).
 
-## Learn More
+## Deploy on the TruServ VPS (Docker)
 
-To learn more about Next.js, take a look at the following resources:
+Production is a single Next.js container. Host nginx already serves other apps on this machine (Antler on `127.0.0.1:3000`, stag-hunt on `127.0.0.1:3001`), so this site publishes **localhost-only** on **port 3002**.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+docker compose up --build -d
+curl -sI http://127.0.0.1:3002
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+If 3002 is already taken, change only the left-hand port in `docker-compose.yml` (`127.0.0.1:HOST_PORT:3000`) and the `proxy_pass` port in the nginx sample.
 
-## Deploy on Vercel
+### nginx
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Copy the sample vhost, then reload nginx. This does not replace the Antler site (`server_name 156.38.220.234`).
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+sudo cp deploy/nginx/goodcode.co.za.conf /etc/nginx/sites-available/goodcode.co.za
+sudo ln -s /etc/nginx/sites-available/goodcode.co.za /etc/nginx/sites-enabled/
+sudo nginx -t && sudo systemctl reload nginx
+```
+
+Point DNS A records for `goodcode.co.za` and `www.goodcode.co.za` at `156.38.220.234`.
+
+Optional TLS after DNS is live:
+
+```bash
+sudo certbot --nginx -d goodcode.co.za -d www.goodcode.co.za
+```
+
+### Useful Compose commands
+
+```bash
+docker compose up --build -d
+docker compose logs -f web
+docker compose down
+```
