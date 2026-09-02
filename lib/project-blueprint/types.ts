@@ -209,7 +209,7 @@ export type DeadlineConflictResolution =
  * Option values use stable taxonomy IDs (e.g. `surface.public_web`).
  */
 export type ProjectBlueprintAnswers = {
-  /** Free-text idea from “Describe my idea” mode. */
+  /** Free-text idea from intake. */
   ideaText?: string | null;
   /** Classifier suggestions the user confirmed. */
   confirmedSuggestions?: string[];
@@ -287,6 +287,44 @@ export type IdeaClassificationResult = {
   questionsRequiringConfirmation: string[];
   /** Never includes prices or numeric estimates. */
   notes: string[];
+};
+
+export type IntakeStatus = "needs_clarification" | "ready" | "website_handoff";
+
+export type IntakeConcept = {
+  headline: string;
+  summary: string;
+  whoItsFor: string;
+  coreCapabilities: string[];
+  assumptions: string[];
+};
+
+export type IntakeClarifyingOption = {
+  id: string;
+  label: string;
+  description?: string;
+};
+
+export type IntakeClarifyingQuestion = {
+  id: string;
+  prompt: string;
+  help?: string;
+  kind: "single" | "multi";
+  options: IntakeClarifyingOption[];
+};
+
+export type IntakeClarificationAnswer = {
+  questionId: string;
+  values: string[];
+};
+
+export type IntakeResult = {
+  status: IntakeStatus;
+  concept: IntakeConcept;
+  answers: ProjectBlueprintAnswers;
+  clarifyingQuestions: IntakeClarifyingQuestion[];
+  usedFallback: boolean;
+  round: number;
 };
 
 export type ReviewSummarySection = {

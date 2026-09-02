@@ -58,13 +58,15 @@ Pricing page decision
   → Website packages / contact (existing)
   → /custom-software-estimator
       → Hero (Project Blueprint brand + promise)
-      → Mode: Guided OR Describe my idea (suggestions → confirm)
-      → Screens 1–7 (adaptive follow-ups)
-      → Review summary (edit any answer)
-      → Calculate (server) → Results (value first)
+      → Describe the idea (one textarea)
+      → Optional: 0–3 high-impact follow-ups if something important is missing (max two rounds)
+      → Concept preview (“what we understood”)
+      → Calculate (server engine) → Results (value first)
       → Optional: save/email/PDF, upload brief, book next step (lead)
       → Admin inbox → review → quotation versions → approve → issue
 ```
+
+Website-shaped descriptions hand off to `/website-pricing` instead of calculating a custom estimate.
 
 **Resume:** Opaque token (hash stored server-side) + HTTP-only cookie for same device; optional expiring share link. No account required for estimate or resume.
 
@@ -76,21 +78,16 @@ Pricing page decision
 
 | Screen | Purpose | Primary UI | Exit |
 |--------|---------|------------|------|
-| **0 · Route** | Website vs custom product types | Two clear choices; website exits to pricing | Custom continues |
-| **Hero** | Brand + trust | “Project Blueprint” hero-level; title “Custom Software Cost Estimator”; one supporting line; CTA group | Start guided / describe |
-| **Mode** | Guided vs describe | Describe yields taxonomy chips to confirm—never auto-prices | Confirmed → Screen 1 |
-| **1 · Context** | Starting point + desired outcome | Cards + help | Next |
-| **2 · Surfaces** | Web / mobile / admin / etc. | Multi-select; mobile follow-ups when selected | Next |
-| **3 · Users** | Roles, scale, multi-tenant signals | Segmented controls | Next |
-| **4 · Capabilities** | Access, workflows, payments, data, communication, intelligence | Grouped checklist; dependency foundations auto-included and non-removable | Next |
-| **5 · Integrations** | Systems, APIs, migration | Multi-select + unknown | Next |
-| **6 · Quality & risk** | Security, compliance, delivery risk | Regulated follow-ups when needed | Next |
-| **7 · Readiness** | Assets, product maturity, timing; **budget last/optional** | Sliders/selects; budget labelled non-pricing | Review |
-| **Review** | Plain-language summary | Edit links per section; confidence cues | Calculate |
-| **Results** | Value delivery | Scenarios, timeline, drivers, assumptions, blueprint visual, proof | Lead actions |
+| **Hero** | Brand + trust | “Project Blueprint” hero-level; title “Custom Software Cost Estimator”; describe-the-idea promise; CTA group | Start estimate |
+| **Describe** | Free-text intake | One textarea. Server OpenAI intake maps the idea onto the catalogue. Never prices from text. | Website handoff, follow-ups, or preview |
+| **Clarifications** | Fill high-impact gaps only | At most 3 whitelist questions, at most 2 rounds | Preview |
+| **Concept preview** | Confirm inferred scope | Headline, who it is for, capabilities, assumptions, unknowns | Calculate or edit description |
+| **Results** | Value delivery | Scenarios, timeline, drivers, assumptions, concept brief | Lead actions |
 | **Lead** | Capture after value | Name, email, company, phone optional, consent, preferred next step | Confirmation |
 
-**Chrome:** Desktop sticky blueprint summary; mobile summary drawer. Progress indicator. Autosave status (saved / saving / retry). Calm motion; respect `prefers-reduced-motion`.
+The 8-screen guided catalogue remains the **taxonomy source of truth** for intake mapping and the estimate engine. It is not the public journey.
+
+**Chrome:** Calm motion; respect `prefers-reduced-motion`. Autosave status when a session exists.
 
 ---
 
@@ -378,7 +375,8 @@ Typed handlers under `app/api/project-blueprint/` (and/or server actions sharing
 | `POST /session` | Anonymous + CSRF/origin | Create session; set HTTP-only cookie; return public session id |
 | `POST /session/resume` | Token or cookie | Validate hash; reject expired |
 | `PATCH /session/answers` | Session auth | Debounced autosave; write `answer_revisions` |
-| `POST /classify` | Session | Keyword classifier; optional AI adapter; Zod-validated suggestions only |
+| `POST /intake` | Anonymous + rate limit | OpenAI (or keyword fallback) maps idea text onto catalogue answers + concept brief; 0–3 follow-ups; **never prices** |
+| `POST /classify` | Session | Keyword classifier; optional AI adapter; Zod-validated suggestions only (legacy) |
 | `POST /calculate` | Session | Server engine; persist `estimate_results`; never return private rates |
 | `POST /recalculate` | Session | New result row |
 | `POST /leads` | Session + consent | Idempotent on session |
@@ -397,7 +395,7 @@ Typed handlers under `app/api/project-blueprint/` (and/or server actions sharing
 - Default-deny RLS; browser uses anon key only for permitted session paths if any; mutations prefer service role via server DAL after authz checks.
 - Session resume: random opaque token; store **hash only**; `PROJECT_BLUEPRINT_SESSION_SECRET` in HMAC/hash.
 - CSRF/origin checks on cookie-authenticated routes; Zod on all inputs; output encoding on documents.
-- Rate limits on classify, calculate, lead, upload, email.
+- Rate limits on intake, classify, calculate, lead, upload, email.
 - Uploads: private quarantine bucket; deny download until `scan_status = clean`; fail closed if scanner unavailable (estimator still usable without upload).
 - POPIA-minded retention (see operations); redacted structured logs (no idea text, emails, or rates in analytics).
 - Security headers on Vercel; least-privilege service keys; admin MFA encouraged at IdP.
@@ -408,7 +406,7 @@ Typed handlers under `app/api/project-blueprint/` (and/or server actions sharing
 
 `analytics_events.event_name` (enum-like text) + `properties` JSONB **non-sensitive only**.
 
-**Suggested events:** `estimator_view`, `mode_selected`, `screen_completed`, `review_viewed`, `estimate_calculated`, `scenario_viewed`, `lead_submitted`, `document_emailed`, `pdf_downloaded`, `upload_started`, `upload_clean`, `session_resumed`, `session_expired`, `admin_quote_issued`.
+**Suggested events:** `estimator_view`, `intake_clarification_requested`, `intake_ready`, `intake_website_handoff`, `review_viewed`, `estimate_calculated`, `scenario_viewed`, `lead_submitted`, `document_emailed`, `pdf_downloaded`, `upload_started`, `upload_clean`, `session_resumed`, `session_expired`, `admin_quote_issued`.
 
 **Never send:** idea descriptions, PII, raw answers, filenames, rates, margins, traces.
 
@@ -512,8 +510,8 @@ Vitest (+ fast-check where useful):
 Playwright + `@axe-core/playwright`:
 
 - Website vs custom routing from pricing page
-- Guided and describe modes (confirm suggestions)
-- Back/edit, autosave, resume cookie, expired session
+- Describe → optional clarifications → concept preview → calculate
+- Website-shaped descriptions hand off to `/website-pricing`
 - Value-before-lead on results
 - Optional scope → new result revision
 - Lead + consent; email/PDF happy path (mocked providers)
@@ -548,6 +546,6 @@ See `docs/project-blueprint/operations.md` for operational steps.
 |-------|--------|
 | **MVP** | Spec + schema + domain/engine + public estimator UI + deterministic seeded calculate + results (value before lead) + basic lead capture |
 | **Admin** | Auth roles, inbox, quote editor, approvals, documents/email/PDF, quarantined uploads, pricing publish flow |
-| **Intelligence** | Optional AI classify adapter, analytics funnel, calibration records/UI, hardening, full a11y/responsive/error audit |
+| **Intelligence** | OpenAI intake (taxonomy mapping, no prices), analytics funnel, calibration records/UI, hardening, full a11y/responsive/error audit |
 
 Ship continuously under one product; these are internal checkpoints, not separate products.

@@ -3,14 +3,16 @@
 import { motion, useReducedMotion } from "framer-motion";
 
 import { smoothEase } from "@/lib/motion";
-import type { ProjectBlueprintAnswers, ScreenId } from "@/lib/project-blueprint/types";
+import type { IntakeConcept, ProjectBlueprintAnswers } from "@/lib/project-blueprint/types";
 import { buildReviewSummary } from "@/lib/project-blueprint/summary";
 import { BrandButton, optionCardClass } from "./ui";
 import { BlueprintVisual } from "./blueprint-visual";
 
 type ReviewScreenProps = {
   answers: ProjectBlueprintAnswers;
-  onEditSection: (screenId: ScreenId) => void;
+  concept?: IntakeConcept | null;
+  usedFallback?: boolean;
+  onEditDescription: () => void;
   onBuildEstimate: () => void;
   calculating?: boolean;
   error?: string | null;
@@ -18,7 +20,9 @@ type ReviewScreenProps = {
 
 export function ReviewScreen({
   answers,
-  onEditSection,
+  concept,
+  usedFallback = false,
+  onEditDescription,
   onBuildEstimate,
   calculating = false,
   error = null,
@@ -35,25 +39,43 @@ export function ReviewScreen({
     >
       <header className="space-y-3">
         <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#2f6f69] dark:text-[#9ed9d2]">
-          Review
+          What we understood
         </p>
         <h2 className="text-3xl font-semibold text-neutral-900 dark:text-neutral-100">
-          Review your blueprint
+          {concept?.headline ?? "Review your blueprint"}
         </h2>
         <p className="max-w-2xl text-base leading-7 text-neutral-600 dark:text-neutral-300">
-          Confirm the plain-language summary before we build your planning
-          estimate. You can edit any section.
+          {concept?.summary ??
+            "Confirm the plain-language summary before we build your planning estimate."}
         </p>
       </header>
 
       <div className={optionCardClass}>
         <p className="text-lg font-medium leading-8 text-neutral-900 dark:text-neutral-100">
-          {summary.headline}
+          {concept?.headline ?? summary.headline}
         </p>
+        {concept?.whoItsFor ? (
+          <p className="mt-3 text-sm leading-6 text-neutral-600 dark:text-neutral-300">
+            For: {concept.whoItsFor}
+          </p>
+        ) : null}
         <div className="mt-6">
           <BlueprintVisual answers={answers} />
         </div>
       </div>
+
+      {concept?.coreCapabilities?.length ? (
+        <div>
+          <h3 className="text-base font-semibold text-neutral-900 dark:text-neutral-100">
+            Core capabilities
+          </h3>
+          <ul className="mt-3 list-disc space-y-1.5 pl-5 text-sm leading-6 text-neutral-600 dark:text-neutral-300">
+            {concept.coreCapabilities.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
 
       <div className="space-y-4">
         {summary.sections
@@ -63,25 +85,12 @@ export function ReviewScreen({
               key={section.id}
               className="rounded-lg border border-neutral-200 bg-white p-5 dark:border-white/10 dark:bg-white/[0.04]"
             >
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <div>
-                  <h3 className="text-base font-semibold text-neutral-900 dark:text-neutral-100">
-                    {section.title}
-                  </h3>
-                  <p className="mt-2 text-sm leading-6 text-neutral-600 dark:text-neutral-300">
-                    {section.body}
-                  </p>
-                </div>
-                {section.id !== "overview" && (
-                  <button
-                    type="button"
-                    onClick={() => onEditSection(section.id as ScreenId)}
-                    className="text-sm font-medium text-[#2f6f69] underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#67AFA7] dark:text-[#9ed9d2]"
-                  >
-                    Edit {section.title.toLowerCase()}
-                  </button>
-                )}
-              </div>
+              <h3 className="text-base font-semibold text-neutral-900 dark:text-neutral-100">
+                {section.title}
+              </h3>
+              <p className="mt-2 text-sm leading-6 text-neutral-600 dark:text-neutral-300">
+                {section.body}
+              </p>
             </div>
           ))}
       </div>
@@ -108,26 +117,48 @@ export function ReviewScreen({
           Working assumptions
         </h3>
         <ul className="mt-3 list-disc space-y-1.5 pl-5 text-sm leading-6 text-neutral-600 dark:text-neutral-300">
-          {summary.assumptions.map((item) => (
-            <li key={item}>{item}</li>
-          ))}
+          {(concept?.assumptions?.length ? concept.assumptions : summary.assumptions).map(
+            (item) => (
+              <li key={item}>{item}</li>
+            ),
+          )}
         </ul>
       </div>
 
+      {usedFallback ? (
+        <p className="text-sm leading-6 text-neutral-500 dark:text-neutral-400">
+          We used a simpler review of your description. You can edit the idea
+          and try again, or continue to a planning estimate with broader bands.
+        </p>
+      ) : null}
+
       {error ? (
-        <p className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-100" role="alert">
+        <p
+          className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-100"
+          role="alert"
+        >
           {error}
         </p>
       ) : null}
 
-      <BrandButton
-        type="button"
-        onClick={onBuildEstimate}
-        disabled={calculating}
-        className="w-full sm:w-auto"
-      >
-        {calculating ? "Building estimate…" : "Build my estimate"}
-      </BrandButton>
+      <div className="flex flex-col gap-3 sm:flex-row">
+        <BrandButton
+          type="button"
+          onClick={onBuildEstimate}
+          disabled={calculating}
+          className="w-full sm:w-auto"
+        >
+          {calculating ? "Building estimate…" : "Build my estimate"}
+        </BrandButton>
+        <BrandButton
+          type="button"
+          variant="outline"
+          onClick={onEditDescription}
+          disabled={calculating}
+        >
+          Edit description
+        </BrandButton>
+      </div>
     </motion.div>
   );
 }

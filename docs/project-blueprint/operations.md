@@ -20,7 +20,11 @@ Copy `.env.example` → `.env.local` (never commit secrets).
 | `ATTACHMENT_SCANNER_WEBHOOK_SECRET` | Yes (uploads) | Verify scan callbacks |
 | `PROJECT_BLUEPRINT_SESSION_SECRET` | Yes | Hash resume tokens (rotate carefully) |
 | `NEXT_PUBLIC_SITE_URL` | Yes | Canonical origin for links/CSRF checks |
-| `OPENAI_API_KEY` / `ANTHROPIC_API_KEY` | Optional | Idea classifier enrichment only |
+| `OPENAI_API_KEY` | Recommended (intake) | Maps idea text onto catalogue answers. Keyword fallback if unset or the provider fails |
+| `PROJECT_BLUEPRINT_AI_INTAKE_ENABLED` | Optional | Set `false` to force keyword fallback even when a key is present |
+| `PROJECT_BLUEPRINT_AI_INTAKE_MODEL` / `PROJECT_BLUEPRINT_AI_CLASSIFIER_MODEL` | Optional | Default `gpt-4o-mini` |
+| `PROJECT_BLUEPRINT_AI_CLASSIFIER_ENABLED` | Optional | Legacy classifier gate; `false` also disables intake unless intake is explicitly enabled |
+| `ANTHROPIC_API_KEY` | Optional | Documented optional provider; OpenAI is the implemented adapter |
 
 **Vercel:** Set the same keys per environment. Restrict service role and scanner secrets to server-only.
 

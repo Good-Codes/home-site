@@ -5,11 +5,11 @@ import { ProjectBlueprintApp } from "@/components/project-blueprint/app";
 export const metadata: Metadata = {
   title: "Custom Software Cost Estimator",
   description:
-    "Plan your custom product with confidence. Answer a few practical questions and receive a realistic budget range, delivery window, and recommended first phase. A planning estimate, not a fixed quote.",
+    "Describe your custom product in your own words and receive a realistic budget range, delivery window, and recommended first phase. A planning estimate, not a fixed quote.",
   openGraph: {
     title: "Custom Software Cost Estimator | Good Code",
     description:
-      "Project Blueprint helps you plan custom platforms, portals, mobile apps, and integrated systems with an indicative investment range.",
+      "Project Blueprint turns a short product description into an indicative investment range for platforms, portals, mobile apps, and integrated systems.",
   },
 };
 

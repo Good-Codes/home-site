@@ -6,6 +6,7 @@ import { motion, useReducedMotion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { smoothEase } from "@/lib/motion";
 import type {
+  IntakeConcept,
   MoneyRange,
   PublicEstimateResult,
   PublicScenarioResult,
@@ -18,6 +19,7 @@ import { LeadForm } from "./lead-form";
 /** Accept shared PublicEstimateResult plus engine-shaped extras from the API. */
 export type EstimateResultViewModel = PublicEstimateResult & {
   recommendedNextStep?: string;
+  concept?: IntakeConcept;
   discoveryFirst?: {
     recommended?: boolean;
     summary?: string;
@@ -85,6 +87,16 @@ export function ResultsView({ result, onRecalculate }: ResultsViewProps) {
         <h2 className="max-w-3xl text-3xl font-semibold text-neutral-900 dark:text-neutral-100 md:text-4xl">
           {result.productSummary}
         </h2>
+        {result.concept?.summary ? (
+          <p className="max-w-2xl text-base leading-7 text-neutral-700 dark:text-neutral-300">
+            {result.concept.summary}
+          </p>
+        ) : null}
+        {result.concept?.whoItsFor ? (
+          <p className="max-w-2xl text-sm leading-6 text-neutral-600 dark:text-neutral-400">
+            For: {result.concept.whoItsFor}
+          </p>
+        ) : null}
         <p className="max-w-2xl text-sm leading-6 text-neutral-500 dark:text-neutral-400">
           This range is based on the scope and assumptions shown below. A Good
           Code specialist will review the technical details before issuing a
@@ -136,6 +148,19 @@ export function ResultsView({ result, onRecalculate }: ResultsViewProps) {
             </p>
           ) : null}
         </div>
+      ) : null}
+
+      {result.concept?.coreCapabilities?.length ? (
+        <section className="space-y-3">
+          <h3 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">
+            Concept we estimated
+          </h3>
+          <ul className="list-disc space-y-1.5 pl-5 text-sm leading-6 text-neutral-600 dark:text-neutral-300">
+            {result.concept.coreCapabilities.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
+          </ul>
+        </section>
       ) : null}
 
       <section className="space-y-4">
@@ -278,7 +303,7 @@ export function ResultsView({ result, onRecalculate }: ResultsViewProps) {
           </BrandButton>
           {onRecalculate ? (
             <BrandButton type="button" variant="outline" onClick={onRecalculate}>
-              Adjust answers
+              Adjust the idea
             </BrandButton>
           ) : null}
         </div>

@@ -245,10 +245,11 @@ export default function WebsitePricing() {
               </h2>
               <p className="mt-3 text-sm leading-6 text-neutral-600 dark:text-neutral-300">
                 For platforms, portals, mobile apps, workflows, integrations,
-                payments, data products, and cloud systems.
+                payments, data products, and cloud systems. Describe the idea
+                and get a planning range.
               </p>
               <span className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-[#2f6f69] dark:text-[#9ed9d2]">
-                Start Project Blueprint
+                Describe your idea
                 <ArrowRight className="h-4 w-4" aria-hidden />
               </span>
             </Link>
@@ -368,8 +369,9 @@ export default function WebsitePricing() {
             </h2>
             <p className="mt-4 max-w-2xl text-base leading-7 text-neutral-600 dark:text-neutral-300">
               Estimate a platform, portal, mobile app, internal system, or
-              integrated product. You will receive a planning range and delivery
-              window—not a fixed quote.
+              integrated product. Describe the idea in your own words — we only
+              ask follow-ups when something important is missing. You will
+              receive a planning range and delivery window, not a fixed quote.
             </p>
             <div className="mt-6">
               <BrandButton href="/custom-software-estimator">

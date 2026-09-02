@@ -1,7 +1,6 @@
 /**
- * Deterministic keyword classifier for “Describe my idea”.
- * Returns taxonomy suggestions that require user confirmation.
- * Never invents prices or numeric estimates.
+ * Deterministic keyword classifier for idea intake fallback.
+ * Returns taxonomy suggestions. Never invents prices or numeric estimates.
  */
 
 import type {

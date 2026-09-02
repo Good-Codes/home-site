@@ -42,7 +42,7 @@ function isAiClassifierEnabled(): boolean {
 }
 
 /**
- * Optional OpenAI adapter for “Describe my idea”.
+ * Optional OpenAI adapter for idea classification (legacy classify route).
  * Returns taxonomy suggestions only — never prices or numeric estimates.
  * Falls back to keyword classification on any failure or when disabled.
  */

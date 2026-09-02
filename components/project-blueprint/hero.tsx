@@ -48,12 +48,12 @@ export function ProjectBlueprintHero({ onStart }: ProjectBlueprintHeroProps) {
             Custom Software Cost Estimator
           </h1>
           <p className="mt-5 max-w-2xl text-lg font-medium leading-8 text-neutral-800 dark:text-neutral-200">
-            Plan your custom product with confidence.
+            Describe the product. Get a planning range.
           </p>
           <p className="mt-3 max-w-2xl text-base leading-7 text-neutral-600 dark:text-neutral-300">
-            Answer a few practical questions and receive a realistic budget range,
-            delivery window, and recommended first phase. No technical brief
-            required.
+            Tell us what you want to make possible — in your own words. We infer
+            the product shape, ask a few follow-ups only if something important
+            is missing, and return a realistic budget range and delivery window.
           </p>
           <p className="mt-4 max-w-2xl text-sm leading-6 text-neutral-500 dark:text-neutral-400">
             A planning estimate, not a fixed quote. Complex projects are reviewed
