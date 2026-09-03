@@ -15,6 +15,8 @@ import {
   applyClarifications,
   selectClarifyingQuestions,
 } from "@/lib/project-blueprint/intake/whitelist";
+import { coerceIntakePayload, toStringList } from "@/lib/project-blueprint/intake/coerce";
+import { parseOpenAiIntakePayload } from "@/lib/project-blueprint/intake/openai";
 import { intakeRequestSchema } from "@/lib/project-blueprint/intake/request";
 import { normalizeAnswers } from "@/lib/project-blueprint/answers";
 
@@ -268,6 +270,99 @@ describe("runIntake", () => {
     );
     const estimate = calculateEstimate(result.answers, PLACEHOLDER_PRICING_CONFIG);
     expect(estimate.publicResult.recommendedScenario.range.likely).toBeGreaterThan(0);
+  });
+
+  it("uses messy OpenAI JSON instead of keyword fallback", async () => {
+    const result = await runIntake(
+      {
+        ideaText:
+          "I need an app where fishermen can upload a photo of each fish they catch along with weight, length, location, and a social feed.",
+      },
+      {
+        completeJson: async () => ({
+          status: "needs clarification",
+          concept: {
+            headline: "A fishing catch log and social guide",
+            summary: "Anglers log catches with photos and share advice, plus seasonal weather and tides.",
+            whoItsFor: "Recreational fishermen",
+            coreCapabilities: "Catch photos, social feed, weather and tides",
+            assumptions:
+              "First release is mobile-first, tide data comes from a third-party API, one, two, three, four, five, six, seven, eight, nine, ten, eleven extra lines",
+          },
+          answers: {
+            route: "route.mobile_app",
+            surfaces: "surface.native_mobile, surface.public_web",
+            capabilities: "cap.data.files, cap.comms.chat, cap.invented.thing",
+            unknowns: ["q.intake.payments", "q.integrations.systems"],
+          },
+        }),
+      },
+    );
+    expect(result.usedFallback).toBe(false);
+    expect(result.concept.headline).toMatch(/fishing/i);
+    expect(result.answers.route).toBe("route.mobile_app");
+    expect(result.answers.capabilities).toContain("cap.data.files");
+    expect(result.answers.capabilities).not.toContain("cap.invented.thing");
+    expect(result.answers.unknowns?.["q.intake.payments"]).toBe("not_sure");
+  });
+});
+
+describe("intake coerce and parse", () => {
+  it("splits capability and assumption strings into arrays", () => {
+    expect(toStringList("Catch photos, social feed, weather and tides", 160, 12)).toEqual(
+      ["Catch photos", "social feed", "weather and tides"],
+    );
+    expect(
+      toStringList(
+        "one, two, three, four, five, six, seven, eight, nine, ten, eleven",
+        280,
+        10,
+      ),
+    ).toHaveLength(10);
+  });
+
+  it("parses the messy payload that previously tripped Zod", () => {
+    const parsed = parseOpenAiIntakePayload({
+      status: "needs clarification",
+      concept: {
+        headline: "A fishing catch log and social guide",
+        summary: "Anglers log catches with photos and share advice.",
+        whoItsFor: "Recreational fishermen",
+        coreCapabilities: "Catch photos, social feed, weather and tides",
+        assumptions: "First release is mobile-first, tide data comes from a third-party API",
+      },
+      answers: {
+        route: "route.mobile_app",
+        capabilities: "cap.data.files, cap.comms.chat",
+        unknowns: ["q.intake.payments"],
+      },
+    });
+    expect(parsed).not.toBeNull();
+    expect(parsed?.status).toBe("needs_clarification");
+    expect(parsed?.concept.coreCapabilities).toContain("Catch photos");
+    expect(parsed?.answers.capabilities).toContain("cap.data.files");
+    expect(parsed?.answers.unknowns?.["q.intake.payments"]).toBe("not_sure");
+  });
+
+  it("keeps concept when answers are missing", () => {
+    const parsed = parseOpenAiIntakePayload({
+      status: "ready",
+      concept: {
+        headline: "A catch log",
+        summary: "Log fish with photos.",
+        whoItsFor: "Anglers",
+        coreCapabilities: ["Catch photos"],
+        assumptions: [],
+      },
+    });
+    expect(parsed).not.toBeNull();
+    expect(parsed?.concept.headline).toBe("A catch log");
+    expect(parsed?.answers).toEqual({});
+  });
+
+  it("returns null for a non-object payload", () => {
+    expect(parseOpenAiIntakePayload("not json object")).toBeNull();
+    expect(coerceIntakePayload("not json object")).toBeNull();
   });
 });
 

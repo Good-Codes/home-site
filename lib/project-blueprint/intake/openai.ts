@@ -7,6 +7,8 @@ import "server-only";
 
 import { z } from "zod";
 
+import { coerceIntakePayload } from "./coerce";
+
 const unknownChoiceSchema = z.enum([
   "not_sure",
   "help_me_choose",
@@ -42,11 +44,11 @@ export const openaiIntakePayloadSchema = z.object({
     headline: z.string().min(1).max(180),
     summary: z.string().min(1).max(1600),
     whoItsFor: z.string().min(1).max(500),
-    coreCapabilities: z.array(z.string().min(1).max(160)).max(12),
-    assumptions: z.array(z.string().min(1).max(280)).max(10),
+    coreCapabilities: z.array(z.string().min(1).max(160)).max(12).default([]),
+    assumptions: z.array(z.string().min(1).max(280)).max(10).default([]),
   }),
-  answers: answersPatchSchema,
-  clarifyingQuestionIds: z.array(z.string().min(1).max(80)).max(3).optional(),
+  answers: answersPatchSchema.default({}),
+  clarifyingQuestionIds: z.array(z.string().min(1).max(80)).max(3).optional().default([]),
 });
 
 export type OpenAiIntakePayload = z.infer<typeof openaiIntakePayloadSchema>;
@@ -109,9 +111,21 @@ export async function completeIntakeJson(
 export function parseOpenAiIntakePayload(
   value: unknown,
 ): OpenAiIntakePayload | null {
-  const parsed = openaiIntakePayloadSchema.safeParse(value);
+  const coerced = coerceIntakePayload(value);
+  if (!coerced) {
+    console.error("AI intake unusable payload", typeof value);
+    return null;
+  }
+
+  const parsed = openaiIntakePayloadSchema.safeParse(coerced);
   if (!parsed.success) {
-    console.error("AI intake Zod rejection", parsed.error.flatten());
+    console.error(
+      "AI intake Zod rejection",
+      parsed.error.issues.map((issue) => ({
+        path: issue.path.join(".") || "(root)",
+        message: issue.message,
+      })),
+    );
     return null;
   }
   return parsed.data;

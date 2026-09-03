@@ -57,7 +57,7 @@ export function buildIntakeSystemPrompt(): string {
     "Read the prospect's idea and return JSON only with keys: status, concept, answers, clarifyingQuestionIds.",
     "status must be one of: needs_clarification, ready, website_handoff.",
     "Use website_handoff only for marketing / brochure / landing-page websites with no custom product behaviour.",
-    "concept needs: headline, summary, whoItsFor, coreCapabilities (plain language strings), assumptions.",
+    "concept needs: headline, summary, whoItsFor, coreCapabilities (JSON array of short strings, never one sentence), assumptions (JSON array of strings, never one sentence).",
     "Write concept copy in calm British/South African professional English. Do not mention Good Code internals.",
     "answers must use ONLY these catalogue IDs (never invent IDs):",
     taxonomy,
