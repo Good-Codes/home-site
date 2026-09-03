@@ -5,6 +5,7 @@
 import { normalizeAnswers } from "./answers";
 import { shouldRecommendDiscovery } from "./branching/rules";
 import type { ProjectBlueprintAnswers, ReviewSummary, ReviewSummarySection } from "./types";
+import { formatUnknownMarker } from "./unknown-copy";
 
 const LABELS: Record<string, string> = {
   "route.website": "business website",
@@ -106,20 +107,39 @@ function capabilityHighlights(capabilities: string[]): string[] {
 }
 
 function collectUnknowns(answers: ProjectBlueprintAnswers): string[] {
+  const marked = answers.unknowns ?? {};
   const unknowns: string[] = [];
-  for (const [questionId, choice] of Object.entries(answers.unknowns ?? {})) {
-    unknowns.push(`${questionId} (${choice})`);
+
+  for (const [questionId, choice] of Object.entries(marked)) {
+    unknowns.push(formatUnknownMarker(questionId, choice));
   }
-  if (answers.route === "route.unsure") unknowns.push("Product type is still open.");
-  if (answers.startingPoint === "start.needs_discovery") unknowns.push("Discovery is needed before scope is firm.");
-  if (answers.productLevel === "level.not_sure") unknowns.push("Target product level is not decided.");
-  if (answers.userScale === "scale.unknown") unknowns.push("User scale is unknown.");
-  if (answers.migrationProfile === "migration.unknown") unknowns.push("Migration complexity is unknown.");
-  if (answers.integrations?.includes("integration.unknown")) {
+
+  if (answers.route === "route.unsure" && !marked["q.route.product_type"]) {
+    unknowns.push(formatUnknownMarker("q.route.product_type"));
+  }
+  if (answers.startingPoint === "start.needs_discovery") {
+    unknowns.push("Discovery is needed before scope is firm.");
+  }
+  if (answers.productLevel === "level.not_sure" && !marked["q.delivery.product_level"]) {
+    unknowns.push(formatUnknownMarker("q.delivery.product_level"));
+  }
+  if (answers.userScale === "scale.unknown" && !marked["q.users.scale"]) {
+    unknowns.push(formatUnknownMarker("q.users.scale", "unknown"));
+  }
+  if (
+    answers.migrationProfile === "migration.unknown" &&
+    !marked["q.integrations.migration"]
+  ) {
+    unknowns.push(formatUnknownMarker("q.integrations.migration", "unknown"));
+  }
+  if (answers.integrations?.includes("integration.unknown") && !marked["q.integrations.systems"]) {
     unknowns.push("Some integrations are still unknown.");
   }
-  if (answers.timing === "timing.not_sure") unknowns.push("Delivery timing is still open.");
-  return unknowns;
+  if (answers.timing === "timing.not_sure" && !marked["q.delivery.timing"]) {
+    unknowns.push(formatUnknownMarker("q.delivery.timing"));
+  }
+
+  return [...new Set(unknowns)];
 }
 
 function buildHeadline(answers: ProjectBlueprintAnswers): string {

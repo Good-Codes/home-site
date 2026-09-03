@@ -30,14 +30,28 @@ type DescribeModeProps = {
 
 type SelectionMap = Record<string, string[]>;
 
+const UNKNOWN_OPTION_IDS = new Set([
+  "not_sure",
+  "unknown",
+  "need_advice",
+  "help_me_choose",
+]);
+
 function toggleValue(
   current: string[],
   value: string,
   kind: IntakeClarifyingQuestion["kind"],
 ): string[] {
   if (kind === "single") return [value];
-  if (current.includes(value)) return current.filter((item) => item !== value);
-  return [...current, value];
+  if (UNKNOWN_OPTION_IDS.has(value)) {
+    if (current.includes(value)) return current.filter((item) => item !== value);
+    return [value];
+  }
+  const withoutUnknown = current.filter((item) => !UNKNOWN_OPTION_IDS.has(item));
+  if (withoutUnknown.includes(value)) {
+    return withoutUnknown.filter((item) => item !== value);
+  }
+  return [...withoutUnknown, value];
 }
 
 function questionsComplete(
@@ -63,12 +77,14 @@ export function DescribeMode({
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [usedFallback, setUsedFallback] = useState(false);
+  const [askedQuestionIds, setAskedQuestionIds] = useState<string[]>([]);
 
   const submitIntake = async (payload: {
     ideaText: string;
     nextRound: number;
     clarifications?: IntakeClarificationAnswer[];
     previousAnswers?: ProjectBlueprintAnswers | null;
+    askedQuestionIds?: string[];
   }) => {
     setPending(true);
     setError(null);
@@ -84,6 +100,9 @@ export function DescribeMode({
             : {}),
           ...(payload.previousAnswers
             ? { previousAnswers: payload.previousAnswers }
+            : {}),
+          ...(payload.askedQuestionIds?.length
+            ? { askedQuestionIds: payload.askedQuestionIds }
             : {}),
         }),
       });
@@ -111,6 +130,12 @@ export function DescribeMode({
       if (data.status === "needs_clarification" && data.clarifyingQuestions.length) {
         setQuestions(data.clarifyingQuestions);
         setSelections({});
+        setAskedQuestionIds((prev) => [
+          ...new Set([
+            ...prev,
+            ...data.clarifyingQuestions.map((question) => question.id),
+          ]),
+        ]);
         return;
       }
 
@@ -153,6 +178,9 @@ export function DescribeMode({
       nextRound: Math.min(round + 1, 2),
       clarifications,
       previousAnswers: answers,
+      askedQuestionIds: [
+        ...new Set([...askedQuestionIds, ...questions.map((question) => question.id)]),
+      ],
     });
   };
 
@@ -296,6 +324,7 @@ export function DescribeMode({
               onClick={() => {
                 setQuestions([]);
                 setSelections({});
+                setAskedQuestionIds([]);
                 setError(null);
               }}
               disabled={pending}

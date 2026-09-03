@@ -42,6 +42,7 @@ export async function POST(request: Request) {
       round: parsed.data.round,
       clarifications: parsed.data.clarifications ?? undefined,
       previousAnswers: parsed.data.previousAnswers ?? undefined,
+      askedQuestionIds: parsed.data.askedQuestionIds ?? undefined,
     });
 
     void trackBlueprintEvent(

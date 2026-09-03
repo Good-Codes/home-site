@@ -278,46 +278,53 @@ export function fillDefaultsAndUnknowns(
   return normalizeAnswers(next);
 }
 
+/**
+ * Drop illegal catalogue IDs without inventing defaults.
+ * Use this before choosing follow-ups so guesses do not look like answers.
+ */
+export function filterCatalogueAnswers(
+  answers: ProjectBlueprintAnswers,
+): ProjectBlueprintAnswers {
+  return normalizeAnswers({
+    ...answers,
+    route: scalarOrNull(answers.route),
+    startingPoint: scalarOrNull(answers.startingPoint),
+    primaryOutcome: scalarOrNull(answers.primaryOutcome),
+    userScale: scalarOrNull(answers.userScale),
+    roleCountBand: scalarOrNull(answers.roleCountBand),
+    migrationProfile: scalarOrNull(answers.migrationProfile),
+    productLevel: scalarOrNull(answers.productLevel),
+    timing: scalarOrNull(answers.timing),
+    surfaces: filterCatalogueIds(answers.surfaces, LIST_CAPS.surfaces),
+    capabilities: filterCatalogueIds(
+      answers.capabilities,
+      LIST_CAPS.capabilities,
+    ),
+    integrations: filterCatalogueIds(
+      answers.integrations,
+      LIST_CAPS.integrations,
+    ),
+    qualityRequirements: filterCatalogueIds(
+      answers.qualityRequirements,
+      LIST_CAPS.qualityRequirements,
+    ),
+    userGroups: filterCatalogueIds(answers.userGroups, LIST_CAPS.userGroups),
+    existingAssets: filterCatalogueIds(
+      answers.existingAssets,
+      LIST_CAPS.existingAssets,
+    ),
+    regulatedControls: filterCatalogueIds(
+      answers.regulatedControls,
+      LIST_CAPS.regulatedControls,
+    ),
+  });
+}
+
 export function sanitiseAnswers(
   answers: ProjectBlueprintAnswers,
   ideaText: string,
 ): ProjectBlueprintAnswers {
-  return fillDefaultsAndUnknowns(
-    {
-      ...answers,
-      route: scalarOrNull(answers.route),
-      startingPoint: scalarOrNull(answers.startingPoint),
-      primaryOutcome: scalarOrNull(answers.primaryOutcome),
-      userScale: scalarOrNull(answers.userScale),
-      roleCountBand: scalarOrNull(answers.roleCountBand),
-      migrationProfile: scalarOrNull(answers.migrationProfile),
-      productLevel: scalarOrNull(answers.productLevel),
-      timing: scalarOrNull(answers.timing),
-      surfaces: filterCatalogueIds(answers.surfaces, LIST_CAPS.surfaces),
-      capabilities: filterCatalogueIds(
-        answers.capabilities,
-        LIST_CAPS.capabilities,
-      ),
-      integrations: filterCatalogueIds(
-        answers.integrations,
-        LIST_CAPS.integrations,
-      ),
-      qualityRequirements: filterCatalogueIds(
-        answers.qualityRequirements,
-        LIST_CAPS.qualityRequirements,
-      ),
-      userGroups: filterCatalogueIds(answers.userGroups, LIST_CAPS.userGroups),
-      existingAssets: filterCatalogueIds(
-        answers.existingAssets,
-        LIST_CAPS.existingAssets,
-      ),
-      regulatedControls: filterCatalogueIds(
-        answers.regulatedControls,
-        LIST_CAPS.regulatedControls,
-      ),
-    },
-    ideaText,
-  );
+  return fillDefaultsAndUnknowns(filterCatalogueAnswers(answers), ideaText);
 }
 
 const DEFAULT_CONCEPT: IntakeConcept = {

@@ -11,8 +11,9 @@ import type {
 } from "../types";
 import { fallbackIntakeDraft } from "./fallback";
 import {
+  fillDefaultsAndUnknowns,
+  filterCatalogueAnswers,
   mergeAnswerPatch,
-  sanitiseAnswers,
   sanitiseConcept,
 } from "./sanitise";
 import { buildTaxonomyPrompt } from "./taxonomy";
@@ -27,6 +28,7 @@ export type IntakeRequest = {
   round?: number;
   clarifications?: IntakeClarificationAnswer[];
   previousAnswers?: ProjectBlueprintAnswers | null;
+  askedQuestionIds?: string[] | null;
 };
 
 export type CompleteJsonFn = (system: string, user: string) => Promise<unknown>;
@@ -39,6 +41,10 @@ type IntakeAiDeps = {
 function clampRound(value: number | undefined): number {
   if (typeof value !== "number" || Number.isNaN(value)) return 0;
   return Math.min(2, Math.max(0, Math.floor(value)));
+}
+
+function uniqueQuestionIds(ids: Array<string | undefined | null>): string[] {
+  return [...new Set(ids.filter((id): id is string => Boolean(id)))];
 }
 
 function hasCriticalScope(answers: ProjectBlueprintAnswers): boolean {
@@ -65,6 +71,7 @@ export function buildIntakeSystemPrompt(): string {
     "Never invent prices, budgets, hour counts, timelines as numbers, rates, ZAR/R amounts, or quotes.",
     "clarifyingQuestionIds: 0–3 IDs chosen only from: " + whitelist + ".",
     "Ask follow-ups only when a high-impact fact is missing (surfaces, starting point, payments, integrations, users, sensitive data, timing).",
+    "Never repeat an ID that appears in userClarifications, askedQuestionIds, or alreadyInferredAnswers.unknowns.",
     "If the description is already enough for a planning estimate, status=ready and clarifyingQuestionIds=[].",
     "If round is 2, status must be ready or website_handoff and clarifyingQuestionIds must be [].",
   ].join("\n");
@@ -74,6 +81,7 @@ export function buildIntakeUserPrompt(input: {
   ideaText: string;
   answers: ProjectBlueprintAnswers;
   clarifications?: IntakeClarificationAnswer[];
+  askedQuestionIds?: string[];
   round: number;
 }): string {
   return JSON.stringify(
@@ -82,10 +90,11 @@ export function buildIntakeUserPrompt(input: {
       round: input.round,
       alreadyInferredAnswers: input.answers,
       userClarifications: input.clarifications ?? [],
+      askedQuestionIds: input.askedQuestionIds ?? [],
       instruction:
         input.round >= 2
           ? "Final round. Return status ready or website_handoff. Do not ask more questions."
-          : "Ask at most 3 clarifying questions, and only for missing high-impact facts.",
+          : "Ask at most 3 clarifying questions, and only for missing high-impact facts. Do not re-ask IDs in userClarifications, askedQuestionIds, or alreadyInferredAnswers.unknowns.",
     },
     null,
     2,
@@ -112,6 +121,13 @@ async function maybeCompleteAi(
   }
 }
 
+function buildExcludeIds(input: IntakeRequest): string[] {
+  return uniqueQuestionIds([
+    ...(input.askedQuestionIds ?? []),
+    ...(input.clarifications ?? []).map((item) => item.questionId),
+  ]);
+}
+
 /**
  * Run intake. Same idea + clarifications should produce a stable sanitised answer bag
  * when the model (or fallback) returns the same structured payload.
@@ -122,6 +138,7 @@ export async function runIntake(
 ): Promise<IntakeResult> {
   const ideaText = input.ideaText.replace(/\s+/g, " ").trim().slice(0, 4000);
   const round = clampRound(input.round);
+  const excludeIds = buildExcludeIds(input);
 
   let answers = normalizeAnswers({
     ...(input.previousAnswers ?? {}),
@@ -147,6 +164,7 @@ export async function runIntake(
       ideaText,
       answers,
       clarifications: input.clarifications,
+      askedQuestionIds: excludeIds,
       round,
     }),
     deps,
@@ -164,7 +182,7 @@ export async function runIntake(
     }
   }
 
-  answers = sanitiseAnswers(mergeAnswerPatch(answers, patch), ideaText);
+  answers = filterCatalogueAnswers(mergeAnswerPatch(answers, patch));
   const concept = sanitiseConcept(conceptSource, answers);
 
   const customWork =
@@ -192,7 +210,10 @@ export async function runIntake(
     return {
       status: "website_handoff",
       concept,
-      answers: { ...answers, route: "route.website" },
+      answers: fillDefaultsAndUnknowns(
+        { ...answers, route: "route.website" },
+        ideaText,
+      ),
       clarifyingQuestions: [],
       usedFallback,
       round,
@@ -206,6 +227,7 @@ export async function runIntake(
     ideaText,
     round,
     forceReady,
+    excludeIds,
   });
 
   const needsMore =
@@ -216,7 +238,9 @@ export async function runIntake(
   return {
     status: needsMore ? "needs_clarification" : "ready",
     concept,
-    answers,
+    answers: needsMore
+      ? answers
+      : fillDefaultsAndUnknowns(answers, ideaText),
     clarifyingQuestions: needsMore ? clarifyingQuestions : [],
     usedFallback,
     round,

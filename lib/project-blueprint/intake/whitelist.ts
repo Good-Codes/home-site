@@ -3,6 +3,7 @@
  * At most three are shown, and they map onto catalogue answer keys.
  */
 
+import { clearUnknownMarker } from "../answer-path";
 import type {
   IntakeClarifyingQuestion,
   ProjectBlueprintAnswers,
@@ -42,6 +43,14 @@ function markUnknown(
   };
 }
 
+function applyKnown(
+  answers: ProjectBlueprintAnswers,
+  questionId: string,
+  patch: Partial<ProjectBlueprintAnswers>,
+): ProjectBlueprintAnswers {
+  return clearUnknownMarker({ ...answers, ...patch }, questionId);
+}
+
 function withCapabilities(
   answers: ProjectBlueprintAnswers,
   extra: string[],
@@ -70,13 +79,7 @@ export const INTAKE_WHITELIST: IntakeWhitelistQuestion[] = [
     apply(answers, values) {
       const chosen = withoutUnknown(values).filter((id) => id.startsWith("surface."));
       if (!chosen.length) return markUnknown(answers, "q.surfaces.channels");
-      const next = { ...answers, surfaces: chosen };
-      if (answers.unknowns?.["q.surfaces.channels"]) {
-        const { "q.surfaces.channels": _drop, ...rest } = answers.unknowns;
-        void _drop;
-        next.unknowns = rest;
-      }
-      return next;
+      return applyKnown(answers, "q.surfaces.channels", { surfaces: chosen });
     },
   },
   {
@@ -95,7 +98,9 @@ export const INTAKE_WHITELIST: IntakeWhitelistQuestion[] = [
     apply(answers, values) {
       const chosen = withoutUnknown(values)[0];
       if (!chosen) return markUnknown(answers, "q.context.starting_point");
-      return { ...answers, startingPoint: chosen };
+      return applyKnown(answers, "q.context.starting_point", {
+        startingPoint: chosen,
+      });
     },
   },
   {
@@ -113,27 +118,24 @@ export const INTAKE_WHITELIST: IntakeWhitelistQuestion[] = [
       const chosen = withoutUnknown(values)[0];
       if (!chosen) return markUnknown(answers, "q.intake.payments");
       if (chosen === "pay.none") {
-        return {
-          ...answers,
+        return applyKnown(answers, "q.intake.payments", {
           capabilities: (answers.capabilities ?? []).filter(
             (id) => !id.startsWith("cap.payments."),
           ),
-        };
+        });
       }
       if (chosen === "pay.one_time") {
-        return {
-          ...answers,
+        return applyKnown(answers, "q.intake.payments", {
           capabilities: withCapabilities(answers, ["cap.payments.one_time"]),
-        };
+        });
       }
       if (chosen === "pay.recurring") {
-        return {
-          ...answers,
+        return applyKnown(answers, "q.intake.payments", {
           capabilities: withCapabilities(answers, [
             "cap.payments.recurring",
             "cap.payments.subscriptions",
           ]),
-        };
+        });
       }
       return answers;
     },
@@ -156,12 +158,13 @@ export const INTAKE_WHITELIST: IntakeWhitelistQuestion[] = [
       const chosen = withoutUnknown(values);
       if (!chosen.length) return markUnknown(answers, "q.integrations.systems");
       if (chosen.includes("integration.none") && chosen.length === 1) {
-        return { ...answers, integrations: ["integration.none"] };
+        return applyKnown(answers, "q.integrations.systems", {
+          integrations: ["integration.none"],
+        });
       }
-      return {
-        ...answers,
+      return applyKnown(answers, "q.integrations.systems", {
         integrations: chosen.filter((id) => id !== "integration.none"),
-      };
+      });
     },
   },
   {
@@ -180,12 +183,10 @@ export const INTAKE_WHITELIST: IntakeWhitelistQuestion[] = [
     apply(answers, values) {
       const chosen = withoutUnknown(values).filter((id) => id.startsWith("users."));
       if (!chosen.length) return markUnknown(answers, "q.users.groups");
-      return {
-        ...answers,
+      return applyKnown(answers, "q.users.groups", {
         userGroups: chosen,
-        multiTenant:
-          chosen.includes("users.tenants") ? true : answers.multiTenant,
-      };
+        multiTenant: chosen.includes("users.tenants") ? true : answers.multiTenant,
+      });
     },
   },
   {
@@ -203,7 +204,7 @@ export const INTAKE_WHITELIST: IntakeWhitelistQuestion[] = [
     apply(answers, values) {
       const chosen = withoutUnknown(values)[0];
       if (!chosen) return markUnknown(answers, "q.users.scale");
-      return { ...answers, userScale: chosen };
+      return applyKnown(answers, "q.users.scale", { userScale: chosen });
     },
   },
   {
@@ -224,12 +225,13 @@ export const INTAKE_WHITELIST: IntakeWhitelistQuestion[] = [
       const chosen = withoutUnknown(values);
       if (!chosen.length) return markUnknown(answers, "q.quality.requirements");
       if (chosen.includes("quality.none") && chosen.length === 1) {
-        return { ...answers, qualityRequirements: [] };
+        return applyKnown(answers, "q.quality.requirements", {
+          qualityRequirements: [],
+        });
       }
-      return {
-        ...answers,
+      return applyKnown(answers, "q.quality.requirements", {
         qualityRequirements: chosen.filter((id) => id !== "quality.none"),
-      };
+      });
     },
   },
   {
@@ -247,7 +249,7 @@ export const INTAKE_WHITELIST: IntakeWhitelistQuestion[] = [
     apply(answers, values) {
       const chosen = withoutUnknown(values)[0];
       if (!chosen) return markUnknown(answers, "q.delivery.timing");
-      return { ...answers, timing: chosen };
+      return applyKnown(answers, "q.delivery.timing", { timing: chosen });
     },
   },
 ];
@@ -287,43 +289,110 @@ export function applyClarifications(
   return next;
 }
 
+function isMarkedUnknown(
+  answers: ProjectBlueprintAnswers,
+  questionId: string,
+): boolean {
+  return Boolean(answers.unknowns?.[questionId]);
+}
+
+/**
+ * True when OpenAI, fallback, or a real user click already filled the field.
+ * “No payments” / “no extra quality” are not visible as filled fields — those
+ * rely on excludeIds / unknowns instead.
+ */
+function isFieldFilled(
+  questionId: string,
+  answers: ProjectBlueprintAnswers,
+): boolean {
+  switch (questionId) {
+    case "q.surfaces.channels":
+      return (answers.surfaces?.length ?? 0) > 0;
+    case "q.context.starting_point":
+      return Boolean(answers.startingPoint);
+    case "q.intake.payments":
+      return (answers.capabilities ?? []).some((id) =>
+        id.startsWith("cap.payments."),
+      );
+    case "q.integrations.systems": {
+      const integrations = answers.integrations ?? [];
+      return (
+        integrations.length > 0 && !integrations.includes("integration.unknown")
+      );
+    }
+    case "q.users.groups":
+      return (answers.userGroups?.length ?? 0) > 0;
+    case "q.users.scale":
+      return Boolean(answers.userScale);
+    case "q.quality.requirements":
+      return (answers.qualityRequirements?.length ?? 0) > 0;
+    case "q.delivery.timing":
+      return Boolean(answers.timing);
+    default:
+      return false;
+  }
+}
+
+export function isQuestionSettled(
+  questionId: string,
+  answers: ProjectBlueprintAnswers,
+  excludeIds: Iterable<string> = [],
+): boolean {
+  const excluded = excludeIds instanceof Set ? excludeIds : new Set(excludeIds);
+  if (excluded.has(questionId)) return true;
+  if (isMarkedUnknown(answers, questionId)) return true;
+  return isFieldFilled(questionId, answers);
+}
+
 export function inferGapQuestionIds(
   answers: ProjectBlueprintAnswers,
   ideaText: string,
+  excludeIds: Iterable<string> = [],
 ): string[] {
   const gaps: string[] = [];
   const text = ideaText.toLowerCase();
+  const excluded = excludeIds instanceof Set ? excludeIds : new Set(excludeIds);
 
-  if (!answers.surfaces?.length) gaps.push("q.surfaces.channels");
-  if (!answers.startingPoint) gaps.push("q.context.starting_point");
+  const consider = (id: string, missing: boolean) => {
+    if (!missing || isQuestionSettled(id, answers, excluded)) return;
+    gaps.push(id);
+  };
+
+  consider("q.surfaces.channels", !answers.surfaces?.length);
+  consider("q.context.starting_point", !answers.startingPoint);
 
   const hasPayments = (answers.capabilities ?? []).some((id) =>
     id.startsWith("cap.payments."),
   );
-  const mentionsPay = /\b(pay|payment|checkout|subscription|billing|invoice)\b/i.test(
-    text,
-  );
-  if (!hasPayments && !mentionsPay && !answers.unknowns?.["q.intake.payments"]) {
-    gaps.push("q.intake.payments");
-  }
+  const mentionsPay =
+    /\b(pay|payment|checkout|subscription|billing|invoice)\b/i.test(text);
+  consider("q.intake.payments", !hasPayments && !mentionsPay);
 
   const integrations = answers.integrations ?? [];
   const hasIntegrationSignal =
     integrations.length > 0 && !integrations.includes("integration.unknown");
   const mentionsIntegrate =
     /\b(integrat|erp|crm|xero|sage|salesforce|api|webhook)\b/i.test(text);
-  if (!hasIntegrationSignal && mentionsIntegrate) {
-    gaps.push("q.integrations.systems");
-  }
+  consider("q.integrations.systems", !hasIntegrationSignal && mentionsIntegrate);
 
-  if (!answers.userGroups?.length) gaps.push("q.users.groups");
+  consider("q.users.groups", !answers.userGroups?.length);
 
   const hasQuality = (answers.qualityRequirements ?? []).length > 0;
   const mentionsSensitive =
     /\b(popia|gdpr|personal data|financ|regulated|compliance|pci)\b/i.test(text);
-  if (!hasQuality && mentionsSensitive) gaps.push("q.quality.requirements");
+  consider("q.quality.requirements", !hasQuality && mentionsSensitive);
 
   return gaps;
+}
+
+function canPickQuestion(
+  id: string,
+  answers: ProjectBlueprintAnswers,
+  picked: string[],
+  excludeIds: Set<string>,
+): boolean {
+  if (!WHITELIST_BY_ID.has(id) || picked.includes(id)) return false;
+  return !isQuestionSettled(id, answers, excludeIds);
 }
 
 export function selectClarifyingQuestions(args: {
@@ -332,19 +401,22 @@ export function selectClarifyingQuestions(args: {
   ideaText: string;
   round: number;
   forceReady?: boolean;
+  excludeIds?: string[];
 }): IntakeClarifyingQuestion[] {
   if (args.forceReady || args.round >= 2) return [];
 
+  const excludeIds = new Set(args.excludeIds ?? []);
   const picked: string[] = [];
+
   for (const id of args.requestedIds ?? []) {
-    if (!WHITELIST_BY_ID.has(id) || picked.includes(id)) continue;
+    if (!canPickQuestion(id, args.answers, picked, excludeIds)) continue;
     picked.push(id);
     if (picked.length >= 3) break;
   }
 
   if (picked.length < 3) {
-    for (const id of inferGapQuestionIds(args.answers, args.ideaText)) {
-      if (picked.includes(id)) continue;
+    for (const id of inferGapQuestionIds(args.answers, args.ideaText, excludeIds)) {
+      if (!canPickQuestion(id, args.answers, picked, excludeIds)) continue;
       picked.push(id);
       if (picked.length >= 3) break;
     }

@@ -4,19 +4,19 @@ overview: Stop the custom-software intake from showing the same follow-up twice 
 todos:
   - id: skip-settled
     content: Skip already-asked, unknown, and field-filled IDs in selectClarifyingQuestions and inferGapQuestionIds
-    status: pending
+    status: completed
   - id: defaults-after
     content: Run fillDefaultsAndUnknowns only when intake is ready / handoff / forceReady
-    status: pending
+    status: completed
   - id: asked-ids
     content: Pass accumulated askedQuestionIds from DescribeMode and merge with this round’s clarifications
-    status: pending
+    status: completed
   - id: apply-clear-unknown
     content: Clear unknowns on real apply() for every whitelist question
-    status: pending
+    status: completed
   - id: prompt-and-tests
     content: "Prompt: do not re-request settled IDs; add unit tests for not_sure and real-answer duplicates"
-    status: pending
+    status: completed
 isProject: false
 ---
 

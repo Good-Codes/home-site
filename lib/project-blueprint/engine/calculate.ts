@@ -1,6 +1,7 @@
 import "server-only";
 
 import type { ProjectBlueprintAnswers } from "../types";
+import { formatUnknownQuestionId } from "../unknown-copy";
 import { checksum, combineChecksums } from "./checksum";
 import { PLACEHOLDER_PRICING_CONFIG } from "./config/placeholder";
 import { evaluateDiscovery } from "./discovery";
@@ -544,7 +545,9 @@ export function calculateEstimate(
             : "Confidence is early — discovery is recommended before locking implementation scope.",
       unknowns: [
         ...uncertaintyExplanations,
-        ...((mathAnswers.unknowns as string[] | undefined) ?? []),
+        ...((mathAnswers.unknowns as string[] | undefined) ?? []).map(
+          formatUnknownQuestionId,
+        ),
       ].filter((v, i, arr) => arr.indexOf(v) === i),
     },
     assumptions: buildAssumptions(mathAnswers, pricingConfig),

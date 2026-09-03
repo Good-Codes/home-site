@@ -7,12 +7,14 @@ import { checkIntakeRateLimit, resetIntakeRateLimitForTests } from "@/lib/projec
 import { runIntake } from "@/lib/project-blueprint/intake/run";
 import {
   dropIllegalIds,
+  fillDefaultsAndUnknowns,
   sanitiseAnswers,
   sanitiseConcept,
   stripPricingLanguage,
 } from "@/lib/project-blueprint/intake/sanitise";
 import {
   applyClarifications,
+  inferGapQuestionIds,
   selectClarifyingQuestions,
 } from "@/lib/project-blueprint/intake/whitelist";
 import { coerceIntakePayload, toStringList } from "@/lib/project-blueprint/intake/coerce";
@@ -105,6 +107,28 @@ describe("intake sanitisation", () => {
   });
 });
 
+function sparseNeedsClarification(overrides: Record<string, unknown> = {}) {
+  return {
+    status: "needs_clarification",
+    concept: {
+      headline: "A custom business app",
+      summary: "A first-release product with a few details still open.",
+      whoItsFor: "The team described in the idea",
+      coreCapabilities: ["Core workflows"],
+      assumptions: ["Some details still need confirmation."],
+    },
+    answers: {
+      route: "route.custom_web_platform",
+    },
+    clarifyingQuestionIds: [
+      "q.surfaces.channels",
+      "q.context.starting_point",
+      "q.intake.payments",
+    ],
+    ...overrides,
+  };
+}
+
 describe("clarifying questions", () => {
   it("returns at most three questions", () => {
     const questions = selectClarifyingQuestions({
@@ -143,6 +167,63 @@ describe("clarifying questions", () => {
         "cap.payments.subscriptions",
       ]),
     );
+  });
+
+  it("clears an unknown flag when the user later picks a real option", () => {
+    const unsure = applyClarifications(normalizeAnswers({}), [
+      { questionId: "q.context.starting_point", values: ["not_sure"] },
+    ]);
+    expect(unsure.unknowns?.["q.context.starting_point"]).toBe("not_sure");
+
+    const known = applyClarifications(unsure, [
+      { questionId: "q.context.starting_point", values: ["start.existing_product"] },
+    ]);
+    expect(known.startingPoint).toBe("start.existing_product");
+    expect(known.unknowns?.["q.context.starting_point"]).toBeUndefined();
+  });
+
+  it("does not treat “I’m not sure yet” as a remaining gap", () => {
+    const gaps = inferGapQuestionIds(
+      normalizeAnswers({
+        unknowns: { "q.surfaces.channels": "not_sure" },
+      }),
+      "We want software for our business",
+    );
+    expect(gaps).not.toContain("q.surfaces.channels");
+    expect(gaps).toEqual(
+      expect.arrayContaining(["q.context.starting_point"]),
+    );
+  });
+
+  it("still asks high-impact gaps on an empty bag before defaults run", () => {
+    const questions = selectClarifyingQuestions({
+      requestedIds: [],
+      answers: normalizeAnswers({}),
+      ideaText: "We want software for our business",
+      round: 0,
+    });
+    expect(questions.map((question) => question.id)).toEqual(
+      expect.arrayContaining([
+        "q.surfaces.channels",
+        "q.context.starting_point",
+      ]),
+    );
+  });
+
+  it("skips OpenAI ids the user already answered", () => {
+    const questions = selectClarifyingQuestions({
+      requestedIds: ["q.surfaces.channels", "q.users.groups"],
+      answers: normalizeAnswers({
+        surfaces: ["surface.public_web"],
+      }),
+      ideaText: "We want software for our business",
+      round: 1,
+      excludeIds: ["q.surfaces.channels"],
+    });
+    expect(questions.map((question) => question.id)).not.toContain(
+      "q.surfaces.channels",
+    );
+    expect(questions.map((question) => question.id)).toContain("q.users.groups");
   });
 });
 
@@ -259,6 +340,83 @@ describe("runIntake", () => {
     expect(second.clarifyingQuestions).toEqual([]);
   });
 
+  it("does not re-ask a question after the user chooses I’m not sure yet", async () => {
+    const ideaText =
+      "We want an app for our business so the team can coordinate daily work.";
+    const first = await runIntake(
+      { ideaText },
+      { completeJson: async () => sparseNeedsClarification() },
+    );
+    expect(first.status).toBe("needs_clarification");
+    expect(first.clarifyingQuestions.map((question) => question.id)).toContain(
+      "q.surfaces.channels",
+    );
+    expect(first.answers.unknowns?.["q.surfaces.channels"]).toBeUndefined();
+    expect(first.answers.startingPoint).toBeFalsy();
+
+    const askedIds = first.clarifyingQuestions.map((question) => question.id);
+    const second = await runIntake(
+      {
+        ideaText,
+        round: 1,
+        previousAnswers: first.answers,
+        askedQuestionIds: askedIds,
+        clarifications: first.clarifyingQuestions.map((question) => ({
+          questionId: question.id,
+          values: ["not_sure"],
+        })),
+      },
+      {
+        completeJson: async () =>
+          sparseNeedsClarification({
+            answers: { route: "route.custom_web_platform" },
+            clarifyingQuestionIds: ["q.surfaces.channels"],
+          }),
+      },
+    );
+
+    expect(second.clarifyingQuestions.map((question) => question.id)).not.toContain(
+      "q.surfaces.channels",
+    );
+  });
+
+  it("does not re-ask a question after the user picks a real option", async () => {
+    const ideaText =
+      "We want an app for our business so the team can coordinate daily work.";
+    const first = await runIntake(
+      { ideaText },
+      { completeJson: async () => sparseNeedsClarification() },
+    );
+
+    const second = await runIntake(
+      {
+        ideaText,
+        round: 1,
+        previousAnswers: first.answers,
+        askedQuestionIds: first.clarifyingQuestions.map((question) => question.id),
+        clarifications: first.clarifyingQuestions.map((question) => ({
+          questionId: question.id,
+          values:
+            question.id === "q.surfaces.channels"
+              ? ["surface.public_web"]
+              : ["not_sure"],
+        })),
+      },
+      {
+        completeJson: async () =>
+          sparseNeedsClarification({
+            answers: { route: "route.custom_web_platform" },
+            clarifyingQuestionIds: ["q.surfaces.channels", "q.users.groups"],
+          }),
+      },
+    );
+
+    expect(second.clarifyingQuestions.map((question) => question.id)).not.toContain(
+      "q.surfaces.channels",
+    );
+    expect(second.answers.surfaces).toEqual(["surface.public_web"]);
+  });
+
   it("falls back to keywords when AI is disabled and still produces a calculable bag", async () => {
     const result = await runIntake(
       { ideaText: RICH_PORTAL },
@@ -268,7 +426,8 @@ describe("runIntake", () => {
     expect(result.status === "ready" || result.status === "needs_clarification").toBe(
       true,
     );
-    const estimate = calculateEstimate(result.answers, PLACEHOLDER_PRICING_CONFIG);
+    const answersForPricing = fillDefaultsAndUnknowns(result.answers, RICH_PORTAL);
+    const estimate = calculateEstimate(answersForPricing, PLACEHOLDER_PRICING_CONFIG);
     expect(estimate.publicResult.recommendedScenario.range.likely).toBeGreaterThan(0);
   });
 
