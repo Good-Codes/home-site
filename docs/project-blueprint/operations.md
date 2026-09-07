@@ -192,11 +192,12 @@ Engine placeholder config ships with **`isPlaceholder = true`**.
 
 ```bash
 docker compose up db -d
-npx prisma migrate deploy
-npx prisma db seed
+npm run db:generate
+npm run db:migrate
+npm run db:seed
+npm run dev
 # Confirm:
 # - users table has one ADMIN when bootstrap env is set
-# - npm run dev
 # - /custom-software-estimator redirects to /login when signed out
 ```
 

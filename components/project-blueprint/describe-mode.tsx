@@ -14,7 +14,7 @@ import type {
 } from "@/lib/project-blueprint/types";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { BrandButton, optionCardClass, optionCardSelectedClass } from "./ui";
+import { BrandButton, OptionSelectedMark, optionCardClass, optionCardSelectedClass } from "./ui";
 
 type DescribeModeProps = {
   initialText?: string;
@@ -274,14 +274,26 @@ export function DescribeMode({
                           "w-full text-left",
                         )}
                       >
-                        <span className="block text-base font-semibold text-neutral-900 dark:text-neutral-100">
-                          {option.label}
-                        </span>
-                        {option.description ? (
-                          <span className="mt-1 block text-sm leading-6 text-neutral-600 dark:text-neutral-300">
-                            {option.description}
+                        <span className="flex items-start gap-3">
+                          <OptionSelectedMark selected={isSelected} />
+                          <span className="min-w-0 flex-1">
+                            <span
+                              className={cn(
+                                "block text-base font-semibold",
+                                isSelected
+                                  ? "text-[#2f6f69] dark:text-[#9ed9d2]"
+                                  : "text-neutral-900 dark:text-neutral-100",
+                              )}
+                            >
+                              {option.label}
+                            </span>
+                            {option.description ? (
+                              <span className="mt-1 block text-sm leading-6 text-neutral-600 dark:text-neutral-300">
+                                {option.description}
+                              </span>
+                            ) : null}
                           </span>
-                        ) : null}
+                        </span>
                       </button>
                     );
                   })}

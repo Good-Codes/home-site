@@ -62,7 +62,7 @@ export default function Navbar() {
           </div>
 
           {/* Desktop CTA */}
-          <div className="hidden md:flex md:items-center md:gap-1.5">
+          <div className="hidden md:flex md:items-center md:gap-2">
             <Button variant="ghost" size="icon" onClick={toggleTheme} className="size-8">
               {mounted && (theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />)}
             </Button>

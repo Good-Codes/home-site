@@ -18,7 +18,7 @@ import {
   setUnknownMarker,
 } from "@/lib/project-blueprint/answer-path";
 import { toggleCapability } from "@/lib/project-blueprint/branching/dependencies";
-import { optionCardClass, optionCardSelectedClass } from "./ui";
+import { OptionSelectedMark, optionCardClass, optionCardSelectedClass } from "./ui";
 
 type StepScreenProps = {
   screen: ScreenDefinition;
@@ -180,19 +180,31 @@ function QuestionBlock({
               role={multi ? "checkbox" : "radio"}
               onClick={() => selectOption(option.id)}
             >
-              <span className="block text-base font-semibold text-neutral-900 dark:text-neutral-100">
-                {option.label}
+              <span className="flex items-start gap-3">
+                <OptionSelectedMark selected={selected} />
+                <span className="min-w-0 flex-1">
+                  <span
+                    className={cn(
+                      "block text-base font-semibold",
+                      selected
+                        ? "text-[#2f6f69] dark:text-[#9ed9d2]"
+                        : "text-neutral-900 dark:text-neutral-100",
+                    )}
+                  >
+                    {option.label}
+                  </span>
+                  {option.description ? (
+                    <span className="mt-1 block text-sm leading-6 text-neutral-600 dark:text-neutral-300">
+                      {option.description}
+                    </span>
+                  ) : null}
+                  {option.helpText ? (
+                    <span className="mt-2 block text-xs leading-5 text-neutral-500 dark:text-neutral-400">
+                      {option.helpText}
+                    </span>
+                  ) : null}
+                </span>
               </span>
-              {option.description ? (
-                <span className="mt-1 block text-sm leading-6 text-neutral-600 dark:text-neutral-300">
-                  {option.description}
-                </span>
-              ) : null}
-              {option.helpText ? (
-                <span className="mt-2 block text-xs leading-5 text-neutral-500 dark:text-neutral-400">
-                  {option.helpText}
-                </span>
-              ) : null}
             </motion.button>
           );
         })}

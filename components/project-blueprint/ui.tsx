@@ -1,6 +1,8 @@
+import { Check } from "lucide-react";
+import Link from "next/link";
+
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import Link from "next/link";
 
 export function SectionHeading({
   eyebrow,
@@ -95,4 +97,20 @@ export const optionCardClass =
   "rounded-lg border border-neutral-200 bg-white p-5 text-left shadow-sm shadow-neutral-950/[0.03] transition hover:-translate-y-0.5 hover:border-[#67AFA7]/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#67AFA7] dark:border-white/10 dark:bg-white/[0.04] dark:shadow-black/20";
 
 export const optionCardSelectedClass =
-  "border-[#67AFA7]/70 ring-1 ring-[#67AFA7]/20";
+  "border-[#67AFA7] bg-[#67AFA7]/15 ring-2 ring-[#67AFA7]/45 hover:border-[#67AFA7] dark:border-[#9ed9d2] dark:bg-[#67AFA7]/25 dark:ring-[#9ed9d2]/40";
+
+export function OptionSelectedMark({ selected }: { selected: boolean }) {
+  return (
+    <span
+      className={cn(
+        "mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full border-2 transition",
+        selected
+          ? "border-[#67AFA7] bg-[#67AFA7] text-white dark:border-[#9ed9d2] dark:bg-[#9ed9d2] dark:text-neutral-950"
+          : "border-neutral-300 bg-transparent dark:border-white/30",
+      )}
+      aria-hidden
+    >
+      {selected ? <Check className="size-3 stroke-[3]" /> : null}
+    </span>
+  );
+}
