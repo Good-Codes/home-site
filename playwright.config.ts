@@ -23,5 +23,10 @@ export default defineConfig({
     url: baseURL,
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
+    env: {
+      ...process.env,
+      AUTH_SECRET:
+        process.env.AUTH_SECRET ?? "dev-only-insecure-auth-secret-min-32-chars",
+    },
   },
 });

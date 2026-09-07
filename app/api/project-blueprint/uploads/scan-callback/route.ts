@@ -2,12 +2,9 @@ import { createHmac, timingSafeEqual } from "crypto";
 
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { Prisma } from "@prisma/client";
 
-import {
-  hasServiceRole,
-  isSupabaseConfigured,
-} from "@/lib/project-blueprint/auth/admin";
-import { createAdminClient } from "@/lib/supabase/admin";
+import { isDatabaseConfigured, prisma } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 
@@ -61,8 +58,8 @@ function verifyWebhookSecret(request: Request, rawBody: string): boolean {
 }
 
 /**
- * Malware-scanner webhook. Verifies HMAC/secret when configured; updates scan_status.
- * Demo no-op is OK when Supabase is unset.
+ * Malware-scanner webhook. Verifies HMAC/secret when configured; updates scanStatus.
+ * Demo no-op is OK when the database is unset.
  */
 export async function POST(request: Request) {
   const rawBody = await request.text();
@@ -94,40 +91,30 @@ export async function POST(request: Request) {
     );
   }
 
-  if (!isSupabaseConfigured() || !hasServiceRole()) {
+  if (!isDatabaseConfigured()) {
     return NextResponse.json({
       ok: true,
       demo: true,
-      warning: "PLACEHOLDER — scan callback accepted (Supabase unset). No row updated.",
+      warning: "Scan callback accepted (database unset). No row updated.",
     });
   }
 
   try {
-    const admin = createAdminClient();
-    let query = admin.from("uploaded_briefs").update({
-      scan_status: status,
-      scan_detail: detail ?? {},
+    const data = await prisma.uploadedBrief.updateMany({
+      where: uploadId
+        ? { id: uploadId }
+        : path
+          ? { storagePath: path }
+          : { id: "__none__" },
+      data: {
+        scanStatus: status,
+        scanDetail: (detail ?? {}) as Prisma.InputJsonValue,
+      },
     });
-
-    if (uploadId) {
-      query = query.eq("id", uploadId);
-    } else if (path) {
-      query = query.eq("storage_path", path);
-    }
-
-    const { data, error } = await query.select("id").maybeSingle();
-
-    if (error) {
-      console.error("scan callback update failed", error);
-      return NextResponse.json(
-        { error: "Unable to update scan status." },
-        { status: 500 },
-      );
-    }
 
     return NextResponse.json({
       ok: true,
-      updated: Boolean(data?.id),
+      updated: data.count > 0,
       status,
     });
   } catch (error) {

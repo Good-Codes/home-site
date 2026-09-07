@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { Prisma } from "@prisma/client";
 
-import { requireAdmin, hasServiceRole } from "@/lib/project-blueprint/auth/admin";
-import { createAdminClient } from "@/lib/supabase/admin";
+import { isDatabaseConfigured, prisma } from "@/lib/db";
+import { requireAdmin } from "@/lib/project-blueprint/auth/admin";
 
 export const dynamic = "force-dynamic";
 
@@ -45,7 +46,7 @@ export type CalibrationListItem = {
   createdAt: string;
 };
 
-const DEMO_RECORDS: CalibrationListItem[] = [];
+const EMPTY_RECORDS: CalibrationListItem[] = [];
 
 export async function GET() {
   const auth = await requireAdmin();
@@ -53,60 +54,52 @@ export async function GET() {
     return NextResponse.json({ error: auth.error }, { status: auth.status });
   }
 
-  if (auth.admin.isDemo || !hasServiceRole()) {
+  if (!isDatabaseConfigured()) {
     return NextResponse.json({
-      records: DEMO_RECORDS,
+      records: EMPTY_RECORDS,
       demo: true,
-      warning:
-        "PLACEHOLDER — Supabase unset or service role missing. Calibration list is empty demo mode.",
+      warning: "Database unset. Calibration list is empty.",
     });
   }
 
   try {
-    const admin = createAdminClient();
-    const { data, error } = await admin
-      .from("calibration_records")
-      .select(
-        "id, estimate_result_id, quotation_id, actual_effort_hours, actual_duration_weeks, variance_reasons, recommendations, created_at",
-      )
-      .order("created_at", { ascending: false })
-      .limit(100);
+    const data = await prisma.calibrationRecord.findMany({
+      orderBy: { createdAt: "desc" },
+      take: 100,
+      select: {
+        id: true,
+        estimateResultId: true,
+        quotationId: true,
+        actualEffortHours: true,
+        actualDurationWeeks: true,
+        varianceReasons: true,
+        recommendations: true,
+        createdAt: true,
+      },
+    });
 
-    if (error) {
-      console.error("calibration list failed", error);
-      return NextResponse.json(
-        { error: "Unable to load calibration records." },
-        { status: 500 },
-      );
-    }
-
-    const records: CalibrationListItem[] = (data ?? []).map((row) => ({
-      id: String(row.id),
-      estimateResultId: (row.estimate_result_id as string | null) ?? null,
-      quotationId: (row.quotation_id as string | null) ?? null,
+    const records: CalibrationListItem[] = data.map((row) => ({
+      id: row.id,
+      estimateResultId: row.estimateResultId,
+      quotationId: row.quotationId,
       actualEffortHours:
-        row.actual_effort_hours == null
-          ? null
-          : Number(row.actual_effort_hours),
+        row.actualEffortHours == null ? null : Number(row.actualEffortHours),
       actualDurationWeeks:
-        row.actual_duration_weeks == null
-          ? null
-          : Number(row.actual_duration_weeks),
-      varianceReasons: Array.isArray(row.variance_reasons)
-        ? (row.variance_reasons as string[])
+        row.actualDurationWeeks == null ? null : Number(row.actualDurationWeeks),
+      varianceReasons: Array.isArray(row.varianceReasons)
+        ? (row.varianceReasons as string[])
         : [],
-      recommendations: (row.recommendations as string | null) ?? null,
-      createdAt: String(row.created_at),
+      recommendations: row.recommendations,
+      createdAt: row.createdAt.toISOString(),
     }));
 
     return NextResponse.json({ records, demo: false });
   } catch (error) {
     console.error("calibration GET error", error);
-    return NextResponse.json({
-      records: DEMO_RECORDS,
-      demo: true,
-      warning: "PLACEHOLDER — falling back to demo calibration list.",
-    });
+    return NextResponse.json(
+      { error: "Unable to load calibration records." },
+      { status: 500 },
+    );
   }
 }
 
@@ -126,37 +119,15 @@ export async function POST(request: Request) {
   }
 
   const body = parsed.data;
-  if (
-    body.estimateResultId &&
-    body.estimateResultId.length > 0 &&
-    !z.string().uuid().safeParse(body.estimateResultId).success
-  ) {
-    return NextResponse.json(
-      { error: "estimateResultId must be a valid UUID when provided." },
-      { status: 400 },
-    );
-  }
-  if (
-    body.quotationId &&
-    body.quotationId.length > 0 &&
-    !z.string().uuid().safeParse(body.quotationId).success
-  ) {
-    return NextResponse.json(
-      { error: "quotationId must be a valid UUID when provided." },
-      { status: 400 },
-    );
-  }
-
   const estimateResultId = optionalUuid(body.estimateResultId);
   const quotationId = optionalUuid(body.quotationId);
 
-  if (auth.admin.isDemo || !hasServiceRole()) {
-    const id = `demo-calibration-${Date.now()}`;
+  if (!isDatabaseConfigured()) {
+    const id = `local-calibration-${Date.now()}`;
     return NextResponse.json({
       ok: true,
       demo: true,
-      warning:
-        "PLACEHOLDER — calibration saved in-memory only (Supabase unset). Not persisted.",
+      warning: "Calibration saved in-memory only (database unset). Not persisted.",
       record: {
         id,
         estimateResultId,
@@ -171,54 +142,52 @@ export async function POST(request: Request) {
   }
 
   try {
-    const admin = createAdminClient();
-    const { data, error } = await admin
-      .from("calibration_records")
-      .insert({
-        estimate_result_id: estimateResultId,
-        quotation_id: quotationId,
-        actual_effort_hours: body.actualEffortHours ?? null,
-        actual_duration_weeks: body.actualDurationWeeks ?? null,
-        variance_reasons: body.varianceReasons,
+    const data = await prisma.calibrationRecord.create({
+      data: {
+        estimateResultId,
+        quotationId,
+        actualEffortHours: body.actualEffortHours ?? null,
+        actualDurationWeeks: body.actualDurationWeeks ?? null,
+        varianceReasons: body.varianceReasons,
         recommendations: body.recommendations ?? null,
-        original_estimate_snapshot: body.originalEstimateSnapshot ?? {},
-        reviewed_quote_snapshot: body.reviewedQuoteSnapshot ?? {},
-        agreed_scope_snapshot: body.agreedScopeSnapshot ?? {},
-        recorded_by: auth.admin.isDemo ? null : auth.admin.userId,
-      })
-      .select(
-        "id, estimate_result_id, quotation_id, actual_effort_hours, actual_duration_weeks, variance_reasons, recommendations, created_at",
-      )
-      .single();
-
-    if (error || !data) {
-      console.error("calibration create failed", error);
-      return NextResponse.json(
-        { error: "Unable to save calibration record." },
-        { status: 500 },
-      );
-    }
+        originalEstimateSnapshot: (body.originalEstimateSnapshot ??
+          {}) as Prisma.InputJsonValue,
+        reviewedQuoteSnapshot: (body.reviewedQuoteSnapshot ??
+          {}) as Prisma.InputJsonValue,
+        agreedScopeSnapshot: (body.agreedScopeSnapshot ??
+          {}) as Prisma.InputJsonValue,
+        recordedById: auth.admin.userId,
+      },
+      select: {
+        id: true,
+        estimateResultId: true,
+        quotationId: true,
+        actualEffortHours: true,
+        actualDurationWeeks: true,
+        varianceReasons: true,
+        recommendations: true,
+        createdAt: true,
+      },
+    });
 
     return NextResponse.json({
       ok: true,
       demo: false,
       record: {
-        id: String(data.id),
-        estimateResultId: (data.estimate_result_id as string | null) ?? null,
-        quotationId: (data.quotation_id as string | null) ?? null,
+        id: data.id,
+        estimateResultId: data.estimateResultId,
+        quotationId: data.quotationId,
         actualEffortHours:
-          data.actual_effort_hours == null
-            ? null
-            : Number(data.actual_effort_hours),
+          data.actualEffortHours == null ? null : Number(data.actualEffortHours),
         actualDurationWeeks:
-          data.actual_duration_weeks == null
+          data.actualDurationWeeks == null
             ? null
-            : Number(data.actual_duration_weeks),
-        varianceReasons: Array.isArray(data.variance_reasons)
-          ? (data.variance_reasons as string[])
+            : Number(data.actualDurationWeeks),
+        varianceReasons: Array.isArray(data.varianceReasons)
+          ? (data.varianceReasons as string[])
           : [],
-        recommendations: (data.recommendations as string | null) ?? null,
-        createdAt: String(data.created_at),
+        recommendations: data.recommendations,
+        createdAt: data.createdAt.toISOString(),
       } satisfies CalibrationListItem,
     });
   } catch (error) {

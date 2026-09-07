@@ -7,12 +7,18 @@ import {
   clientKeyFromRequest,
   runIntake,
 } from "@/lib/project-blueprint/intake";
+import { requireUser } from "@/lib/project-blueprint/auth/admin";
 
 export const dynamic = "force-dynamic";
 
 export async function POST(request: Request) {
+  const auth = await requireUser();
+  if (!auth.ok) {
+    return NextResponse.json({ error: auth.error }, { status: auth.status });
+  }
+
   try {
-    const key = clientKeyFromRequest(request);
+    const key = `${auth.user.id}:${clientKeyFromRequest(request)}`;
     if (!checkIntakeRateLimit(key)) {
       return NextResponse.json(
         { error: "Too many estimate requests. Please wait a few minutes." },
@@ -56,7 +62,7 @@ export async function POST(request: Request) {
         round: result.round,
         questionCount: result.clarifyingQuestions.length,
       },
-      { sessionId: parsed.data.sessionId },
+      { estimateId: parsed.data.estimateId ?? parsed.data.sessionId },
     ).catch(() => undefined);
 
     return NextResponse.json(result);

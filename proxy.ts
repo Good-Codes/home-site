@@ -1,60 +1,71 @@
-import { createServerClient } from "@supabase/ssr";
-import { NextResponse, type NextRequest } from "next/server";
+import NextAuth from "next-auth";
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
+
+import { authConfig } from "@/auth.config";
+import { isStaffRole } from "@/lib/auth/roles";
+import { safeCallbackPath } from "@/lib/auth/callback-url";
+
+const { auth } = NextAuth(authConfig);
+
+function isAuthExempt(path: string): boolean {
+  if (path.startsWith("/api/auth")) return true;
+  if (path.startsWith("/admin/login")) return true;
+  if (path.startsWith("/api/project-blueprint/uploads/scan-callback")) return true;
+  return false;
+}
 
 export async function proxy(request: NextRequest) {
-  let response = NextResponse.next({
-    request,
-  });
-
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-  if (!url || !anonKey) {
-    // Demo mode: allow admin UI without auth when Supabase is unset.
-    return response;
+  const path = request.nextUrl.pathname;
+  if (isAuthExempt(path)) {
+    return NextResponse.next();
   }
 
-  const supabase = createServerClient(url, anonKey, {
-    cookies: {
-      getAll() {
-        return request.cookies.getAll();
-      },
-      setAll(cookiesToSet) {
-        cookiesToSet.forEach(({ name, value }) =>
-          request.cookies.set(name, value),
-        );
-        response = NextResponse.next({ request });
-        cookiesToSet.forEach(({ name, value, options }) =>
-          response.cookies.set(name, value, options),
-        );
-      },
-    },
-  });
+  const session = await auth();
+  const role = session?.user?.role;
 
-  const { data } = await supabase.auth.getClaims();
-  const isAuthenticated = Boolean(data?.claims);
-  const path = request.nextUrl.pathname;
+  if ((path === "/login" || path === "/signup") && session?.user) {
+    const dest = isStaffRole(role)
+      ? "/admin/project-blueprint"
+      : "/custom-software-estimator";
+    const next = request.nextUrl.searchParams.get("next");
+    return NextResponse.redirect(new URL(safeCallbackPath(next, dest), request.url));
+  }
 
-  if (path.startsWith("/admin") && !path.startsWith("/admin/login")) {
-    if (!isAuthenticated) {
-      const loginUrl = new URL("/admin/login", request.url);
+  if (path === "/login" || path === "/signup") {
+    return NextResponse.next();
+  }
+
+  if (path.startsWith("/custom-software-estimator")) {
+    if (!session?.user) {
+      const loginUrl = new URL("/login", request.url);
       loginUrl.searchParams.set("next", path);
       return NextResponse.redirect(loginUrl);
     }
+    return NextResponse.next();
   }
 
-  if (path.startsWith("/admin/login") && isAuthenticated) {
-    return NextResponse.redirect(
-      new URL("/admin/project-blueprint", request.url),
-    );
+  if (path.startsWith("/admin")) {
+    if (!session?.user) {
+      const loginUrl = new URL("/login", request.url);
+      loginUrl.searchParams.set("next", path);
+      return NextResponse.redirect(loginUrl);
+    }
+    if (!isStaffRole(role)) {
+      return NextResponse.redirect(new URL("/", request.url));
+    }
+    return NextResponse.next();
   }
 
-  return response;
+  return NextResponse.next();
 }
 
 export const config = {
   matcher: [
     "/admin/:path*",
+    "/custom-software-estimator/:path*",
+    "/login",
+    "/signup",
     "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };

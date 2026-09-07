@@ -2,12 +2,18 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 
 import { classifyIdea } from "@/lib/project-blueprint/classifier";
+import { requireUser } from "@/lib/project-blueprint/auth/admin";
 
 const bodySchema = z.object({
   ideaText: z.string().min(20).max(4000),
 });
 
 export async function POST(request: Request) {
+  const auth = await requireUser();
+  if (!auth.ok) {
+    return NextResponse.json({ error: auth.error }, { status: auth.status });
+  }
+
   try {
     const json = await request.json();
     const parsed = bodySchema.safeParse(json);

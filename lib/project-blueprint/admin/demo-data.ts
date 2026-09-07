@@ -1,5 +1,5 @@
 /**
- * Demo estimate payloads for local admin UI when Supabase is unset.
+ * Demo estimate payloads for local admin UI when the database is unset.
  * Public-safe shapes only — no rates, margins, or private traces.
  */
 

@@ -9,6 +9,7 @@ import { Menu, Sun, Moon, X } from "lucide-react";
 import { useTheme } from "next-themes";
 import { motion, AnimatePresence, type Variants } from "framer-motion";
 import { smoothEase } from "@/lib/motion";
+import { SessionNav } from "@/components/auth/session-nav";
 
 /**
  * Primary site navigation bar.
@@ -68,6 +69,7 @@ export default function Navbar() {
             <Link href="/contact-us">
               <Button size="sm">Get a Quote</Button>
             </Link>
+            <SessionNav />
           </div>
 
           {/* Mobile controls */}
@@ -179,12 +181,13 @@ export default function Navbar() {
               <div className="mx-5 h-px bg-neutral-300/50 dark:bg-neutral-600/50" />
 
               {/* CTA */}
-              <div className="px-4 py-4">
+              <div className="px-4 py-4 space-y-2">
                 <Link href="/contact-us" onClick={() => setMenuOpen(false)}>
                   <Button size="sm" className="w-full rounded-md bg-[#67AFA7] text-white hover:bg-[#559e97]">
                     Get a Quote
                   </Button>
                 </Link>
+                <SessionNav compact />
               </div>
             </motion.div>
           </>

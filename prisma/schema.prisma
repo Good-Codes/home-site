@@ -1,0 +1,378 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  CUSTOMER
+  REVIEWER
+  ADMIN
+  APPROVER
+}
+
+enum EstimateStatus {
+  IN_PROGRESS
+  REVIEWED
+  CALCULATED
+  LEAD_CAPTURED
+  EXPIRED
+  ABANDONED
+}
+
+enum ScanStatus {
+  pending
+  clean
+  infected
+  error
+  skipped
+}
+
+enum QuotationStatus {
+  draft
+  in_review
+  pending_approval
+  approved
+  issued
+  accepted
+  declined
+  withdrawn
+}
+
+enum QuoteVersionStatus {
+  draft
+  frozen
+  issued
+  superseded
+}
+
+enum QuoteLineKind {
+  work_package
+  role
+  custom
+  third_party
+  discount
+  other
+}
+
+enum ApprovalStatus {
+  pending
+  approved
+  rejected
+  cancelled
+}
+
+enum PreferredNextStep {
+  email
+  call
+  workshop
+  upload_brief
+  none
+}
+
+enum AnswerRevisionSource {
+  autosave
+  review_edit
+  recalculate
+  admin
+  system
+}
+
+model User {
+  id           String   @id @default(uuid()) @db.Uuid
+  email        String   @unique
+  name         String?
+  passwordHash String
+  role         UserRole @default(CUSTOMER)
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  estimates             Estimate[]
+  leads                 Lead[]
+  assignedQuotations    ReviewedQuotation[] @relation("QuotationAssignee")
+  createdQuotations     ReviewedQuotation[] @relation("QuotationCreator")
+  issuedQuoteVersions   QuoteVersion[]      @relation("QuoteIssuer")
+  requestedApprovals    QuoteApproval[]     @relation("ApprovalRequester")
+  decidedApprovals      QuoteApproval[]     @relation("ApprovalDecider")
+  calibrationRecords    CalibrationRecord[]
+  auditEvents           AuditEvent[]
+  publishedPricing      PricingVersion[]
+  pricingDrafts         PricingDraft[]
+}
+
+model PricingVersion {
+  id            String   @id @default(uuid()) @db.Uuid
+  version       String   @unique
+  checksum      String
+  isPlaceholder Boolean  @default(true)
+  snapshot      Json
+  publishedAt   DateTime @default(now())
+  publishedById String?  @db.Uuid
+  publishedBy   User?    @relation(fields: [publishedById], references: [id], onDelete: SetNull)
+  notes         String?
+  createdAt     DateTime @default(now())
+
+  results EstimateResult[]
+}
+
+model PricingDraft {
+  id        String   @id @default(uuid()) @db.Uuid
+  label     String   @unique @default("default")
+  config    Json     @default("{}")
+  updatedById String? @db.Uuid
+  updatedBy User?    @relation(fields: [updatedById], references: [id], onDelete: SetNull)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Estimate {
+  id         String         @id @default(uuid()) @db.Uuid
+  userId     String         @db.Uuid
+  user       User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  status     EstimateStatus @default(IN_PROGRESS)
+  answers    Json           @default("{}")
+  concept    Json?
+  lastScreen String?
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
+
+  revisions        AnswerRevision[]
+  results          EstimateResult[]
+  lead             Lead?
+  uploads          UploadedBrief[]
+  analyticsEvents  AnalyticsEvent[]
+
+  @@index([userId, updatedAt(sort: Desc)])
+  @@index([status])
+}
+
+model AnswerRevision {
+  id         String                @id @default(uuid()) @db.Uuid
+  estimateId String                @db.Uuid
+  estimate   Estimate              @relation(fields: [estimateId], references: [id], onDelete: Cascade)
+  revision   Int
+  answers    Json
+  source     AnswerRevisionSource  @default(autosave)
+  createdAt  DateTime              @default(now())
+
+  @@unique([estimateId, revision])
+  @@index([estimateId, revision(sort: Desc)])
+}
+
+model EstimateResult {
+  id                 String          @id @default(uuid()) @db.Uuid
+  estimateId         String          @db.Uuid
+  estimate           Estimate        @relation(fields: [estimateId], references: [id], onDelete: Cascade)
+  pricingVersionId   String?         @db.Uuid
+  pricingVersion     PricingVersion? @relation(fields: [pricingVersionId], references: [id], onDelete: SetNull)
+  publicResult       Json
+  calculationTrace   Json
+  checksum           String
+  isDiscoveryFirst   Boolean         @default(false)
+  createdAt          DateTime        @default(now())
+
+  quotations         ReviewedQuotation[]
+  calibrationRecords CalibrationRecord[]
+
+  @@index([estimateId, createdAt(sort: Desc)])
+  @@index([createdAt(sort: Desc)])
+}
+
+model Lead {
+  id                String             @id @default(uuid()) @db.Uuid
+  userId            String             @db.Uuid
+  user              User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  estimateId        String             @unique @db.Uuid
+  estimate          Estimate           @relation(fields: [estimateId], references: [id], onDelete: Cascade)
+  name              String
+  email             String
+  company           String?
+  phone             String?
+  consent           Boolean            @default(false)
+  consentAt         DateTime?
+  preferredNextStep PreferredNextStep?
+  notes             String?
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+
+  @@index([email])
+  @@index([userId])
+}
+
+model UploadedBrief {
+  id               String     @id @default(uuid()) @db.Uuid
+  estimateId       String     @db.Uuid
+  estimate         Estimate   @relation(fields: [estimateId], references: [id], onDelete: Cascade)
+  storagePath      String     @unique
+  originalFilename String?
+  mime             String
+  sizeBytes        BigInt
+  scanStatus       ScanStatus @default(pending)
+  scanDetail       Json       @default("{}")
+  consent          Boolean    @default(false)
+  consentAt        DateTime?
+  uploadedAt       DateTime   @default(now())
+  createdAt        DateTime   @default(now())
+
+  @@index([estimateId])
+  @@index([scanStatus])
+}
+
+model ReviewedQuotation {
+  id               String           @id @default(uuid()) @db.Uuid
+  estimateResultId String           @db.Uuid
+  estimateResult   EstimateResult   @relation(fields: [estimateResultId], references: [id], onDelete: Restrict)
+  status           QuotationStatus  @default(draft)
+  assignedToId     String?          @db.Uuid
+  assignedTo       User?            @relation("QuotationAssignee", fields: [assignedToId], references: [id], onDelete: SetNull)
+  title            String?
+  currency         String           @default("ZAR")
+  selectedScenario String?
+  internalNotes    String?
+  createdById      String?          @db.Uuid
+  createdBy        User?            @relation("QuotationCreator", fields: [createdById], references: [id], onDelete: SetNull)
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+
+  versions           QuoteVersion[]
+  calibrationRecords CalibrationRecord[]
+
+  @@index([status])
+  @@index([estimateResultId])
+}
+
+model QuoteVersion {
+  id                 String             @id @default(uuid()) @db.Uuid
+  quotationId        String             @db.Uuid
+  quotation          ReviewedQuotation  @relation(fields: [quotationId], references: [id], onDelete: Cascade)
+  versionNumber      Int
+  status             QuoteVersionStatus @default(draft)
+  frozenSnapshot     Json               @default("{}")
+  lineItemsSnapshot  Json               @default("[]")
+  milestonesSnapshot Json               @default("[]")
+  overrides          Json               @default("[]")
+  overrideReasons    Json               @default("[]")
+  subtotalZar        Decimal?           @db.Decimal(14, 2)
+  taxZar             Decimal?           @db.Decimal(14, 2)
+  totalZar           Decimal?           @db.Decimal(14, 2)
+  issuedAt           DateTime?
+  issuedById         String?            @db.Uuid
+  issuedBy           User?              @relation("QuoteIssuer", fields: [issuedById], references: [id], onDelete: SetNull)
+  createdAt          DateTime           @default(now())
+
+  lineItems          QuoteLineItem[]
+  milestones         QuoteMilestone[]
+  approvals          QuoteApproval[]
+  calibrationRecords CalibrationRecord[]
+
+  @@unique([quotationId, versionNumber])
+  @@index([status])
+}
+
+model QuoteLineItem {
+  id             String        @id @default(uuid()) @db.Uuid
+  quoteVersionId String        @db.Uuid
+  quoteVersion   QuoteVersion  @relation(fields: [quoteVersionId], references: [id], onDelete: Cascade)
+  sortOrder      Int           @default(0)
+  kind           QuoteLineKind @default(custom)
+  label          String
+  description    String?
+  quantity       Decimal       @default(1) @db.Decimal(12, 2)
+  unitAmountZar  Decimal       @default(0) @db.Decimal(14, 2)
+  amountZar      Decimal       @default(0) @db.Decimal(14, 2)
+  metadata       Json          @default("{}")
+  createdAt      DateTime      @default(now())
+
+  @@index([quoteVersionId, sortOrder])
+}
+
+model QuoteMilestone {
+  id             String       @id @default(uuid()) @db.Uuid
+  quoteVersionId String       @db.Uuid
+  quoteVersion   QuoteVersion @relation(fields: [quoteVersionId], references: [id], onDelete: Cascade)
+  sortOrder      Int          @default(0)
+  label          String
+  description    String?
+  percent        Decimal?     @db.Decimal(5, 2)
+  amountZar      Decimal?     @db.Decimal(14, 2)
+  dueLabel       String?
+  createdAt      DateTime     @default(now())
+
+  @@index([quoteVersionId, sortOrder])
+}
+
+model QuoteApproval {
+  id             String         @id @default(uuid()) @db.Uuid
+  quoteVersionId String         @db.Uuid
+  quoteVersion   QuoteVersion   @relation(fields: [quoteVersionId], references: [id], onDelete: Cascade)
+  requestedById  String?        @db.Uuid
+  requestedBy    User?          @relation("ApprovalRequester", fields: [requestedById], references: [id], onDelete: SetNull)
+  approverUserId String?        @db.Uuid
+  approver       User?          @relation("ApprovalDecider", fields: [approverUserId], references: [id], onDelete: SetNull)
+  status         ApprovalStatus @default(pending)
+  thresholdLabel String?
+  decisionNote   String?
+  decidedAt      DateTime?
+  createdAt      DateTime       @default(now())
+
+  @@index([quoteVersionId])
+  @@index([status])
+}
+
+model AnalyticsEvent {
+  id         String    @id @default(uuid()) @db.Uuid
+  eventName  String
+  estimateId String?   @db.Uuid
+  estimate   Estimate? @relation(fields: [estimateId], references: [id], onDelete: SetNull)
+  properties Json      @default("{}")
+  createdAt  DateTime  @default(now())
+
+  @@index([eventName])
+  @@index([createdAt(sort: Desc)])
+  @@index([estimateId])
+}
+
+model CalibrationRecord {
+  id                       String             @id @default(uuid()) @db.Uuid
+  estimateResultId         String?            @db.Uuid
+  estimateResult           EstimateResult?    @relation(fields: [estimateResultId], references: [id], onDelete: SetNull)
+  quotationId              String?            @db.Uuid
+  quotation                ReviewedQuotation? @relation(fields: [quotationId], references: [id], onDelete: SetNull)
+  quoteVersionId           String?            @db.Uuid
+  quoteVersion             QuoteVersion?      @relation(fields: [quoteVersionId], references: [id], onDelete: SetNull)
+  originalEstimateSnapshot Json               @default("{}")
+  reviewedQuoteSnapshot    Json               @default("{}")
+  agreedScopeSnapshot      Json               @default("{}")
+  actualEffortHours        Decimal?           @db.Decimal(12, 2)
+  actualDurationWeeks      Decimal?           @db.Decimal(8, 2)
+  changeRequests           Json               @default("[]")
+  varianceReasons          Json               @default("[]")
+  recommendations          String?
+  recordedById             String?            @db.Uuid
+  recordedBy               User?              @relation(fields: [recordedById], references: [id], onDelete: SetNull)
+  createdAt                DateTime           @default(now())
+  updatedAt                DateTime           @updatedAt
+
+  @@index([createdAt(sort: Desc)])
+  @@index([estimateResultId])
+}
+
+model AuditEvent {
+  id         String   @id @default(uuid()) @db.Uuid
+  actorUserId String? @db.Uuid
+  actor      User?    @relation(fields: [actorUserId], references: [id], onDelete: SetNull)
+  action     String
+  entityType String
+  entityId   String?  @db.Uuid
+  metadata   Json     @default("{}")
+  createdAt  DateTime @default(now())
+
+  @@index([createdAt(sort: Desc)])
+  @@index([entityType, entityId])
+  @@index([actorUserId])
+}

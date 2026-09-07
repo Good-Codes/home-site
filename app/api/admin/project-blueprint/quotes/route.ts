@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { Prisma } from "@prisma/client";
 
-import { requireAdmin, hasServiceRole } from "@/lib/project-blueprint/auth/admin";
-import { createAdminClient } from "@/lib/supabase/admin";
+import { isDatabaseConfigured, prisma } from "@/lib/db";
+import { requireAdmin } from "@/lib/project-blueprint/auth/admin";
 
 export const dynamic = "force-dynamic";
 
@@ -13,7 +14,6 @@ const lineItemSchema = z.object({
   label: z.string().min(1).max(200),
   description: z.string().max(2000).optional(),
   quantity: z.number().positive().default(1),
-  /** Client-facing line amount only — not an internal sell rate. */
   unitAmountZar: z.number(),
   amountZar: z.number(),
 });
@@ -58,17 +58,12 @@ export async function POST(request: Request) {
 
   const body = parsed.data;
 
-  if (body.issue && !body.overrideReason?.trim() && body.lineItems.some((item) => item.kind === "custom" || item.kind === "discount")) {
-    // Soft guidance only — still allow issue when reason provided elsewhere
-  }
-
-  if (auth.admin.isDemo || !hasServiceRole()) {
-    const quoteId = `demo-quote-${Date.now()}`;
+  if (!isDatabaseConfigured()) {
+    const quoteId = `local-quote-${Date.now()}`;
     return NextResponse.json({
       ok: true,
       demo: true,
-      warning:
-        "PLACEHOLDER — quotation saved in-memory only (Supabase unset). Not persisted.",
+      warning: "Quotation saved in-memory only (database unset). Not persisted.",
       quotation: {
         id: quoteId,
         estimateId: body.estimateId,
@@ -81,7 +76,6 @@ export async function POST(request: Request) {
         exclusions: body.exclusions,
         overrideReason: body.overrideReason ?? null,
         issued: body.issue,
-        // Never echo internal rates — only submitted client-facing amounts
         totals: {
           subtotalZar: body.subtotalZar ?? null,
           taxZar: body.taxZar ?? null,
@@ -92,15 +86,12 @@ export async function POST(request: Request) {
   }
 
   try {
-    const admin = createAdminClient();
+    const estimate = await prisma.estimateResult.findUnique({
+      where: { id: body.estimateId },
+      select: { id: true },
+    });
 
-    const { data: estimate, error: estimateError } = await admin
-      .from("estimate_results")
-      .select("id")
-      .eq("id", body.estimateId)
-      .maybeSingle();
-
-    if (estimateError || !estimate) {
+    if (!estimate) {
       return NextResponse.json({ error: "Estimate not found." }, { status: 404 });
     }
 
@@ -111,118 +102,104 @@ export async function POST(request: Request) {
       );
     }
 
-    const { data: quotation, error: quotationError } = await admin
-      .from("reviewed_quotations")
-      .insert({
-        estimate_result_id: body.estimateId,
-        status: body.issue ? "issued" : "draft",
-        title: body.title ?? `Quotation for ${body.estimateId}`,
-        currency: "ZAR",
-        selected_scenario:
-          body.scenario === "scale_ready" ? "scale_ready" : body.scenario,
-        created_by: auth.admin.userId === "demo-admin" ? null : auth.admin.userId,
-      })
-      .select("id")
-      .single();
-
-    if (quotationError || !quotation) {
-      console.error("create quotation failed", quotationError);
-      return NextResponse.json(
-        { error: "Unable to create quotation." },
-        { status: 500 },
-      );
-    }
-
     const status = body.issue ? "issued" : "draft";
-    const { data: version, error: versionError } = await admin
-      .from("quote_versions")
-      .insert({
-        quotation_id: quotation.id,
-        version_number: 1,
-        status,
-        frozen_snapshot: {
-          assumptions: body.assumptions,
-          exclusions: body.exclusions,
-          scenario: body.scenario,
+    const actorId = auth.admin.userId;
+
+    const result = await prisma.$transaction(async (tx) => {
+      const quotation = await tx.reviewedQuotation.create({
+        data: {
+          estimateResultId: body.estimateId,
+          status,
+          title: body.title ?? `Quotation for ${body.estimateId}`,
+          currency: "ZAR",
+          selectedScenario:
+            body.scenario === "scale_ready" ? "scale_ready" : body.scenario,
+          createdById: actorId,
         },
-        line_items_snapshot: body.lineItems,
-        milestones_snapshot: body.milestones,
-        overrides: body.overrideReason
-          ? [{ reason: body.overrideReason, at: new Date().toISOString() }]
-          : [],
-        override_reasons: body.overrideReason ? [body.overrideReason] : [],
-        subtotal_zar: body.subtotalZar ?? null,
-        tax_zar: body.taxZar ?? null,
-        total_zar: body.totalZar ?? null,
-        issued_at: body.issue ? new Date().toISOString() : null,
-        issued_by:
-          body.issue && auth.admin.userId !== "demo-admin"
-            ? auth.admin.userId
-            : null,
-      })
-      .select("id, version_number")
-      .single();
+        select: { id: true },
+      });
 
-    if (versionError || !version) {
-      console.error("create quote version failed", versionError);
-      return NextResponse.json(
-        { error: "Unable to create quote version." },
-        { status: 500 },
-      );
-    }
+      const version = await tx.quoteVersion.create({
+        data: {
+          quotationId: quotation.id,
+          versionNumber: 1,
+          status,
+          frozenSnapshot: {
+            assumptions: body.assumptions,
+            exclusions: body.exclusions,
+            scenario: body.scenario,
+          } as Prisma.InputJsonValue,
+          lineItemsSnapshot: body.lineItems as Prisma.InputJsonValue,
+          milestonesSnapshot: body.milestones as Prisma.InputJsonValue,
+          overrides: body.overrideReason
+            ? [{ reason: body.overrideReason, at: new Date().toISOString() }]
+            : [],
+          overrideReasons: body.overrideReason ? [body.overrideReason] : [],
+          subtotalZar: body.subtotalZar ?? null,
+          taxZar: body.taxZar ?? null,
+          totalZar: body.totalZar ?? null,
+          issuedAt: body.issue ? new Date() : null,
+          issuedById: body.issue ? actorId : null,
+        },
+        select: { id: true, versionNumber: true },
+      });
 
-    if (body.lineItems.length) {
-      await admin.from("quote_line_items").insert(
-        body.lineItems.map((item, index) => ({
-          quote_version_id: version.id,
-          sort_order: index,
-          kind: item.kind,
-          label: item.label,
-          description: item.description ?? null,
-          quantity: item.quantity,
-          unit_amount_zar: item.unitAmountZar,
-          amount_zar: item.amountZar,
-        })),
-      );
-    }
+      if (body.lineItems.length) {
+        await tx.quoteLineItem.createMany({
+          data: body.lineItems.map((item, index) => ({
+            quoteVersionId: version.id,
+            sortOrder: index,
+            kind: item.kind,
+            label: item.label,
+            description: item.description ?? null,
+            quantity: item.quantity,
+            unitAmountZar: item.unitAmountZar,
+            amountZar: item.amountZar,
+          })),
+        });
+      }
 
-    if (body.milestones.length) {
-      await admin.from("quote_milestones").insert(
-        body.milestones.map((item, index) => ({
-          quote_version_id: version.id,
-          sort_order: index,
-          label: item.label,
-          description: item.description ?? null,
-          percent: item.percent ?? null,
-          amount_zar: item.amountZar ?? null,
-          due_label: item.dueLabel ?? null,
-        })),
-      );
-    }
+      if (body.milestones.length) {
+        await tx.quoteMilestone.createMany({
+          data: body.milestones.map((item, index) => ({
+            quoteVersionId: version.id,
+            sortOrder: index,
+            label: item.label,
+            description: item.description ?? null,
+            percent: item.percent ?? null,
+            amountZar: item.amountZar ?? null,
+            dueLabel: item.dueLabel ?? null,
+          })),
+        });
+      }
 
-    await admin.rpc("write_audit_event", {
-      p_actor_user_id:
-        auth.admin.userId === "demo-admin" ? null : auth.admin.userId,
-      p_action: body.issue ? "admin_quote_issued" : "admin_quote_drafted",
-      p_entity_type: "quote_versions",
-      p_entity_id: version.id,
-      p_metadata: {
-        estimateId: body.estimateId,
-        quotationId: quotation.id,
-        scenario: body.scenario,
-      },
+      await tx.auditEvent.create({
+        data: {
+          actorUserId: actorId,
+          action: body.issue ? "admin_quote_issued" : "admin_quote_drafted",
+          entityType: "quote_versions",
+          entityId: version.id,
+          metadata: {
+            estimateId: body.estimateId,
+            quotationId: quotation.id,
+            scenario: body.scenario,
+          } as Prisma.InputJsonValue,
+        },
+      });
+
+      return { quotation, version };
     });
 
     return NextResponse.json({
       ok: true,
       demo: false,
       quotation: {
-        id: quotation.id,
+        id: result.quotation.id,
         estimateId: body.estimateId,
-        quoteVersionId: version.id,
+        quoteVersionId: result.version.id,
         status,
         scenario: body.scenario,
-        versionNumber: version.version_number,
+        versionNumber: result.version.versionNumber,
         lineItemCount: body.lineItems.length,
         milestoneCount: body.milestones.length,
         issued: body.issue,

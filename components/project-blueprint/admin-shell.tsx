@@ -1,11 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useState } from "react";
 
 import { cn } from "@/lib/utils";
-import { createClient } from "@/lib/supabase/client";
+import { signOut } from "next-auth/react";
 
 const NAV = [
   { href: "/admin/project-blueprint", label: "Inbox", match: "exact" as const },
@@ -23,7 +23,6 @@ const NAV = [
 
 export function AdminShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const router = useRouter();
   const [signingOut, setSigningOut] = useState(false);
   const isLogin = pathname.startsWith("/admin/login");
 
@@ -31,21 +30,11 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
     return <>{children}</>;
   }
 
-  const signOut = async () => {
+  const signOutAdmin = async () => {
     setSigningOut(true);
     try {
-      if (
-        process.env.NEXT_PUBLIC_SUPABASE_URL &&
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-      ) {
-        const supabase = createClient();
-        await supabase.auth.signOut();
-      }
-    } catch {
-      // Demo / missing config — still leave the area
+      await signOut({ callbackUrl: "/login" });
     } finally {
-      router.push("/admin/login");
-      router.refresh();
       setSigningOut(false);
     }
   };
@@ -85,7 +74,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
             })}
             <button
               type="button"
-              onClick={() => void signOut()}
+              onClick={() => void signOutAdmin()}
               disabled={signingOut}
               className="rounded-md px-3 py-2 text-sm font-medium text-neutral-600 transition hover:bg-neutral-100 hover:text-neutral-900 disabled:opacity-60 dark:text-neutral-400 dark:hover:bg-white/[0.06]"
             >

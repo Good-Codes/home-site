@@ -1,20 +1,12 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
-import {
-  hasServiceRole,
-  isSupabaseConfigured,
-} from "@/lib/project-blueprint/auth/admin";
-import {
-  getSessionCookieName,
-  hashToken,
-  tokensMatch,
-} from "@/lib/project-blueprint/session";
-import { createAdminClient } from "@/lib/supabase/admin";
+import { isDatabaseConfigured, prisma } from "@/lib/db";
+import { requireUser } from "@/lib/project-blueprint/auth/admin";
 
 export const dynamic = "force-dynamic";
 
-const MAX_BYTES = 10 * 1024 * 1024; // 10MB
+const MAX_BYTES = 10 * 1024 * 1024;
 
 const ALLOWED_MIME = new Set([
   "application/pdf",
@@ -25,22 +17,12 @@ const ALLOWED_MIME = new Set([
 ]);
 
 const bodySchema = z.object({
-  sessionId: z.string().uuid(),
-  resumeToken: z.string().min(20).optional(),
+  estimateId: z.string().uuid(),
   mime: z.string().min(3).max(120),
   sizeBytes: z.number().int().positive().max(MAX_BYTES),
   filename: z.string().trim().min(1).max(260).optional(),
   consent: z.literal(true),
 });
-
-function readCookieToken(request: Request): string | undefined {
-  return request.headers
-    .get("cookie")
-    ?.split(";")
-    .map((part) => part.trim())
-    .find((part) => part.startsWith(`${getSessionCookieName()}=`))
-    ?.split("=")[1];
-}
 
 function uploadsUnavailable() {
   return NextResponse.json(
@@ -53,15 +35,16 @@ function uploadsUnavailable() {
   );
 }
 
-/**
- * Sign a private quarantine upload. Fail closed when scanner/storage is unset;
- * the estimator remains usable without uploads.
- */
 export async function POST(request: Request) {
-  if (!isSupabaseConfigured() || !hasServiceRole()) {
+  const auth = await requireUser();
+  if (!auth.ok) {
+    return NextResponse.json({ error: auth.error }, { status: auth.status });
+  }
+
+  if (!process.env.ATTACHMENT_SCANNER_API_TOKEN) {
     return uploadsUnavailable();
   }
-  if (!process.env.ATTACHMENT_SCANNER_API_TOKEN) {
+  if (!isDatabaseConfigured()) {
     return uploadsUnavailable();
   }
 
@@ -87,60 +70,35 @@ export async function POST(request: Request) {
     );
   }
 
-  const cookieToken = readCookieToken(request);
-  const token = body.resumeToken ?? cookieToken;
-  if (!token) {
-    return NextResponse.json({ error: "Missing session token." }, { status: 401 });
+  const owned = await prisma.estimate.findFirst({
+    where: { id: body.estimateId, userId: auth.user.id },
+    select: { id: true },
+  });
+  if (!owned) {
+    return NextResponse.json({ error: "Estimate not found." }, { status: 404 });
   }
 
-  const tokenHash = hashToken(decodeURIComponent(token));
+  const uploadId = crypto.randomUUID();
+  const safeName = (body.filename ?? "brief")
+    .replace(/[^a-zA-Z0-9._-]+/g, "_")
+    .slice(0, 80);
+  const path = `quarantine/${owned.id}/${uploadId}-${safeName}`;
 
   try {
-    const admin = createAdminClient();
-    const { data: session, error: sessionError } = await admin
-      .from("estimate_sessions")
-      .select("id, token_hash, expires_at")
-      .eq("id", body.sessionId)
-      .maybeSingle();
-
-    if (sessionError || !session) {
-      return NextResponse.json({ error: "Invalid session." }, { status: 403 });
-    }
-    if (!tokensMatch(session.token_hash, tokenHash)) {
-      return NextResponse.json({ error: "Invalid session." }, { status: 403 });
-    }
-    if (new Date(session.expires_at).getTime() < Date.now()) {
-      return NextResponse.json({ error: "Session expired." }, { status: 410 });
-    }
-
-    const uploadId = crypto.randomUUID();
-    const safeName = (body.filename ?? "brief")
-      .replace(/[^a-zA-Z0-9._-]+/g, "_")
-      .slice(0, 80);
-    const path = `quarantine/${session.id}/${uploadId}-${safeName}`;
-    const consentAt = new Date().toISOString();
-
-    const { error: insertError } = await admin.from("uploaded_briefs").insert({
-      id: uploadId,
-      session_id: session.id,
-      storage_path: path,
-      original_filename: body.filename ?? null,
-      mime,
-      size_bytes: body.sizeBytes,
-      scan_status: "pending",
-      consent: true,
-      consent_at: consentAt,
+    await prisma.uploadedBrief.create({
+      data: {
+        id: uploadId,
+        estimateId: owned.id,
+        storagePath: path,
+        originalFilename: body.filename ?? null,
+        mime,
+        sizeBytes: BigInt(body.sizeBytes),
+        scanStatus: "pending",
+        consent: true,
+        consentAt: new Date(),
+      },
     });
 
-    if (insertError) {
-      console.error("upload sign insert failed", insertError);
-      return NextResponse.json(
-        { error: "Unable to prepare upload right now." },
-        { status: 500 },
-      );
-    }
-
-    // Stub signed URL fields — real storage signing lands with scanner provider wiring.
     const siteUrl =
       process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ??
       "https://www.goodcode.co.za";

@@ -1,6 +1,8 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 
+import { createCustomerAndLogin } from "./helpers/auth";
+
 const READY_INTAKE = {
   status: "ready",
   concept: {
@@ -42,10 +44,36 @@ test.describe("Project Blueprint surfaces", () => {
     await expect(page.getByText("Describe your idea")).toBeVisible();
   });
 
-  test("custom software estimator shows Project Blueprint hero", async ({
+  test("custom software estimator redirects unauthenticated visitors to login", async ({
     page,
   }) => {
     await page.goto("/custom-software-estimator");
+    await expect(page).toHaveURL(/\/login/);
+    await expect(page.getByRole("heading", { name: /Sign in/i })).toBeVisible();
+  });
+
+  test("login page has no serious accessibility violations", async ({ page }) => {
+    await page.goto("/login");
+    await expect(page.getByRole("heading", { name: /Sign in/i })).toBeVisible();
+
+    const results = await new AxeBuilder({ page }).include("main").analyze();
+    const serious = results.violations.filter((v) =>
+      ["serious", "critical"].includes(v.impact ?? ""),
+    );
+    expect(serious).toEqual([]);
+  });
+});
+
+test.describe("signed-in estimator", () => {
+  test.beforeEach(async ({ page }) => {
+    const loggedIn = await createCustomerAndLogin(page);
+    test.skip(!loggedIn, "Database is not available for authenticated e2e");
+    await page.goto("/custom-software-estimator");
+  });
+
+  test("custom software estimator shows Project Blueprint hero", async ({
+    page,
+  }) => {
     await expect(
       page.getByText("Project Blueprint", { exact: true }).first(),
     ).toBeVisible();
@@ -65,7 +93,6 @@ test.describe("Project Blueprint surfaces", () => {
       });
     });
 
-    await page.goto("/custom-software-estimator");
     await page.getByRole("button", { name: /Start my estimate/i }).click();
     await expect(page.getByLabel(/Your idea/i)).toBeVisible();
 
@@ -131,7 +158,6 @@ test.describe("Project Blueprint surfaces", () => {
       });
     });
 
-    await page.goto("/custom-software-estimator");
     await page.getByRole("button", { name: /Start my estimate/i }).click();
     await page
       .getByLabel(/Your idea/i)
@@ -171,7 +197,6 @@ test.describe("Project Blueprint surfaces", () => {
       });
     });
 
-    await page.goto("/custom-software-estimator");
     await page.getByRole("button", { name: /Start my estimate/i }).click();
     await page
       .getByLabel(/Your idea/i)
@@ -186,7 +211,6 @@ test.describe("Project Blueprint surfaces", () => {
   test("estimator hero has no serious accessibility violations", async ({
     page,
   }) => {
-    await page.goto("/custom-software-estimator");
     await expect(
       page.getByRole("heading", { name: /Custom Software Cost Estimator/i }),
     ).toBeVisible();

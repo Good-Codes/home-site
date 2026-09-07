@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 
-import { getDemoEstimateDetail } from "@/lib/project-blueprint/admin/demo-data";
-import { hasServiceRole, isSupabaseConfigured } from "@/lib/project-blueprint/auth/admin";
-import { createAdminClient } from "@/lib/supabase/admin";
+import { isStaffRole } from "@/lib/auth/roles";
+import { isDatabaseConfigured, prisma } from "@/lib/db";
+import { requireUser } from "@/lib/project-blueprint/auth/admin";
 import { formatZarRange, formatWeeks } from "@/lib/project-blueprint/format";
 import type { MoneyRange, PublicEstimateResult } from "@/lib/project-blueprint/types";
 
@@ -148,49 +148,41 @@ function buildDocumentHtml(result: PublicEstimateResult): string {
 export async function GET(_request: Request, context: RouteContext) {
   const { estimateId } = await context.params;
 
-  let result: PublicEstimateResult | null = null;
-
-  if (isSupabaseConfigured() && hasServiceRole()) {
-    try {
-      const admin = createAdminClient();
-      const { data } = await admin
-        .from("estimate_results")
-        .select("public_result")
-        .eq("id", estimateId)
-        .maybeSingle();
-
-      if (data?.public_result && typeof data.public_result === "object") {
-        const raw = data.public_result as Record<string, unknown>;
-        const {
-          privateTrace: _p,
-          calculationTrace: _c,
-          rates: _r,
-          margins: _m,
-          ...safe
-        } = raw;
-        void _p;
-        void _c;
-        void _r;
-        void _m;
-        result = safe as unknown as PublicEstimateResult;
-      }
-    } catch (error) {
-      console.error("document fetch failed", error);
-    }
+  const auth = await requireUser();
+  if (!auth.ok) {
+    return new NextResponse(auth.error, { status: auth.status });
   }
 
-  if (!result) {
-    const demo = getDemoEstimateDetail(estimateId);
-    if (demo) {
-      result = demo.publicResult;
-    }
-  }
-
-  if (!result) {
+  if (!isDatabaseConfigured()) {
     return new NextResponse("Estimate document not found.", { status: 404 });
   }
 
-  const html = buildDocumentHtml(result);
+  const staff = isStaffRole(auth.user.role);
+  const row = await prisma.estimateResult.findFirst({
+    where: staff
+      ? { id: estimateId }
+      : { id: estimateId, estimate: { userId: auth.user.id } },
+    select: { publicResult: true },
+  });
+
+  if (!row?.publicResult || typeof row.publicResult !== "object") {
+    return new NextResponse("Estimate document not found.", { status: 404 });
+  }
+
+  const raw = row.publicResult as Record<string, unknown>;
+  const {
+    privateTrace: _p,
+    calculationTrace: _c,
+    rates: _r,
+    margins: _m,
+    ...safe
+  } = raw;
+  void _p;
+  void _c;
+  void _r;
+  void _m;
+
+  const html = buildDocumentHtml(safe as unknown as PublicEstimateResult);
   return new NextResponse(html, {
     status: 200,
     headers: {

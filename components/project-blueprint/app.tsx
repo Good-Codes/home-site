@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 
 import { smoothEase } from "@/lib/motion";
@@ -192,7 +192,6 @@ function normalizeEstimateResult(
 
 export function ProjectBlueprintApp() {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const prefersReducedMotion = useReducedMotion();
 
   const [phase, setPhase] = useState<Phase>("hero");
@@ -204,21 +203,42 @@ export function ProjectBlueprintApp() {
   const [calcError, setCalcError] = useState<string | null>(null);
   const [result, setResult] = useState<EstimateResultViewModel | null>(null);
   const [resumeReady, setResumeReady] = useState(false);
+  const [estimateId, setEstimateId] = useState<string | null>(null);
 
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const estimateIdRef = useRef<string | null>(null);
+  const conceptRef = useRef(concept);
+
+  useEffect(() => {
+    estimateIdRef.current = estimateId;
+  }, [estimateId]);
+
+  useEffect(() => {
+    conceptRef.current = concept;
+  }, [concept]);
 
   const persistAnswers = useCallback(async (payload: ProjectBlueprintAnswers) => {
     setSaveStatus("saving");
     try {
-      const response = await fetch("/api/project-blueprint/session/save", {
-        method: "POST",
+      const response = await fetch("/api/project-blueprint/estimates", {
+        method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          estimateId: estimateIdRef.current ?? undefined,
           answers: payload,
-          currentStep: "review",
+          lastScreen: "review",
+          concept: conceptRef.current,
         }),
       });
-      if (!response.ok) throw new Error("save failed");
+      const data = (await response.json().catch(() => ({}))) as {
+        estimateId?: string;
+        error?: string;
+      };
+      if (!response.ok) throw new Error(data.error || "save failed");
+      if (typeof data.estimateId === "string") {
+        estimateIdRef.current = data.estimateId;
+        setEstimateId(data.estimateId);
+      }
       setSaveStatus("saved");
     } catch {
       setSaveStatus("error");
@@ -236,28 +256,33 @@ export function ProjectBlueprintApp() {
   );
 
   useEffect(() => {
-    const token = searchParams.get("resume");
-    if (!token || resumeReady) return;
+    if (resumeReady) return;
 
     let cancelled = false;
     (async () => {
       try {
-        const response = await fetch("/api/project-blueprint/session/resume", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ token }),
-        });
+        const response = await fetch("/api/project-blueprint/estimates");
         if (!response.ok) return;
         const data = await response.json();
-        if (cancelled) return;
-        if (data.answers) {
-          const normalised = normalizeAnswers(data.answers);
+        if (cancelled || !data.estimate) return;
+        setEstimateId(data.estimate.id);
+        if (data.estimate.answers) {
+          const normalised = normalizeAnswers(data.estimate.answers);
           setAnswers(normalised);
-          if (data.result) {
-            setResult(normalizeEstimateResult(data.result, normalised));
+          if (data.estimate.concept) {
+            setConcept(data.estimate.concept);
+          }
+          if (data.estimate.results?.[0]?.publicResult) {
+            setResult(
+              normalizeEstimateResult(
+                data.estimate.results[0].publicResult,
+                normalised,
+                data.estimate.concept,
+              ),
+            );
             setPhase("results");
           } else if (normalised.ideaText) {
-            setPhase("describe");
+            setPhase("review");
           }
         }
       } catch {
@@ -270,7 +295,7 @@ export function ProjectBlueprintApp() {
     return () => {
       cancelled = true;
     };
-  }, [searchParams, resumeReady]);
+  }, [resumeReady]);
 
   useEffect(() => {
     return () => {
@@ -286,7 +311,7 @@ export function ProjectBlueprintApp() {
       const response = await fetch("/api/project-blueprint/calculate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ answers }),
+        body: JSON.stringify({ answers, estimateId: estimateIdRef.current ?? undefined }),
       });
       const data = await response.json().catch(() => ({}));
       if (!response.ok) {
@@ -300,6 +325,9 @@ export function ProjectBlueprintApp() {
         (data.publicResult as Record<string, unknown> | undefined) ??
         (data.result as Record<string, unknown> | undefined) ??
         (data as Record<string, unknown>);
+      if (typeof data.estimateId === "string") {
+        setEstimateId(data.estimateId);
+      }
       setResult(normalizeEstimateResult(publicResult, answers, concept));
       setPhase("results");
     } catch (err) {

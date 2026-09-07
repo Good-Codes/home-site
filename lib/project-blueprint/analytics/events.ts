@@ -1,7 +1,8 @@
 import "server-only";
 
-import { hasServiceRole, isSupabaseConfigured } from "@/lib/project-blueprint/auth/admin";
-import { createAdminClient } from "@/lib/supabase/admin";
+import { Prisma } from "@prisma/client";
+
+import { isDatabaseConfigured, prisma } from "@/lib/db";
 
 /**
  * Privacy-conscious Project Blueprint funnel events.
@@ -82,7 +83,6 @@ function stripSensitive(
   for (const [key, value] of Object.entries(properties)) {
     if (SENSITIVE_KEYS.has(key)) continue;
     if (value === undefined) continue;
-    // Drop nested blobs that look like answer maps or contact objects.
     if (key === "contact" || key === "lead" || key === "payload") continue;
     cleaned[key] = value;
   }
@@ -91,12 +91,9 @@ function stripSensitive(
 
 export type TrackBlueprintEventOptions = {
   sessionId?: string | null;
+  estimateId?: string | null;
 };
 
-/**
- * Persist a funnel event when admin Supabase is available; otherwise log in development.
- * Never throws — safe for fire-and-forget call sites.
- */
 export async function trackBlueprintEvent(
   name: string,
   properties?: Record<string, unknown>,
@@ -111,27 +108,27 @@ export async function trackBlueprintEvent(
     }
 
     const safeProperties = stripSensitive(properties);
-    const sessionId =
-      typeof options?.sessionId === "string" && options.sessionId.length > 0
-        ? options.sessionId
-        : typeof safeProperties.sessionId === "string"
-          ? safeProperties.sessionId
-          : null;
+    const estimateId =
+      typeof options?.estimateId === "string" && options.estimateId.length > 0
+        ? options.estimateId
+        : typeof options?.sessionId === "string" && options.sessionId.length > 0
+          ? options.sessionId
+          : typeof safeProperties.sessionId === "string"
+            ? safeProperties.sessionId
+            : null;
 
     const { sessionId: _omit, ...rest } = safeProperties;
     void _omit;
 
-    if (isSupabaseConfigured() && hasServiceRole()) {
+    if (isDatabaseConfigured()) {
       try {
-        const admin = createAdminClient();
-        const { error } = await admin.from("analytics_events").insert({
-          event_name: name,
-          session_id: sessionId,
-          properties: rest,
+        await prisma.analyticsEvent.create({
+          data: {
+            eventName: name,
+            estimateId: estimateId && zUuid(estimateId) ? estimateId : null,
+            properties: rest as Prisma.InputJsonValue,
+          },
         });
-        if (error) {
-          console.error("[blueprint analytics] insert failed", error.message);
-        }
         return;
       } catch (error) {
         console.error("[blueprint analytics] persist failed", error);
@@ -141,11 +138,17 @@ export async function trackBlueprintEvent(
 
     if (process.env.NODE_ENV === "development") {
       console.info("[blueprint analytics]", name, {
-        sessionId,
+        estimateId,
         properties: rest,
       });
     }
   } catch (error) {
     console.error("[blueprint analytics] unexpected failure", error);
   }
+}
+
+function zUuid(value: string): boolean {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+    value,
+  );
 }

@@ -56,8 +56,9 @@ export function ProjectBlueprintHero({ onStart }: ProjectBlueprintHeroProps) {
             is missing, and return a realistic budget range and delivery window.
           </p>
           <p className="mt-4 max-w-2xl text-sm leading-6 text-neutral-500 dark:text-neutral-400">
-            A planning estimate, not a fixed quote. Complex projects are reviewed
-            by a Good Code specialist before a formal quotation is issued.
+            A planning estimate, not a fixed quote. Sign in to describe your idea
+            — complex projects are reviewed by a Good Code specialist before a
+            formal quotation is issued.
           </p>
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">

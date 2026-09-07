@@ -1,7 +1,35 @@
 import "server-only";
 
-import { createClient as createServerClient } from "@/lib/supabase/server";
-import { createAdminClient } from "@/lib/supabase/admin";
+import type { UserRole } from "@prisma/client";
+
+import { auth } from "@/auth";
+import { isStaffRole } from "@/lib/auth/roles";
+
+export type AppUser = {
+  id: string;
+  email: string | null;
+  name: string | null;
+  role: UserRole;
+};
+
+export async function requireUser(): Promise<
+  { ok: true; user: AppUser } | { ok: false; status: 401; error: string }
+> {
+  const session = await auth();
+  const id = session?.user?.id;
+  if (!id) {
+    return { ok: false, status: 401, error: "Authentication required." };
+  }
+  return {
+    ok: true,
+    user: {
+      id,
+      email: session.user.email ?? null,
+      name: session.user.name ?? null,
+      role: session.user.role ?? "CUSTOMER",
+    },
+  };
+}
 
 export type AdminRole = "reviewer" | "admin" | "approver";
 
@@ -10,35 +38,18 @@ export type AdminContext = {
   email: string | null;
   role: AdminRole;
   displayName: string | null;
-  /** True when Supabase is not configured and demo admin access is used. */
   isDemo: boolean;
 };
 
-export function isSupabaseConfigured(): boolean {
-  return Boolean(
-    process.env.NEXT_PUBLIC_SUPABASE_URL &&
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-  );
+function toAdminRole(role: UserRole): AdminRole | null {
+  if (role === "REVIEWER") return "reviewer";
+  if (role === "ADMIN") return "admin";
+  if (role === "APPROVER") return "approver";
+  return null;
 }
-
-export function hasServiceRole(): boolean {
-  return Boolean(
-    process.env.NEXT_PUBLIC_SUPABASE_URL &&
-      process.env.SUPABASE_SERVICE_ROLE_KEY,
-  );
-}
-
-const DEMO_ADMIN: AdminContext = {
-  userId: "demo-admin",
-  email: "demo@goodcode.local",
-  role: "admin",
-  displayName: "Demo Admin",
-  isDemo: true,
-};
 
 /**
- * Require an authenticated admin profile.
- * When Supabase env is unset, returns a demo admin context so local UI/APIs work.
+ * Require an authenticated staff user (reviewer / admin / approver).
  */
 export async function requireAdmin(
   allowedRoles: AdminRole[] = ["reviewer", "admin", "approver"],
@@ -46,63 +57,28 @@ export async function requireAdmin(
   | { ok: true; admin: AdminContext }
   | { ok: false; status: 401 | 403; error: string }
 > {
-  if (!isSupabaseConfigured()) {
-    return { ok: true, admin: DEMO_ADMIN };
+  const session = await requireUser();
+  if (!session.ok) {
+    return session;
   }
 
-  try {
-    const supabase = await createServerClient();
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser();
-
-    if (userError || !user) {
-      return { ok: false, status: 401, error: "Authentication required." };
-    }
-
-    if (!hasServiceRole()) {
-      // Auth present but service role missing — treat as demo for reads.
-      return {
-        ok: true,
-        admin: {
-          userId: user.id,
-          email: user.email ?? null,
-          role: "admin",
-          displayName: user.email ?? "Admin",
-          isDemo: true,
-        },
-      };
-    }
-
-    const adminClient = createAdminClient();
-    const { data: profile, error: profileError } = await adminClient
-      .from("admin_profiles")
-      .select("role, display_name, is_active")
-      .eq("user_id", user.id)
-      .maybeSingle();
-
-    if (profileError || !profile || !profile.is_active) {
-      return { ok: false, status: 403, error: "Admin access required." };
-    }
-
-    const role = profile.role as AdminRole;
-    if (!allowedRoles.includes(role)) {
-      return { ok: false, status: 403, error: "Insufficient admin role." };
-    }
-
-    return {
-      ok: true,
-      admin: {
-        userId: user.id,
-        email: user.email ?? null,
-        role,
-        displayName: profile.display_name ?? null,
-        isDemo: false,
-      },
-    };
-  } catch (error) {
-    console.error("requireAdmin failed", error);
-    return { ok: false, status: 401, error: "Authentication required." };
+  if (!isStaffRole(session.user.role)) {
+    return { ok: false, status: 403, error: "Admin access required." };
   }
+
+  const role = toAdminRole(session.user.role);
+  if (!role || !allowedRoles.includes(role)) {
+    return { ok: false, status: 403, error: "Insufficient admin role." };
+  }
+
+  return {
+    ok: true,
+    admin: {
+      userId: session.user.id,
+      email: session.user.email,
+      role,
+      displayName: session.user.name,
+      isDemo: false,
+    },
+  };
 }
