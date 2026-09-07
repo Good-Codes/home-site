@@ -80,12 +80,12 @@ The container entrypoint runs `prisma migrate deploy` before `node server.js`. T
 
 ## 3. Auth.js (credentials)
 
-- Customers create accounts at `/signup`. Signup **always** creates `CUSTOMER`. Staff roles (`REVIEWER` / `ADMIN` / `APPROVER`) are assigned only by seed or an existing admin.
+- Customers create accounts at `/signup`. Signup **always** creates `CUSTOMER`. `ADMIN` is assigned only by seed or in the database. Public signup cannot self-promote.
 - Unified login is `/login`. `/admin/login` redirects there with `next=/admin/project-blueprint`.
-- Passwords are hashed with bcrypt (cost 12) via `bcryptjs`. Only `passwordHash` is stored.
+- Passwords are hashed with bcrypt (cost 12) via `bcryptjs`. Only `passwordHash` is stored. Signed-in users can change their password at `/account`.
 - Sessions are JWTs signed with `AUTH_SECRET` (httpOnly, SameSite=lax, Secure in production).
 - `/custom-software-estimator` and customer APIs (`/api/project-blueprint/intake`, `calculate`, …) require a signed-in user.
-- `/admin` requires a staff role. Being logged in as a customer is not enough.
+- `/admin` requires `ADMIN`. Being logged in as a customer is not enough.
 
 ---
 
@@ -143,14 +143,11 @@ Document a data-subject request process (export/delete) for leads and uploads.
 ## 8. Admin bootstrap
 
 1. Set `BOOTSTRAP_ADMIN_EMAIL` and `BOOTSTRAP_ADMIN_PASSWORD` (min 12 characters).
-2. Run `npx prisma db seed`. This creates the first `ADMIN` if none exists. Public signup cannot self-promote.
-3. Roles:
-   - `REVIEWER` — inbox, drafts, notes
-   - `ADMIN` — pricing drafts/publish, assignment, config
-   - `APPROVER` — threshold override approvals + issue rights as configured
+2. Run `npm run db:seed`. This creates the first `ADMIN` if none exists. Public signup cannot self-promote.
+3. There is one staff role: `ADMIN`. Admins can use the estimate inbox, draft and issue quotations, record calibration, and view pricing metadata.
 4. Sign in at `/login` and open `/admin/project-blueprint`.
 
-Promote later staff in the database (or a future admin UI). Never accept `role` from the signup form.
+Promote later admins in the database (or a future admin UI). Never accept `role` from the signup form.
 
 ---
 
@@ -213,7 +210,7 @@ npm run dev
 - [ ] Resend domain verified; test estimate email
 - [ ] DocRaptor test PDF/UA; HTML fallback tested
 - [ ] Scanner webhook reachable over HTTPS; fail-closed upload tested
-- [ ] At least one `ADMIN` and one `APPROVER` bootstrapped
+- [ ] At least one `ADMIN` bootstrapped
 - [ ] Placeholder warning visible in admin; decision made to ship placeholder or publish calibrated rates first
 - [ ] Sitemap/metadata for `/custom-software-estimator`
 - [ ] Rate limits enabled on auth, intake, calculate, lead, upload, email

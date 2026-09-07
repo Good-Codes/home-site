@@ -10,9 +10,7 @@ datasource db {
 
 enum UserRole {
   CUSTOMER
-  REVIEWER
   ADMIN
-  APPROVER
 }
 
 enum EstimateStatus {

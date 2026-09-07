@@ -45,6 +45,15 @@ export async function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
+  if (path.startsWith("/account")) {
+    if (!session?.user) {
+      const loginUrl = new URL("/login", request.url);
+      loginUrl.searchParams.set("next", path);
+      return NextResponse.redirect(loginUrl);
+    }
+    return NextResponse.next();
+  }
+
   if (path.startsWith("/admin")) {
     if (!session?.user) {
       const loginUrl = new URL("/login", request.url);
@@ -64,6 +73,7 @@ export const config = {
   matcher: [
     "/admin/:path*",
     "/custom-software-estimator/:path*",
+    "/account",
     "/login",
     "/signup",
     "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",

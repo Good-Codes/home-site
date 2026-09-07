@@ -42,7 +42,7 @@ const bodySchema = z.object({
 });
 
 export async function POST(request: Request) {
-  const auth = await requireAdmin(["admin", "approver", "reviewer"]);
+  const auth = await requireAdmin();
   if (!auth.ok) {
     return NextResponse.json({ error: auth.error }, { status: auth.status });
   }
@@ -93,13 +93,6 @@ export async function POST(request: Request) {
 
     if (!estimate) {
       return NextResponse.json({ error: "Estimate not found." }, { status: 404 });
-    }
-
-    if (body.issue && auth.admin.role === "reviewer") {
-      return NextResponse.json(
-        { error: "Reviewers cannot issue quotations. Approver or admin required." },
-        { status: 403 },
-      );
     }
 
     const status = body.issue ? "issued" : "draft";

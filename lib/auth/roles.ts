@@ -1,9 +1,9 @@
-export type AppRole = "CUSTOMER" | "REVIEWER" | "ADMIN" | "APPROVER";
+export type AppRole = "CUSTOMER" | "ADMIN";
 
 export function isStaffRole(
   role: AppRole | string | null | undefined,
 ): boolean {
-  return role === "REVIEWER" || role === "ADMIN" || role === "APPROVER";
+  return role === "ADMIN";
 }
 
 export function defaultPostLoginPath(

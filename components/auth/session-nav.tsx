@@ -37,12 +37,15 @@ export function SessionNav({ compact = false }: { compact?: boolean }) {
             : "flex items-center gap-2 border-l border-neutral-200 pl-3 dark:border-white/15"
         }
       >
-        <div
+        <Link
+          href="/account"
           className={
             compact
               ? "flex items-center gap-2.5 rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-2.5 dark:border-white/15 dark:bg-white/[0.06]"
               : "flex max-w-[11rem] items-center gap-2 rounded-full border border-neutral-200 bg-neutral-100 py-1 pl-1 pr-3 dark:border-white/15 dark:bg-white/10"
           }
+          title="Account"
+          aria-label={`Account (${displayName})`}
         >
           <span
             className="flex size-7 shrink-0 items-center justify-center rounded-full bg-[#67AFA7] text-[11px] font-semibold tracking-wide text-white"
@@ -56,7 +59,7 @@ export function SessionNav({ compact = false }: { compact?: boolean }) {
           >
             {displayName}
           </span>
-        </div>
+        </Link>
         <Button
           type="button"
           variant={compact ? "outline" : "ghost"}

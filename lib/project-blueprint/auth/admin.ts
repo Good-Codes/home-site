@@ -31,29 +31,17 @@ export async function requireUser(): Promise<
   };
 }
 
-export type AdminRole = "reviewer" | "admin" | "approver";
-
 export type AdminContext = {
   userId: string;
   email: string | null;
-  role: AdminRole;
   displayName: string | null;
   isDemo: boolean;
 };
 
-function toAdminRole(role: UserRole): AdminRole | null {
-  if (role === "REVIEWER") return "reviewer";
-  if (role === "ADMIN") return "admin";
-  if (role === "APPROVER") return "approver";
-  return null;
-}
-
 /**
- * Require an authenticated staff user (reviewer / admin / approver).
+ * Require an authenticated Admin.
  */
-export async function requireAdmin(
-  allowedRoles: AdminRole[] = ["reviewer", "admin", "approver"],
-): Promise<
+export async function requireAdmin(): Promise<
   | { ok: true; admin: AdminContext }
   | { ok: false; status: 401 | 403; error: string }
 > {
@@ -66,17 +54,11 @@ export async function requireAdmin(
     return { ok: false, status: 403, error: "Admin access required." };
   }
 
-  const role = toAdminRole(session.user.role);
-  if (!role || !allowedRoles.includes(role)) {
-    return { ok: false, status: 403, error: "Insufficient admin role." };
-  }
-
   return {
     ok: true,
     admin: {
       userId: session.user.id,
       email: session.user.email,
-      role,
       displayName: session.user.name,
       isDemo: false,
     },

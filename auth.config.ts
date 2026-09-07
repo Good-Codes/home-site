@@ -38,12 +38,7 @@ export const authConfig = {
       if (user) {
         token.id = user.id;
         const role = "role" in user ? user.role : undefined;
-        if (
-          role === "CUSTOMER" ||
-          role === "REVIEWER" ||
-          role === "ADMIN" ||
-          role === "APPROVER"
-        ) {
+        if (role === "CUSTOMER" || role === "ADMIN") {
           token.role = role;
         }
       }
@@ -54,12 +49,7 @@ export const authConfig = {
         session.user.id = (typeof token.id === "string" ? token.id : undefined) ?? token.sub ?? "";
         const role = token.role;
         session.user.role =
-          role === "CUSTOMER" ||
-          role === "REVIEWER" ||
-          role === "ADMIN" ||
-          role === "APPROVER"
-            ? role
-            : "CUSTOMER";
+          role === "CUSTOMER" || role === "ADMIN" ? role : "CUSTOMER";
       }
       return session;
     },

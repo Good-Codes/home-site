@@ -62,6 +62,24 @@ test.describe("Project Blueprint surfaces", () => {
     );
     expect(serious).toEqual([]);
   });
+
+  test("account page redirects unauthenticated visitors to login", async ({
+    page,
+  }) => {
+    await page.goto("/account");
+    await expect(page).toHaveURL(/\/login/);
+    await expect(page.getByRole("heading", { name: /Sign in/i })).toBeVisible();
+  });
+});
+
+test.describe("signed-in account", () => {
+  test("account page is reachable after login", async ({ page }) => {
+    const loggedIn = await createCustomerAndLogin(page);
+    test.skip(!loggedIn, "Database is not available for authenticated e2e");
+    await page.goto("/account");
+    await expect(page.getByRole("heading", { name: /^Account$/ })).toBeVisible();
+    await expect(page.getByLabel(/Current password/i)).toBeVisible();
+  });
 });
 
 test.describe("signed-in estimator", () => {
