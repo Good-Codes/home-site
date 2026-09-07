@@ -1,0 +1,35 @@
+# dependencies
+node_modules
+.pnp
+.pnp.*
+.yarn
+
+# next.js
+.next
+out
+
+# git / editor
+.git
+.gitignore
+.cursor
+.vscode
+.idea
+*.md
+docs
+
+# env and secrets
+.env*
+
+# misc
+.DS_Store
+*.pem
+npm-debug.log*
+coverage
+.vercel
+*.tsbuildinfo
+next-env.d.ts
+deploy
+.dockerignore
+Dockerfile
+docker-compose.yml
+docker-compose*.yml
