@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import Link from "next/link";
+import { useEffect, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 
 import { cn } from "@/lib/utils";
@@ -30,6 +31,8 @@ export type EstimateResultViewModel = PublicEstimateResult & {
 
 type ResultsViewProps = {
   result: EstimateResultViewModel;
+  estimateId?: string | null;
+  initiallySaved?: boolean;
   onRecalculate?: () => void;
 };
 
@@ -48,12 +51,24 @@ function asMoney(value: MoneyRange | { share: number }): MoneyRange | null {
   return null;
 }
 
-export function ResultsView({ result, onRecalculate }: ResultsViewProps) {
+export function ResultsView({
+  result,
+  estimateId,
+  initiallySaved = false,
+  onRecalculate,
+}: ResultsViewProps) {
   const prefersReducedMotion = useReducedMotion();
   const [activeScenario, setActiveScenario] = useState<ScenarioKind>(
     result.recommendedScenario.id,
   );
   const [showLead, setShowLead] = useState(false);
+  const [saved, setSaved] = useState(initiallySaved);
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+
+  useEffect(() => {
+    setSaved(initiallySaved);
+  }, [initiallySaved, estimateId]);
 
   const allScenarios: PublicScenarioResult[] = [
     result.recommendedScenario,
@@ -69,6 +84,34 @@ export function ResultsView({ result, onRecalculate }: ResultsViewProps) {
     result.nextStepRecommendation ||
     result.recommendedNextStep ||
     "Book a short conversation so a Good Code specialist can review the scope.";
+
+  const saveToProfile = async () => {
+    if (!estimateId || saved || saving) return;
+    setSaveError(null);
+    setSaving(true);
+    try {
+      const response = await fetch("/api/account/estimates", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ estimateId }),
+      });
+      const data = (await response.json().catch(() => ({}))) as { error?: string };
+      if (response.status === 409) {
+        setSaveError(
+          data.error ||
+            "You already have 5 saved estimates. Delete one from your account to save another.",
+        );
+        return;
+      }
+      if (!response.ok) {
+        setSaveError(data.error || "Unable to save this estimate right now.");
+        return;
+      }
+      setSaved(true);
+    } finally {
+      setSaving(false);
+    }
+  };
 
   const discovery =
     result.discoveryRecommended || result.discoveryFirst?.recommended;
@@ -294,9 +337,21 @@ export function ResultsView({ result, onRecalculate }: ResultsViewProps) {
         <p className="mt-2 max-w-2xl text-base leading-7 text-neutral-700 dark:text-neutral-300">
           {nextStep}
         </p>
-        <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+        <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
           <BrandButton type="button" onClick={() => setShowLead(true)}>
             Email me this estimate
+          </BrandButton>
+          <BrandButton
+            type="button"
+            variant="outline"
+            disabled={!estimateId || saved || saving}
+            onClick={() => void saveToProfile()}
+          >
+            {saved
+              ? "Saved to your profile"
+              : saving
+                ? "Saving…"
+                : "Save to my profile"}
           </BrandButton>
           <BrandButton href="/contact-us" variant="outline">
             Talk to the team
@@ -307,6 +362,17 @@ export function ResultsView({ result, onRecalculate }: ResultsViewProps) {
             </BrandButton>
           ) : null}
         </div>
+        {saveError ? (
+          <p className="mt-3 text-sm text-red-600 dark:text-red-400" role="alert">
+            {saveError}{" "}
+            <Link
+              href="/account"
+              className="font-medium underline-offset-2 hover:underline"
+            >
+              Open account
+            </Link>
+          </p>
+        ) : null}
       </section>
 
       {showLead ? (

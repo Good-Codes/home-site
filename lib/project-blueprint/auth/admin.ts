@@ -39,6 +39,23 @@ export type AdminContext = {
 };
 
 /**
+ * Require an authenticated customer (not admin).
+ */
+export async function requireCustomer(): Promise<
+  | { ok: true; user: AppUser }
+  | { ok: false; status: 401 | 403; error: string }
+> {
+  const session = await requireUser();
+  if (!session.ok) {
+    return session;
+  }
+  if (session.user.role !== "CUSTOMER") {
+    return { ok: false, status: 403, error: "Customer access required." };
+  }
+  return session;
+}
+
+/**
  * Require an authenticated Admin.
  */
 export async function requireAdmin(): Promise<

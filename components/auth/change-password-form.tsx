@@ -7,7 +7,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PASSWORD_MIN_LENGTH } from "@/lib/auth/constants";
 
-export function ChangePasswordForm() {
+export function ChangePasswordForm({
+  endpoint = "/api/auth/change-password",
+}: {
+  endpoint?: string;
+}) {
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -31,7 +35,7 @@ export function ChangePasswordForm() {
 
     setSubmitting(true);
     try {
-      const response = await fetch("/api/auth/change-password", {
+      const response = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

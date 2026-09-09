@@ -28,7 +28,14 @@ export function LoginForm({ nextPath }: { nextPath: string }) {
         redirect: false,
       });
       if (!result || result.error) {
-        setError("Invalid email or password.");
+        const locked =
+          result?.code === "account_locked" ||
+          result?.error === "account_locked";
+        setError(
+          locked
+            ? "This account is temporarily locked. Try again in a few minutes."
+            : "Invalid email or password.",
+        );
         return;
       }
       const sessionResponse = await fetch("/api/auth/session");

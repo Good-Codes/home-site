@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 
@@ -148,15 +147,6 @@ export default function AdminEstimateDetailPage() {
           </p>
           <p className="mt-4 text-sm leading-6 text-neutral-700 dark:text-neutral-300">
             {estimate.publicResult.nextStepRecommendation}
-          </p>
-          <p className="mt-4">
-            <Link
-              href={`/api/project-blueprint/document/${estimate.id}`}
-              className="text-sm font-medium text-[#2f6f69] underline-offset-4 hover:underline dark:text-[#9ed9d2]"
-              target="_blank"
-            >
-              Open client HTML document
-            </Link>
           </p>
         </div>
       </section>

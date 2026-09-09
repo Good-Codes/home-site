@@ -55,9 +55,6 @@ export async function GET() {
             },
           },
         },
-        pricingVersion: {
-          select: { version: true, isPlaceholder: true },
-        },
       },
     });
 
@@ -101,8 +98,7 @@ export async function GET() {
         ),
         createdAt: row.createdAt.toISOString(),
         usingPlaceholderConfiguration: Boolean(
-          row.pricingVersion?.isPlaceholder ??
-            publicResult.usingPlaceholderConfiguration,
+          publicResult.usingPlaceholderConfiguration,
         ),
       };
     });

@@ -204,6 +204,7 @@ export function ProjectBlueprintApp() {
   const [result, setResult] = useState<EstimateResultViewModel | null>(null);
   const [resumeReady, setResumeReady] = useState(false);
   const [estimateId, setEstimateId] = useState<string | null>(null);
+  const [savedToProfile, setSavedToProfile] = useState(false);
 
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const estimateIdRef = useRef<string | null>(null);
@@ -266,6 +267,7 @@ export function ProjectBlueprintApp() {
         const data = await response.json();
         if (cancelled || !data.estimate) return;
         setEstimateId(data.estimate.id);
+        setSavedToProfile(Boolean(data.estimate.savedToProfileAt));
         if (data.estimate.answers) {
           const normalised = normalizeAnswers(data.estimate.answers);
           setAnswers(normalised);
@@ -411,6 +413,8 @@ export function ProjectBlueprintApp() {
           >
             <ResultsView
               result={result}
+              estimateId={estimateId}
+              initiallySaved={savedToProfile}
               onRecalculate={() => {
                 setPhase("review");
               }}

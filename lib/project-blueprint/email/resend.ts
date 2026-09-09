@@ -3,7 +3,7 @@ import "server-only";
 export type SendEstimateEmailInput = {
   to: string;
   estimateId: string;
-  documentUrl: string;
+  accountUrl: string;
   summaryLine: string;
   idempotencyKey?: string;
 };
@@ -45,10 +45,10 @@ export async function sendEstimateEmail(
         html: `
           <p>Here is your indicative Project Blueprint planning estimate.</p>
           <p>${input.summaryLine}</p>
-          <p><a href="${input.documentUrl}">View your estimate document</a></p>
+          <p><a href="${input.accountUrl}">Sign in to your account</a> to review saved estimates.</p>
           <p>This is a planning estimate, not a fixed quotation. A Good Code specialist reviews scope before any formal quote.</p>
         `,
-        text: `Your Project Blueprint planning estimate\n\n${input.summaryLine}\n\nView: ${input.documentUrl}\n\nThis is a planning estimate, not a fixed quotation.`,
+        text: `Your Project Blueprint planning estimate\n\n${input.summaryLine}\n\nSign in: ${input.accountUrl}\n\nThis is a planning estimate, not a fixed quotation.`,
       },
       input.idempotencyKey
         ? { idempotencyKey: input.idempotencyKey }

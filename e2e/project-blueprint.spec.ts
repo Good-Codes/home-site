@@ -78,7 +78,16 @@ test.describe("signed-in account", () => {
     test.skip(!loggedIn, "Database is not available for authenticated e2e");
     await page.goto("/account");
     await expect(page.getByRole("heading", { name: /^Account$/ })).toBeVisible();
+    await expect(page.getByRole("heading", { name: /Saved estimates/i })).toBeVisible();
     await expect(page.getByLabel(/Current password/i)).toBeVisible();
+    await expect(page.getByText(/No saved estimates yet/i)).toBeVisible();
+  });
+
+  test("admin users page is forbidden to customers", async ({ page }) => {
+    const loggedIn = await createCustomerAndLogin(page);
+    test.skip(!loggedIn, "Database is not available for authenticated e2e");
+    await page.goto("/admin/users");
+    await expect(page).not.toHaveURL(/\/admin\/users/);
   });
 });
 
@@ -127,6 +136,9 @@ test.describe("signed-in estimator", () => {
       timeout: 20_000,
     });
     await expect(page.getByText(/Recommended investment range/i)).toBeVisible();
+    await expect(
+      page.getByRole("button", { name: /Save to my profile/i }),
+    ).toBeVisible();
   });
 
   test("asks follow-ups only when intake needs clarification", async ({ page }) => {

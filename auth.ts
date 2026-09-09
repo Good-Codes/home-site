@@ -1,4 +1,4 @@
-import NextAuth from "next-auth";
+import NextAuth, { CredentialsSignin } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 
 import { authConfig } from "@/auth.config";
@@ -7,6 +7,10 @@ import {
   clientKeyFromRequest,
 } from "@/lib/auth/rate-limit";
 import { verifyCredentials } from "@/lib/auth/verify-credentials";
+
+class AccountLockedError extends CredentialsSignin {
+  code = "account_locked";
+}
 
 if (
   process.env.NODE_ENV === "production" &&
@@ -36,16 +40,19 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           return null;
         }
 
-        const user = await verifyCredentials(email, password);
-        if (!user) {
+        const result = await verifyCredentials(email, password);
+        if (!result.ok) {
+          if (result.reason === "locked") {
+            throw new AccountLockedError();
+          }
           return null;
         }
 
         return {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          role: user.role,
+          id: result.user.id,
+          email: result.user.email,
+          name: result.user.name,
+          role: result.user.role,
         };
       },
     }),

@@ -7,8 +7,7 @@ import {
   checkAuthRateLimit,
   clientKeyFromRequest,
 } from "@/lib/auth/rate-limit";
-import { requireUser } from "@/lib/project-blueprint/auth/admin";
-import { isStaffRole } from "@/lib/auth/roles";
+import { requireAdmin } from "@/lib/project-blueprint/auth/admin";
 
 export const dynamic = "force-dynamic";
 
@@ -19,18 +18,12 @@ const bodySchema = z.object({
 });
 
 export async function POST(request: Request) {
-  const session = await requireUser();
-  if (!session.ok) {
-    return NextResponse.json({ error: session.error }, { status: session.status });
-  }
-  if (isStaffRole(session.user.role)) {
-    return NextResponse.json(
-      { error: "Use the admin account page to change your password." },
-      { status: 403 },
-    );
+  const auth = await requireAdmin();
+  if (!auth.ok) {
+    return NextResponse.json({ error: auth.error }, { status: auth.status });
   }
 
-  const key = `change-password:${session.user.id}:${clientKeyFromRequest(request)}`;
+  const key = `admin-change-password:${auth.admin.userId}:${clientKeyFromRequest(request)}`;
   if (!checkAuthRateLimit(key)) {
     return NextResponse.json(
       { error: "Too many password change attempts. Please wait a few minutes." },
@@ -44,7 +37,6 @@ export async function POST(request: Request) {
     return NextResponse.json(
       {
         error: `Check your details. Password must be at least ${PASSWORD_MIN_LENGTH} characters.`,
-        details: parsed.error.flatten(),
       },
       { status: 400 },
     );
@@ -52,7 +44,7 @@ export async function POST(request: Request) {
 
   try {
     await changePassword({
-      userId: session.user.id,
+      userId: auth.admin.userId,
       currentPassword: parsed.data.currentPassword,
       newPassword: parsed.data.newPassword,
       confirmPassword: parsed.data.confirmPassword,
@@ -68,7 +60,7 @@ export async function POST(request: Request) {
             : 400;
       return NextResponse.json({ error: error.message }, { status });
     }
-    console.error("change password failed", error);
+    console.error("admin change password failed", error);
     return NextResponse.json(
       { error: "Unable to update your password right now." },
       { status: 500 },

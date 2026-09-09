@@ -74,9 +74,6 @@ export async function GET(_request: Request, context: RouteContext) {
             },
           },
         },
-        pricingVersion: {
-          select: { version: true, isPlaceholder: true },
-        },
       },
     });
 
@@ -139,15 +136,12 @@ export async function GET(_request: Request, context: RouteContext) {
         publicResult,
         riskFlags,
         usingPlaceholderConfiguration: Boolean(
-          row.pricingVersion?.isPlaceholder ??
-            publicResult.usingPlaceholderConfiguration,
+          publicResult.usingPlaceholderConfiguration,
         ),
         privateNotes: {
           discoveryRecommended: Boolean(row.isDiscoveryFirst),
           checksum: row.checksum,
-          pricingVersion: String(
-            row.pricingVersion?.version ?? publicResult.pricingVersion,
-          ),
+          pricingVersion: String(publicResult.pricingVersion ?? "unknown"),
         },
       },
       demo: false,

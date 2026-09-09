@@ -11,7 +11,6 @@ const { auth } = NextAuth(authConfig);
 function isAuthExempt(path: string): boolean {
   if (path.startsWith("/api/auth")) return true;
   if (path.startsWith("/admin/login")) return true;
-  if (path.startsWith("/api/project-blueprint/uploads/scan-callback")) return true;
   return false;
 }
 
@@ -50,6 +49,9 @@ export async function proxy(request: NextRequest) {
       const loginUrl = new URL("/login", request.url);
       loginUrl.searchParams.set("next", path);
       return NextResponse.redirect(loginUrl);
+    }
+    if (isStaffRole(role)) {
+      return NextResponse.redirect(new URL("/admin/account", request.url));
     }
     return NextResponse.next();
   }

@@ -9,16 +9,8 @@ import { signOut } from "next-auth/react";
 
 const NAV = [
   { href: "/admin/project-blueprint", label: "Inbox", match: "exact" as const },
-  {
-    href: "/admin/project-blueprint/pricing",
-    label: "Pricing",
-    match: "prefix" as const,
-  },
-  {
-    href: "/admin/project-blueprint/calibration",
-    label: "Calibration",
-    match: "prefix" as const,
-  },
+  { href: "/admin/users", label: "Users", match: "prefix" as const },
+  { href: "/admin/account", label: "Account", match: "prefix" as const },
 ];
 
 export function AdminShell({ children }: { children: React.ReactNode }) {

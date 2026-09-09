@@ -78,14 +78,14 @@ export async function POST(request: Request) {
   const siteUrl =
     process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ??
     "https://www.goodcode.co.za";
-  const documentUrl = `${siteUrl}/api/project-blueprint/document/${encodeURIComponent(body.estimateId)}`;
+  const accountUrl = `${siteUrl}/account`;
 
   if (!isDatabaseConfigured()) {
     if (preferredNextStep === "email") {
       await sendEstimateEmail({
         to: body.email,
         estimateId: body.estimateId,
-        documentUrl,
+        accountUrl,
         summaryLine:
           "Your indicative Project Blueprint planning estimate is ready to review.",
         idempotencyKey: `estimate-email:local:${body.estimateId}:${body.email}`,
@@ -153,7 +153,7 @@ export async function POST(request: Request) {
       await sendEstimateEmail({
         to: body.email,
         estimateId: body.estimateId,
-        documentUrl,
+        accountUrl,
         summaryLine:
           "Your indicative Project Blueprint planning estimate is ready to review.",
         idempotencyKey: `estimate-email:${body.estimateId}:${lead.id}`,
