@@ -83,7 +83,7 @@ export function SignupForm({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {error ? (
         <p className="text-sm text-red-600 dark:text-red-400" role="alert">
           {error}

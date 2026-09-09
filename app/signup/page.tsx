@@ -28,9 +28,7 @@ export default async function SignupPage({
         Create an account
       </h1>
       <p className="mt-2 text-sm leading-6 text-neutral-600 dark:text-neutral-400">
-        {oauthProviders.length > 0
-          ? "Continue with Google, GitHub, or Microsoft — or create an email account to describe your product and receive a planning estimate."
-          : "Sign up to describe your product and receive a planning estimate."}
+        Sign up to describe your product and receive a planning estimate.
       </p>
       <div className="mt-8">
         <SignupForm
