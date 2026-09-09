@@ -16,6 +16,10 @@ Copy `.env.example` → `.env.local` (never commit secrets). Next.js reads `.env
 | `NEXT_PUBLIC_SITE_URL` | Yes | Canonical origin for links |
 | `BOOTSTRAP_ADMIN_EMAIL` | Seed only | First staff admin email (`npx prisma db seed`) |
 | `BOOTSTRAP_ADMIN_PASSWORD` | Seed only | Min 12 characters; never used by public signup |
+| `AUTH_GOOGLE_ID` / `AUTH_GOOGLE_SECRET` | Optional | Google OAuth client; omit to hide Google sign-in |
+| `AUTH_GITHUB_ID` / `AUTH_GITHUB_SECRET` | Optional | GitHub OAuth app; omit to hide GitHub sign-in |
+| `AUTH_MICROSOFT_ENTRA_ID_ID` / `AUTH_MICROSOFT_ENTRA_ID_SECRET` | Optional | Microsoft Entra (Azure) app; omit to hide Microsoft sign-in |
+| `AUTH_MICROSOFT_ENTRA_ID_ISSUER` | Optional | Defaults to `https://login.microsoftonline.com/common/v2.0` (work + personal) |
 | `OPENAI_API_KEY` | Recommended (intake) | Maps idea text onto catalogue answers. Keyword fallback if unset |
 | `PROJECT_BLUEPRINT_AI_INTAKE_ENABLED` | Optional | Set `false` to force keyword fallback even when a key is present |
 | `PROJECT_BLUEPRINT_AI_INTAKE_MODEL` | Optional | Default `gpt-4o-mini` |
@@ -78,14 +82,24 @@ The container entrypoint runs `prisma migrate deploy` before `node server.js`. T
 
 ---
 
-## 3. Auth.js (credentials)
+## 3. Auth.js (credentials and social)
 
-- Customers create accounts at `/signup`. Signup **always** creates `CUSTOMER`. `ADMIN` is assigned only by seed or in the database. Public signup cannot self-promote.
-- Unified login is `/login`. `/admin/login` redirects there with `next=/admin/project-blueprint`.
-- Passwords are hashed with bcrypt (cost 12) via `bcryptjs`. Only `passwordHash` is stored. Signed-in users can change their password at `/account`.
-- Sessions are JWTs signed with `AUTH_SECRET` (httpOnly, SameSite=lax, Secure in production).
+- Customers create accounts at `/signup` or by signing in with Google, GitHub, or Microsoft. The first social sign-in **creates** a `CUSTOMER` with no password. Matching a verified email links the provider to the existing user and **does not** change role. `ADMIN` is assigned only by seed or in the database. Public signup and OAuth cannot self-promote.
+- Unified login is `/login`. `/admin/login` redirects there with `next=/admin/project-blueprint`. After social login, `/auth/continue` sends staff to the inbox and customers to the estimator.
+- Passwords are hashed with bcrypt (cost 12) via `bcryptjs`. Social-only users have no `passwordHash`; they cannot use email/password until an admin sets one. Signed-in users who have a password can change it at `/account`.
+- Sessions are JWTs signed with `AUTH_SECRET` (httpOnly, SameSite=lax, Secure in production). The JWT `id` is the Prisma user UUID, not the provider subject.
 - `/custom-software-estimator` and customer APIs (`/api/project-blueprint/intake`, `calculate`, …) require a signed-in user.
 - `/admin` requires `ADMIN`. Being logged in as a customer is not enough.
+
+### Social provider setup
+
+Register an OAuth app for each provider you want, then set the env vars above. Authorized redirect URIs (replace origin with `AUTH_URL`):
+
+- Google: `{AUTH_URL}/api/auth/callback/google` — [Google Cloud credentials](https://console.developers.google.com/apis/credentials)
+- GitHub: `{AUTH_URL}/api/auth/callback/github` — [GitHub OAuth apps](https://github.com/settings/developers) (needs `user:email`)
+- Microsoft: `{AUTH_URL}/api/auth/callback/microsoft-entra-id` — [App registration](https://learn.microsoft.com/en-us/entra/identity-platform/quickstart-register-app)
+
+Leave a provider’s id/secret unset to hide its button. Local and e2e keep working with email/password only.
 
 ---
 
@@ -206,6 +220,7 @@ npm run dev
 - [ ] `AUTH_SECRET` set to a long random value (not the example); app fails closed without it
 - [ ] `DATABASE_URL` points at production Postgres; not committed
 - [ ] `NEXT_PUBLIC_SITE_URL` / `AUTH_URL` match production HTTPS origin
+- [ ] OAuth redirect URIs registered for each enabled provider
 - [ ] Bootstrap admin created; public signup cannot create staff
 - [ ] Resend domain verified; test estimate email
 - [ ] DocRaptor test PDF/UA; HTML fallback tested
@@ -227,7 +242,7 @@ npm run dev
 
 | Symptom | First checks |
 |---------|----------------|
-| Login loops | `AUTH_SECRET` rotation invalidates cookies; `AUTH_URL` / site URL mismatch |
+| Login loops | `AUTH_SECRET` rotation invalidates cookies; `AUTH_URL` / site URL mismatch; OAuth callback URI mismatch |
 | Estimator redirects to login | Session cookie missing or expired; user must sign in |
 | Calculate 401 | API gated by Auth.js session — page login is not enough if the cookie is absent |
 | Emails missing | Resend domain/DNS; consent row; idempotency replay |

@@ -26,6 +26,18 @@ export type ChangePasswordInput = {
   confirmPassword: string;
 };
 
+export async function userHasPassword(userId: string): Promise<boolean> {
+  if (!isDatabaseConfigured()) {
+    return false;
+  }
+
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { passwordHash: true },
+  });
+  return Boolean(user?.passwordHash);
+}
+
 export async function changePassword(
   input: ChangePasswordInput,
 ): Promise<void> {
@@ -52,7 +64,7 @@ export async function changePassword(
     select: { id: true, passwordHash: true },
   });
 
-  if (!user) {
+  if (!user?.passwordHash) {
     throw new ChangePasswordError("Current password is incorrect.", "UNAUTHORIZED");
   }
 

@@ -145,4 +145,15 @@ describe("verifyCredentials", () => {
       reason: "invalid",
     });
   });
+
+  it("rejects a social-only user without incrementing lockout", async () => {
+    vi.mocked(prisma.user.findUnique).mockResolvedValue(
+      userRow({ passwordHash: null }) as never,
+    );
+
+    await expect(
+      verifyCredentials("ada@example.com", PASSWORD),
+    ).resolves.toEqual({ ok: false, reason: "invalid" });
+    expect(prisma.user.update).not.toHaveBeenCalled();
+  });
 });

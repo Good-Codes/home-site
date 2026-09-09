@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
 import { ChangePasswordForm } from "@/components/auth/change-password-form";
+import { userHasPassword } from "@/lib/auth/change-password";
 import { auth } from "@/auth";
 
 export const metadata: Metadata = {
@@ -11,9 +12,11 @@ export const metadata: Metadata = {
 
 export default async function AdminAccountPage() {
   const session = await auth();
-  if (!session?.user) {
+  if (!session?.user?.id) {
     redirect("/login?next=/admin/account");
   }
+
+  const hasPassword = await userHasPassword(session.user.id);
 
   return (
     <div className="mx-auto max-w-md space-y-6">
@@ -22,7 +25,9 @@ export default async function AdminAccountPage() {
           Account
         </h1>
         <p className="text-sm leading-6 text-neutral-600 dark:text-neutral-300">
-          Update your admin password. You will stay signed in after the change.
+          {hasPassword
+            ? "Update your admin password. You will stay signed in after the change."
+            : "You sign in with Google, GitHub, or Microsoft. A password can be set from Users if you need email sign-in."}
         </p>
       </header>
       <dl className="space-y-1">
@@ -33,7 +38,9 @@ export default async function AdminAccountPage() {
           {session.user.email ?? "—"}
         </dd>
       </dl>
-      <ChangePasswordForm endpoint="/api/admin/account/password" />
+      {hasPassword ? (
+        <ChangePasswordForm endpoint="/api/admin/account/password" />
+      ) : null}
     </div>
   );
 }

@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 
 import { LoginForm } from "@/components/auth/login-form";
 import { safeCallbackPath } from "@/lib/auth/callback-url";
+import { oauthErrorMessage } from "@/lib/auth/oauth-errors";
+import { enabledOAuthProviders } from "@/lib/auth/enabled-oauth-providers";
 
 export const metadata: Metadata = {
   title: "Sign in",
@@ -11,7 +13,7 @@ export const metadata: Metadata = {
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ next?: string }>;
+  searchParams: Promise<{ next?: string; error?: string }>;
 }) {
   const params = await searchParams;
   const nextPath = params.next ? safeCallbackPath(params.next) : "";
@@ -27,7 +29,11 @@ export default async function LoginPage({
         inbox.
       </p>
       <div className="mt-8">
-        <LoginForm nextPath={nextPath} />
+        <LoginForm
+          nextPath={nextPath}
+          oauthProviders={enabledOAuthProviders()}
+          oauthError={oauthErrorMessage(params.error)}
+        />
       </div>
     </main>
   );

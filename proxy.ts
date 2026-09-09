@@ -35,6 +35,19 @@ export async function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
+  if (path.startsWith("/auth/continue")) {
+    if (!session?.user) {
+      const loginUrl = new URL("/login", request.url);
+      const next = request.nextUrl.searchParams.get("next");
+      loginUrl.searchParams.set(
+        "next",
+        safeCallbackPath(next, "/custom-software-estimator"),
+      );
+      return NextResponse.redirect(loginUrl);
+    }
+    return NextResponse.next();
+  }
+
   if (path.startsWith("/custom-software-estimator")) {
     if (!session?.user) {
       const loginUrl = new URL("/login", request.url);
@@ -76,6 +89,7 @@ export const config = {
     "/admin/:path*",
     "/custom-software-estimator/:path*",
     "/account",
+    "/auth/continue",
     "/login",
     "/signup",
     "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",

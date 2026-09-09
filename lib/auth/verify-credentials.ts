@@ -52,6 +52,10 @@ export async function verifyCredentials(
     return { ok: false, reason: "invalid" };
   }
 
+  if (!user.passwordHash) {
+    return { ok: false, reason: "invalid" };
+  }
+
   const now = new Date();
   if (user.lockedUntil && user.lockedUntil.getTime() > now.getTime()) {
     return { ok: false, reason: "locked" };

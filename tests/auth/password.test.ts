@@ -13,4 +13,13 @@ describe("password hashing", () => {
     await expect(comparePassword(password, hash)).resolves.toBe(true);
     await expect(comparePassword("wrong-password-12", hash)).resolves.toBe(false);
   });
+
+  it("returns false when there is no stored hash", async () => {
+    await expect(comparePassword("a-sufficiently-long-pass", null)).resolves.toBe(
+      false,
+    );
+    await expect(comparePassword("a-sufficiently-long-pass", undefined)).resolves.toBe(
+      false,
+    );
+  });
 });

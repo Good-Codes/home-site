@@ -97,4 +97,24 @@ describe("changePassword", () => {
     expect(nextHash).not.toBe(passwordHash);
     await expect(comparePassword(NEXT, nextHash)).resolves.toBe(true);
   });
+
+  it("rejects a social-only user with no password hash", async () => {
+    vi.mocked(prisma.user.findUnique).mockResolvedValue({
+      id: "user-1",
+      passwordHash: null,
+    } as never);
+
+    await expect(
+      changePassword({
+        userId: "user-1",
+        currentPassword: CURRENT,
+        newPassword: NEXT,
+        confirmPassword: NEXT,
+      }),
+    ).rejects.toMatchObject({
+      name: "ChangePasswordError",
+      code: "UNAUTHORIZED",
+    });
+    expect(prisma.user.update).not.toHaveBeenCalled();
+  });
 });

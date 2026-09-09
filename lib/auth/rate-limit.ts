@@ -23,11 +23,17 @@ export function resetAuthRateLimitForTests(): void {
   hits.clear();
 }
 
-export function clientKeyFromRequest(request: Request): string {
-  const forwarded = request.headers.get("x-forwarded-for");
+export function clientKeyFromHeaders(headers: {
+  get(name: string): string | null;
+}): string {
+  const forwarded = headers.get("x-forwarded-for");
   if (forwarded) {
     const first = forwarded.split(",")[0]?.trim();
     if (first) return first;
   }
-  return request.headers.get("x-real-ip")?.trim() || "anonymous";
+  return headers.get("x-real-ip")?.trim() || "anonymous";
+}
+
+export function clientKeyFromRequest(request: Request): string {
+  return clientKeyFromHeaders(request.headers);
 }
