@@ -46,11 +46,10 @@ export async function GET() {
         estimate: {
           select: {
             status: true,
-            lead: {
+            user: {
               select: {
                 name: true,
-                company: true,
-                preferredNextStep: true,
+                email: true,
               },
             },
           },
@@ -73,13 +72,13 @@ export async function GET() {
               (publicResult.confidence as { level?: string }).level ?? "early",
             )
           : "early";
-      const lead = row.estimate.lead;
+      const user = row.estimate.user;
+      const clientName = user.name?.trim() || user.email || null;
 
       return {
         id: row.id,
         status: row.estimate.status.toLowerCase(),
-        clientName: lead?.name ?? null,
-        company: lead?.company ?? null,
+        clientName,
         rangeDisplay: range
           ? formatZarRange(
               range,

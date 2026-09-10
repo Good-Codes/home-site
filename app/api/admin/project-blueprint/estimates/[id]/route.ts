@@ -64,6 +64,12 @@ export async function GET(_request: Request, context: RouteContext) {
             status: true,
             answers: true,
             concept: true,
+            user: {
+              select: {
+                name: true,
+                email: true,
+              },
+            },
             lead: {
               select: {
                 name: true,
@@ -94,6 +100,7 @@ export async function GET(_request: Request, context: RouteContext) {
     );
     const summary = buildReviewSummary(answers);
     const lead = row.estimate.lead;
+    const user = row.estimate.user;
     const concept =
       row.estimate.concept && typeof row.estimate.concept === "object"
         ? (row.estimate.concept as Record<string, unknown>)
@@ -127,8 +134,8 @@ export async function GET(_request: Request, context: RouteContext) {
         status: row.estimate.status.toLowerCase(),
         createdAt: row.createdAt.toISOString(),
         client: {
-          name: lead?.name ?? null,
-          email: lead?.email ?? null,
+          name: user.name?.trim() || lead?.name || user.email,
+          email: user.email || lead?.email ?? null,
           company: lead?.company ?? null,
           phone: lead?.phone ?? null,
           preferredNextStep: lead?.preferredNextStep ?? null,

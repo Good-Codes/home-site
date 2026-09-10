@@ -92,7 +92,6 @@ export default function AdminEstimateInboxPage() {
               <tr>
                 <th className="px-4 py-3 font-semibold">Status</th>
                 <th className="px-4 py-3 font-semibold">Client</th>
-                <th className="px-4 py-3 font-semibold">Company</th>
                 <th className="px-4 py-3 font-semibold">Range</th>
                 <th className="px-4 py-3 font-semibold">Confidence</th>
                 <th className="px-4 py-3 font-semibold">Next step</th>
@@ -114,7 +113,6 @@ export default function AdminEstimateInboxPage() {
                     </Link>
                   </td>
                   <td className="px-4 py-3">{row.clientName ?? "—"}</td>
-                  <td className="px-4 py-3">{row.company ?? "—"}</td>
                   <td className="px-4 py-3 font-medium">{row.rangeDisplay}</td>
                   <td className="px-4 py-3 capitalize">{row.confidence}</td>
                   <td className="max-w-[16rem] px-4 py-3 text-neutral-600 dark:text-neutral-300">

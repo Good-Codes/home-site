@@ -9,7 +9,6 @@ export type AdminEstimateListItem = {
   id: string;
   status: string;
   clientName: string | null;
-  company: string | null;
   rangeDisplay: string;
   confidence: string;
   nextStep: string;
@@ -159,12 +158,17 @@ const demoPublicResult = (estimateId: string): PublicEstimateResult => ({
   usingPlaceholderConfiguration: true,
 });
 
+const DEMO_CLIENT_COMPANY: Record<string, string | null> = {
+  "demo-est-001": "Riverbank Logistics",
+  "demo-est-002": null,
+  "demo-est-003": "Plainfield Clinics",
+};
+
 export const DEMO_ESTIMATE_LIST: AdminEstimateListItem[] = [
   {
     id: "demo-est-001",
     status: "lead_captured",
     clientName: "Thandi Molefe",
-    company: "Riverbank Logistics",
     rangeDisplay: "R420k–R760k",
     confidence: "moderate",
     nextStep: "Specialist review / quotation",
@@ -174,8 +178,7 @@ export const DEMO_ESTIMATE_LIST: AdminEstimateListItem[] = [
   {
     id: "demo-est-002",
     status: "calculated",
-    clientName: null,
-    company: null,
+    clientName: "Alex Naidoo",
     rangeDisplay: "R180k–R310k",
     confidence: "early",
     nextStep: "Discovery workshop recommended",
@@ -186,7 +189,6 @@ export const DEMO_ESTIMATE_LIST: AdminEstimateListItem[] = [
     id: "demo-est-003",
     status: "in_review",
     clientName: "Johan Botha",
-    company: "Plainfield Clinics",
     rangeDisplay: "R620k–R1.05m",
     confidence: "moderate",
     nextStep: "Draft quotation in progress",
@@ -224,7 +226,7 @@ export function getDemoEstimateDetail(id: string): AdminEstimateDetail | null {
       email: listItem.clientName
         ? `${listItem.clientName.toLowerCase().replace(/\s+/g, ".")}@example.co.za`
         : null,
-      company: listItem.company,
+      company: DEMO_CLIENT_COMPANY[id] ?? null,
       phone: listItem.clientName ? "+27 82 000 0000" : null,
       preferredNextStep: listItem.clientName ? "call" : null,
     },
