@@ -78,9 +78,8 @@ test.describe("signed-in account", () => {
     test.skip(!loggedIn, "Database is not available for authenticated e2e");
     await page.goto("/account");
     await expect(page.getByRole("heading", { name: /^Account$/ })).toBeVisible();
-    await expect(page.getByRole("heading", { name: /Saved estimates/i })).toBeVisible();
+    await expect(page.getByRole("heading", { name: /Password/i })).toBeVisible();
     await expect(page.getByLabel(/Current password/i)).toBeVisible();
-    await expect(page.getByText(/No saved estimates yet/i)).toBeVisible();
   });
 
   test("admin users page is forbidden to customers", async ({ page }) => {
@@ -184,7 +183,7 @@ test.describe("signed-in estimator", () => {
     });
     await expect(page.getByText(/Recommended investment range/i)).toBeVisible();
     await expect(
-      page.getByRole("button", { name: /Save to my profile/i }),
+      page.getByRole("button", { name: /Email me this estimate/i }),
     ).toBeVisible();
   });
 

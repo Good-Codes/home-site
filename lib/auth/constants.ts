@@ -5,5 +5,3 @@ export const AUTH_RATE_LIMIT_MAX_HITS = 10;
 
 export const LOGIN_LOCKOUT_MAX_ATTEMPTS = 5;
 export const LOGIN_LOCKOUT_MS = AUTH_RATE_LIMIT_WINDOW_MS;
-
-export const PROFILE_ESTIMATE_LIMIT = 5;

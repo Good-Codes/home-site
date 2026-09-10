@@ -106,7 +106,6 @@ model Estimate {
   answers          Json           @default("{}")
   concept          Json?
   lastScreen       String?
-  savedToProfileAt DateTime?
   createdAt        DateTime       @default(now())
   updatedAt        DateTime       @updatedAt
 
@@ -116,7 +115,6 @@ model Estimate {
   analyticsEvents AnalyticsEvent[]
 
   @@index([userId, updatedAt(sort: Desc)])
-  @@index([userId, savedToProfileAt])
   @@index([status])
 }
 
