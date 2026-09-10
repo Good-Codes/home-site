@@ -4,7 +4,7 @@ import { motion, useReducedMotion } from "framer-motion";
 
 import { smoothEase } from "@/lib/motion";
 import type { IntakeConcept, ProjectBlueprintAnswers } from "@/lib/project-blueprint/types";
-import { buildReviewSummary } from "@/lib/project-blueprint/summary";
+import { buildEstimateFacts, buildReviewSummary } from "@/lib/project-blueprint/summary";
 import { BrandButton, optionCardClass } from "./ui";
 import { BlueprintVisual } from "./blueprint-visual";
 
@@ -29,6 +29,7 @@ export function ReviewScreen({
 }: ReviewScreenProps) {
   const prefersReducedMotion = useReducedMotion();
   const summary = buildReviewSummary(answers);
+  const facts = buildEstimateFacts(answers);
 
   return (
     <motion.div
@@ -78,21 +79,22 @@ export function ReviewScreen({
       ) : null}
 
       <div className="space-y-4">
-        {summary.sections
-          .filter((section) => section.id !== "overview")
-          .map((section) => (
-            <div
-              key={section.id}
-              className="rounded-lg border border-neutral-200 bg-white p-5 dark:border-white/10 dark:bg-white/[0.04]"
-            >
-              <h3 className="text-base font-semibold text-neutral-900 dark:text-neutral-100">
-                {section.title}
-              </h3>
-              <p className="mt-2 text-sm leading-6 text-neutral-600 dark:text-neutral-300">
-                {section.body}
-              </p>
-            </div>
-          ))}
+        <h3 className="text-base font-semibold text-neutral-900 dark:text-neutral-100">
+          Facts we will estimate from
+        </h3>
+        {facts.map((fact) => (
+          <div
+            key={fact.id}
+            className="rounded-lg border border-neutral-200 bg-white p-5 dark:border-white/10 dark:bg-white/[0.04]"
+          >
+            <h4 className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+              {fact.title}
+            </h4>
+            <p className="mt-2 text-sm leading-6 text-neutral-600 dark:text-neutral-300">
+              {fact.body}
+            </p>
+          </div>
+        ))}
       </div>
 
       {summary.unknowns.length > 0 && (
@@ -156,7 +158,7 @@ export function ReviewScreen({
           onClick={onEditDescription}
           disabled={calculating}
         >
-          Edit description
+          This isn’t what I meant
         </BrandButton>
       </div>
     </motion.div>

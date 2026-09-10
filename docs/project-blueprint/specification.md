@@ -151,27 +151,23 @@ Generate any published catalogue excerpt from the same module to prevent drift.
 
 ---
 
-## 8. Pricing-engine design
+## 8. Planning estimate (AI + guards)
 
-**Location:** `lib/project-blueprint/engine/` (all rate/config modules import `server-only`).
+**Location:** `lib/project-blueprint/estimate/` (server-only). The old PERT / catalogue pricing engine is retired. There is one price source.
 
 **Pipeline**
 
-1. Normalize + validate answers (Zod).
-2. Resolve capabilities → work packages + modifiers + risk flags (`resolve.ts` + dependency map).
-3. Apply scenario package sets: lean / recommended / scale_ready (`scenarios.ts`)—**never** percentage haircuts.
-4. Three-point effort per package/role; aggregate distributions (`pert.ts`).
-5. Widen for uncertainty (`uncertainty.ts`).
-6. Timeline from dependency graph + parallel lanes (`timeline.ts`).
-7. Discovery gate (`discovery.ts`).
-8. Public rounding (`round.ts`).
-9. Emit `{ publicResult, privateTrace }` (`calculate.ts`); checksum answers + pricing version (`checksum.ts`).
+1. Intake (`lib/project-blueprint/intake/`) confirms a concept and optional follow-ups. It never invents ZAR.
+2. After the customer confirms the concept, `POST /api/project-blueprint/calculate` calls `runAiEstimate` with a versioned context pack (`ai-estimate-v1`).
+3. The model returns structured JSON (range, timeline, confidence, drivers). Zod validates; one retry on schema failure.
+4. Guards apply floor/ceiling, band order, taxonomy-ID stripping, and drop percentage haircut scenarios.
+5. Persist `{ publicResult, calculationTrace }` on `EstimateResult`. Trace stores prompt version, model, input hash, raw JSON, and guard adjustments — never send the prompt or seed table to the browser.
 
 **Invariants**
 
-- Budget fields ignored for math.
-- Public result excludes rates, hours totals as sell rates, margins, tax internals, and private rules.
-- Optional Monte Carlo uses seed derived from canonical answers + pricing-version checksum (deterministic).
+- Budget fields are not sent to the estimator.
+- Public result is ZAR, indicative, not a quotation.
+- If OpenAI is down, return an honest error. Do not fall back to a second calculator.
 
 ---
 

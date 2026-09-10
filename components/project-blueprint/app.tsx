@@ -205,6 +205,7 @@ export function ProjectBlueprintApp() {
   const [resumeReady, setResumeReady] = useState(false);
   const [estimateId, setEstimateId] = useState<string | null>(null);
   const [savedToProfile, setSavedToProfile] = useState(false);
+  const [canResume, setResumeAvailable] = useState(false);
 
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const estimateIdRef = useRef<string | null>(null);
@@ -282,9 +283,9 @@ export function ProjectBlueprintApp() {
                 data.estimate.concept,
               ),
             );
-            setPhase("results");
+            setResumeAvailable(true);
           } else if (normalised.ideaText) {
-            setPhase("review");
+            setResumeAvailable(true);
           }
         }
       } catch {
@@ -305,6 +306,32 @@ export function ProjectBlueprintApp() {
     };
   }, []);
 
+  const startNewEstimate = () => {
+    if (saveTimer.current) clearTimeout(saveTimer.current);
+    estimateIdRef.current = null;
+    setEstimateId(null);
+    setAnswers(emptyAnswers());
+    setConcept(null);
+    setUsedFallback(false);
+    setResult(null);
+    setCalcError(null);
+    setSavedToProfile(false);
+    setResumeAvailable(false);
+    setPhase("describe");
+  };
+
+  const continueLastEstimate = () => {
+    if (result) {
+      setPhase("results");
+      return;
+    }
+    if (answers.ideaText) {
+      setPhase("review");
+    } else {
+      setPhase("describe");
+    }
+  };
+
   const buildEstimate = async () => {
     setCalculating(true);
     setCalcError(null);
@@ -313,7 +340,11 @@ export function ProjectBlueprintApp() {
       const response = await fetch("/api/project-blueprint/calculate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ answers, estimateId: estimateIdRef.current ?? undefined }),
+        body: JSON.stringify({
+          answers,
+          concept,
+          estimateId: estimateIdRef.current ?? undefined,
+        }),
       });
       const data = await response.json().catch(() => ({}));
       if (!response.ok) {
@@ -352,7 +383,10 @@ export function ProjectBlueprintApp() {
             exit={prefersReducedMotion ? undefined : { opacity: 0 }}
             transition={{ duration: 0.3, ease: smoothEase }}
           >
-            <ProjectBlueprintHero onStart={() => setPhase("describe")} />
+            <ProjectBlueprintHero
+              onStart={startNewEstimate}
+              onContinue={canResume ? continueLastEstimate : undefined}
+            />
           </motion.div>
         )}
 

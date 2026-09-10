@@ -8,9 +8,10 @@ import { BrandButton, SectionHeading } from "./ui";
 
 type ProjectBlueprintHeroProps = {
   onStart: () => void;
+  onContinue?: () => void;
 };
 
-export function ProjectBlueprintHero({ onStart }: ProjectBlueprintHeroProps) {
+export function ProjectBlueprintHero({ onStart, onContinue }: ProjectBlueprintHeroProps) {
   const prefersReducedMotion = useReducedMotion();
 
   return (
@@ -66,6 +67,11 @@ export function ProjectBlueprintHero({ onStart }: ProjectBlueprintHeroProps) {
               Start my estimate
               <ArrowRight className="ml-2 h-4 w-4 transition group-hover:translate-x-0.5" aria-hidden />
             </BrandButton>
+            {onContinue ? (
+              <BrandButton onClick={onContinue} variant="outline">
+                Continue last estimate
+              </BrandButton>
+            ) : null}
             <BrandButton href="/contact-us" variant="outline">
               Talk to the team
               <MessageCircle className="ml-2 h-4 w-4" aria-hidden />

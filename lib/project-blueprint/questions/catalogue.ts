@@ -752,6 +752,7 @@ const questions: QuestionDefinition[] = [
     allowMultiple: true,
     unknownOptions: DEFAULT_UNKNOWN_OPTIONS,
     options: [
+      { id: "quality.none", label: "No particular sensitivity beyond a normal business app" },
       { id: "quality.personal_sensitive", label: "Personal or sensitive information" },
       { id: "quality.financial_info", label: "Financial information", tags: ["regulated"] },
       { id: "quality.identity_documents", label: "Identity documents", tags: ["regulated"] },

@@ -4,6 +4,7 @@
 
 import { normalizeAnswers } from "./answers";
 import { shouldRecommendDiscovery } from "./branching/rules";
+import { catalogueOptionLabel } from "./intake/taxonomy";
 import type { ProjectBlueprintAnswers, ReviewSummary, ReviewSummarySection } from "./types";
 import { formatUnknownMarker } from "./unknown-copy";
 
@@ -85,12 +86,18 @@ const LABELS: Record<string, string> = {
 
 function labelOf(id: string | null | undefined, fallback = "not specified"): string {
   if (!id) return fallback;
-  return LABELS[id] ?? id.replace(/^.*\./, "").replace(/_/g, " ");
+  return LABELS[id] ?? catalogueOptionLabel(id) ?? id.replace(/^.*\./, "").replace(/_/g, " ");
+}
+
+function isDisplayableScopeId(id: string): boolean {
+  return !id.endsWith(".none") && !id.endsWith(".unknown") && id !== "not_sure";
 }
 
 function listLabels(ids: string[] | undefined, limit = 6): string {
   if (!ids?.length) return "none selected yet";
-  const labels = ids.map((id) => labelOf(id));
+  const visible = ids.filter(isDisplayableScopeId);
+  if (!visible.length) return "none selected yet";
+  const labels = visible.map((id) => labelOf(id));
   if (labels.length <= limit) return labels.join(", ");
   return `${labels.slice(0, limit).join(", ")}, and ${labels.length - limit} more`;
 }
@@ -244,7 +251,7 @@ export function buildReviewSummary(answersInput: ProjectBlueprintAnswers): Revie
   if (answers.migrationProfile === "migration.none") {
     assumptions.push("No historical data migration is included.");
   }
-  if (answers.productLevel === "level.production_mvp" || !answers.productLevel) {
+  if (answers.productLevel === "level.production_mvp") {
     assumptions.push("The first release is assumed to be production-operable rather than a disposable prototype.");
   }
 
@@ -254,4 +261,64 @@ export function buildReviewSummary(answersInput: ProjectBlueprintAnswers): Revie
     assumptions,
     unknowns,
   };
+}
+
+export type EstimateFact = {
+  id: "surfaces" | "payments" | "integrations" | "quality";
+  title: string;
+  body: string;
+};
+
+/**
+ * Short facts shown on review — not the old eight-screen catalogue dump.
+ */
+export function buildEstimateFacts(
+  answersInput: ProjectBlueprintAnswers,
+): EstimateFact[] {
+  const answers = normalizeAnswers(answersInput);
+  const paymentsUnknown = Boolean(answers.unknowns?.["q.intake.payments"]);
+  const hasPayments = (answers.capabilities ?? []).some((id) =>
+    id.startsWith("cap.payments."),
+  );
+  const paymentsBody = paymentsUnknown
+    ? "Whether people pay inside the product is still open."
+    : hasPayments
+      ? "In-product payments are in scope for the first release."
+      : "Payments are not part of the first release.";
+
+  const integrationsUnknown = Boolean(answers.unknowns?.["q.integrations.systems"]);
+  const integrationList = (answers.integrations ?? []).filter(isDisplayableScopeId);
+  const integrationsBody = integrationsUnknown
+    ? "Whether this needs to connect to other systems is still open."
+    : integrationList.length
+      ? `Connections in scope: ${listLabels(answers.integrations, 6)}.`
+      : "No external system integrations assumed for the first release.";
+
+  const qualityUnknown = Boolean(answers.unknowns?.["q.quality.requirements"]);
+  const qualityBody = qualityUnknown
+    ? "Whether this handles sensitive or regulated information is still open."
+    : `Quality and data expectations: ${listLabels(answers.qualityRequirements, 6)}.`;
+
+  return [
+    {
+      id: "surfaces",
+      title: "Where people will use it",
+      body: `Surfaces in scope: ${listLabels(answers.surfaces)}.`,
+    },
+    {
+      id: "payments",
+      title: "Payments",
+      body: paymentsBody,
+    },
+    {
+      id: "integrations",
+      title: "Integrations",
+      body: integrationsBody,
+    },
+    {
+      id: "quality",
+      title: "Data and quality",
+      body: qualityBody,
+    },
+  ];
 }

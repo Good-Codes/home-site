@@ -20,9 +20,11 @@ Copy `.env.example` → `.env.local` (never commit secrets). Next.js reads `.env
 | `AUTH_GITHUB_ID` / `AUTH_GITHUB_SECRET` | Optional | GitHub OAuth app; omit to hide GitHub sign-in |
 | `AUTH_MICROSOFT_ENTRA_ID_ID` / `AUTH_MICROSOFT_ENTRA_ID_SECRET` | Optional | Microsoft Entra (Azure) app; omit to hide Microsoft sign-in |
 | `AUTH_MICROSOFT_ENTRA_ID_ISSUER` | Optional | Defaults to `https://login.microsoftonline.com/common/v2.0` (work + personal) |
-| `OPENAI_API_KEY` | Recommended (intake) | Maps idea text onto catalogue answers. Keyword fallback if unset |
+| `OPENAI_API_KEY` | Required for estimates | Intake maps the idea; a second call produces the ZAR planning range. Intake can fall back to keywords; estimate fails honestly if the key is missing |
 | `PROJECT_BLUEPRINT_AI_INTAKE_ENABLED` | Optional | Set `false` to force keyword fallback even when a key is present |
 | `PROJECT_BLUEPRINT_AI_INTAKE_MODEL` | Optional | Default `gpt-4o-mini` |
+| `PROJECT_BLUEPRINT_AI_ESTIMATE_ENABLED` | Optional | Set `false` to disable the pricing model (calculate returns an error) |
+| `PROJECT_BLUEPRINT_AI_ESTIMATE_MODEL` | Optional | Default `gpt-4o`. Pin this in production. |
 | `RESEND_API_KEY` | Yes (email) | Transactional email |
 | `RESEND_FROM_EMAIL` | Yes (email) | Verified sender, e.g. `estimates@goodcode.co.za` |
 | `DOCRAPTOR_API_KEY` | Yes (PDF) | PDF/UA generation |

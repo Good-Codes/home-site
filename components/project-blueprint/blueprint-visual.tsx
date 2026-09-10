@@ -34,7 +34,10 @@ function buildNodes(answers: ProjectBlueprintAnswers): NodeDef[] {
   );
   const hasCloud =
     answers.route === "route.cloud_modernisation" ||
-    (answers.surfaces ?? []).includes("surface.cloud_platform");
+    (answers.surfaces ?? []).includes("surface.cloud_platform") ||
+    Boolean(answers.cloudFollowUps?.cicd) ||
+    Boolean(answers.cloudFollowUps?.monitoring) ||
+    (answers.cloudFollowUps?.environments?.length ?? 0) > 0;
 
   return [
     { id: "surfaces", label: "Surfaces", active: surfaces > 0, x: 40, y: 36 },
@@ -64,7 +67,7 @@ function buildNodes(answers: ProjectBlueprintAnswers): NodeDef[] {
     {
       id: "cloud",
       label: "Cloud",
-      active: hasCloud || Boolean(answers.productLevel),
+      active: hasCloud,
       x: 140,
       y: 178,
     },

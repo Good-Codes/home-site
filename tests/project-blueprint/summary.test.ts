@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { buildReviewSummary } from "@/lib/project-blueprint/summary";
+import { buildEstimateFacts, buildReviewSummary } from "@/lib/project-blueprint/summary";
 import { normalizeAnswers } from "@/lib/project-blueprint/answers";
 import {
   formatUnknownMarker,
@@ -58,5 +58,27 @@ describe("review summary unknowns", () => {
       ]),
     );
     expect(summary.unknowns.filter((item) => /timing/i.test(item))).toHaveLength(1);
+  });
+});
+
+describe("estimate facts", () => {
+  it("summarises surfaces, payments, integrations, and quality without catalogue IDs", () => {
+    const facts = buildEstimateFacts(
+      normalizeAnswers({
+        surfaces: ["surface.admin_workspace"],
+        capabilities: ["cap.workflow.status_tracking"],
+        integrations: ["integration.none"],
+        qualityRequirements: [],
+      }),
+    );
+    expect(facts.map((fact) => fact.id)).toEqual([
+      "surfaces",
+      "payments",
+      "integrations",
+      "quality",
+    ]);
+    const blob = facts.map((fact) => fact.body).join(" ");
+    expect(blob).not.toMatch(/\bq\./);
+    expect(blob).toMatch(/not part of the first release/i);
   });
 });

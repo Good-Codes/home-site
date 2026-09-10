@@ -63,6 +63,7 @@ export async function GET(_request: Request, context: RouteContext) {
           select: {
             status: true,
             answers: true,
+            concept: true,
             lead: {
               select: {
                 name: true,
@@ -93,6 +94,14 @@ export async function GET(_request: Request, context: RouteContext) {
     );
     const summary = buildReviewSummary(answers);
     const lead = row.estimate.lead;
+    const concept =
+      row.estimate.concept && typeof row.estimate.concept === "object"
+        ? (row.estimate.concept as Record<string, unknown>)
+        : null;
+    const trace =
+      row.calculationTrace && typeof row.calculationTrace === "object"
+        ? (row.calculationTrace as Record<string, unknown>)
+        : {};
 
     const riskFlags = Array.isArray(publicResult.costDrivers)
       ? publicResult.costDrivers.map((driver) => ({
@@ -108,7 +117,7 @@ export async function GET(_request: Request, context: RouteContext) {
         title: "Discovery-first recommended",
         explanation:
           publicResult.discoverySummary ??
-          "Engine recommended discovery before a full build commitment.",
+          "Discovery was recommended before a full build commitment.",
       });
     }
 
@@ -124,8 +133,11 @@ export async function GET(_request: Request, context: RouteContext) {
           phone: lead?.phone ?? null,
           preferredNextStep: lead?.preferredNextStep ?? null,
         },
+        concept,
         answersSummary: {
-          headline: summary.headline,
+          headline:
+            (typeof concept?.headline === "string" && concept.headline) ||
+            summary.headline,
           sections: summary.sections.map((section) => ({
             id: section.id,
             title: section.title,
@@ -142,6 +154,11 @@ export async function GET(_request: Request, context: RouteContext) {
           discoveryRecommended: Boolean(row.isDiscoveryFirst),
           checksum: row.checksum,
           pricingVersion: String(publicResult.pricingVersion ?? "unknown"),
+          promptVersion:
+            typeof trace.promptVersion === "string"
+              ? trace.promptVersion
+              : String(publicResult.pricingVersion ?? "unknown"),
+          model: typeof trace.model === "string" ? trace.model : null,
         },
       },
       demo: false,

@@ -122,11 +122,19 @@ export const INTAKE_WHITELIST: IntakeWhitelistQuestion[] = [
           capabilities: (answers.capabilities ?? []).filter(
             (id) => !id.startsWith("cap.payments."),
           ),
+          paymentsFollowUps: {
+            ...answers.paymentsFollowUps,
+            paymentModes: ["pay.none"],
+          },
         });
       }
       if (chosen === "pay.one_time") {
         return applyKnown(answers, "q.intake.payments", {
           capabilities: withCapabilities(answers, ["cap.payments.one_time"]),
+          paymentsFollowUps: {
+            ...answers.paymentsFollowUps,
+            paymentModes: ["pay.one_time"],
+          },
         });
       }
       if (chosen === "pay.recurring") {
@@ -135,6 +143,10 @@ export const INTAKE_WHITELIST: IntakeWhitelistQuestion[] = [
             "cap.payments.recurring",
             "cap.payments.subscriptions",
           ]),
+          paymentsFollowUps: {
+            ...answers.paymentsFollowUps,
+            paymentModes: ["pay.recurring"],
+          },
         });
       }
       return answers;
@@ -226,7 +238,7 @@ export const INTAKE_WHITELIST: IntakeWhitelistQuestion[] = [
       if (!chosen.length) return markUnknown(answers, "q.quality.requirements");
       if (chosen.includes("quality.none") && chosen.length === 1) {
         return applyKnown(answers, "q.quality.requirements", {
-          qualityRequirements: [],
+          qualityRequirements: ["quality.none"],
         });
       }
       return applyKnown(answers, "q.quality.requirements", {
@@ -311,8 +323,11 @@ function isFieldFilled(
     case "q.context.starting_point":
       return Boolean(answers.startingPoint);
     case "q.intake.payments":
-      return (answers.capabilities ?? []).some((id) =>
-        id.startsWith("cap.payments."),
+      return (
+        (answers.capabilities ?? []).some((id) =>
+          id.startsWith("cap.payments."),
+        ) ||
+        (answers.paymentsFollowUps?.paymentModes ?? []).includes("pay.none")
       );
     case "q.integrations.systems": {
       const integrations = answers.integrations ?? [];

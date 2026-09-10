@@ -101,7 +101,7 @@ export default function AdminEstimateDetailPage() {
           role="status"
         >
           {warning ??
-            "PLACEHOLDER rates — do not treat this planning estimate as calibrated commercial pricing."}
+            "Seeded planning examples — do not treat this as a calibrated commercial quotation."}
         </p>
       ) : null}
 
@@ -148,8 +148,29 @@ export default function AdminEstimateDetailPage() {
           <p className="mt-4 text-sm leading-6 text-neutral-700 dark:text-neutral-300">
             {estimate.publicResult.nextStepRecommendation}
           </p>
+          <p className="mt-4 text-xs text-neutral-500">
+            Prompt {estimate.privateNotes.promptVersion ?? estimate.privateNotes.pricingVersion}
+            {estimate.privateNotes.model ? ` · ${estimate.privateNotes.model}` : ""}
+          </p>
         </div>
       </section>
+
+      {estimate.concept?.summary ? (
+        <section className="rounded-xl border border-neutral-200 bg-white p-5 dark:border-white/10 dark:bg-white/[0.03]">
+          <h2 className="text-lg font-semibold">Concept</h2>
+          <p className="mt-3 text-base font-medium text-neutral-900 dark:text-neutral-100">
+            {estimate.concept.headline}
+          </p>
+          <p className="mt-2 text-sm leading-6 text-neutral-600 dark:text-neutral-300">
+            {estimate.concept.summary}
+          </p>
+          {estimate.concept.whoItsFor ? (
+            <p className="mt-2 text-sm text-neutral-500">
+              For: {estimate.concept.whoItsFor}
+            </p>
+          ) : null}
+        </section>
+      ) : null}
 
       <section className="rounded-xl border border-neutral-200 bg-white p-5 dark:border-white/10 dark:bg-white/[0.03]">
         <h2 className="text-lg font-semibold">Answers summary</h2>

@@ -33,6 +33,13 @@ export type AdminEstimateDetail = {
     sections: Array<{ id: string; title: string; body: string }>;
     unknowns: string[];
   };
+  concept?: {
+    headline?: string;
+    summary?: string;
+    whoItsFor?: string;
+    coreCapabilities?: string[];
+    assumptions?: string[];
+  } | null;
   publicResult: PublicEstimateResult;
   riskFlags: Array<{ id: string; title: string; explanation: string }>;
   usingPlaceholderConfiguration: boolean;
@@ -41,12 +48,14 @@ export type AdminEstimateDetail = {
     discoveryRecommended: boolean;
     checksum: string;
     pricingVersion: string;
+    promptVersion?: string;
+    model?: string | null;
   };
 };
 
 const demoPublicResult = (estimateId: string): PublicEstimateResult => ({
   estimateId,
-  pricingVersion: "placeholder-v0.1.0",
+  pricingVersion: "ai-estimate-v1",
   currency: "ZAR",
   generatedAt: "2026-07-18T10:30:00.000Z",
   productSummary: "Customer portal with payments and admin workspace",
@@ -265,10 +274,19 @@ export function getDemoEstimateDetail(id: string): AdminEstimateDetail | null {
         : []),
     ],
     usingPlaceholderConfiguration: true,
+    concept: {
+      headline: publicResult.productSummary,
+      summary: publicResult.productSummary,
+      whoItsFor: "South African operations teams",
+      coreCapabilities: ["Status tracking", "Admin workspace"],
+      assumptions: ["First release is web-only."],
+    },
     privateNotes: {
       discoveryRecommended: publicResult.discoveryRecommended,
       checksum: `demo-checksum-${id}`,
       pricingVersion: publicResult.pricingVersion,
+      promptVersion: "ai-estimate-v1",
+      model: "gpt-4o",
     },
   };
 }

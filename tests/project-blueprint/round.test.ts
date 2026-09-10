@@ -1,9 +1,7 @@
 import { describe, expect, it } from "vitest";
 
-import {
-  formatZarAmount,
-  formatZarRange,
-} from "@/lib/project-blueprint/engine/round";
+import { formatZarAmount, formatZarRange } from "@/lib/project-blueprint/format";
+import { roundMoneyRange } from "@/lib/project-blueprint/round";
 
 describe("formatZarRange", () => {
   it("formats million and thousand bands without false precision", () => {
@@ -15,5 +13,20 @@ describe("formatZarRange", () => {
     expect(formatZarRange({ low: 80_000, likely: 95_000, high: 120_000 })).toBe(
       "R80k\u2013R120k",
     );
+  });
+});
+
+describe("roundMoneyRange", () => {
+  it("rounds a planning band onto public steps", () => {
+    const rounded = roundMoneyRange({
+      low: 163_200,
+      likely: 247_800,
+      high: 381_100,
+    });
+    expect(rounded.low % 5_000).toBe(0);
+    expect(rounded.likely % 5_000).toBe(0);
+    expect(rounded.high % 5_000).toBe(0);
+    expect(rounded.low).toBeLessThanOrEqual(rounded.likely);
+    expect(rounded.likely).toBeLessThanOrEqual(rounded.high);
   });
 });

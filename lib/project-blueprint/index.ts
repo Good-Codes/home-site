@@ -114,4 +114,4 @@ export {
 
 export { classifyIdeaKeywords } from "./classifier/keyword";
 
-export { buildReviewSummary } from "./summary";
+export { buildReviewSummary, buildEstimateFacts } from "./summary";

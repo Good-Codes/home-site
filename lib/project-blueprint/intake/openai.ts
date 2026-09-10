@@ -7,6 +7,7 @@ import "server-only";
 
 import { z } from "zod";
 
+import { completeChatJson } from "../ai/complete-json";
 import { coerceIntakePayload } from "./coerce";
 
 const unknownChoiceSchema = z.enum([
@@ -79,33 +80,13 @@ export async function completeIntakeJson(
     process.env.PROJECT_BLUEPRINT_AI_CLASSIFIER_MODEL ??
     "gpt-4o-mini";
 
-  const response = await fetch("https://api.openai.com/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      model,
-      temperature: 0.2,
-      response_format: { type: "json_object" },
-      messages: [
-        { role: "system", content: system },
-        { role: "user", content: user },
-      ],
-    }),
+  return completeChatJson({
+    apiKey,
+    model,
+    system,
+    user,
+    temperature: 0.2,
   });
-
-  if (!response.ok) {
-    throw new Error(`OpenAI intake HTTP ${response.status}`);
-  }
-
-  const json = (await response.json()) as {
-    choices?: Array<{ message?: { content?: string } }>;
-  };
-  const content = json.choices?.[0]?.message?.content;
-  if (!content) throw new Error("OpenAI intake empty content");
-  return JSON.parse(content) as unknown;
 }
 
 export function parseOpenAiIntakePayload(

@@ -1,13 +1,10 @@
 import { describe, expect, it } from "vitest";
 
-import { calculateEstimate } from "@/lib/project-blueprint/engine/calculate";
-import { PLACEHOLDER_PRICING_CONFIG } from "@/lib/project-blueprint/engine/config/placeholder";
 import { fallbackIntakeDraft, looksLikeMarketingWebsite } from "@/lib/project-blueprint/intake/fallback";
 import { checkIntakeRateLimit, resetIntakeRateLimitForTests } from "@/lib/project-blueprint/intake/rate-limit";
-import { runIntake } from "@/lib/project-blueprint/intake/run";
+import { buildIntakeSystemPrompt, runIntake } from "@/lib/project-blueprint/intake/run";
 import {
   dropIllegalIds,
-  fillDefaultsAndUnknowns,
   sanitiseAnswers,
   sanitiseConcept,
   stripPricingLanguage,
@@ -74,8 +71,9 @@ describe("intake sanitisation", () => {
       /A portal/i,
     );
     expect(stripPricingLanguage("A portal priced at R 250000 over 12 weeks")).not.toMatch(
-      /\bR\b|\bweeks\b/i,
+      /250000|ZAR/i,
     );
+    expect(stripPricingLanguage("A price comparison workspace")).toMatch(/price comparison/i);
   });
 
   it("rejects pricing language in sanitiseConcept", () => {
@@ -93,7 +91,7 @@ describe("intake sanitisation", () => {
     expect(concept.summary).not.toMatch(/400 hours/i);
   });
 
-  it("fills unknowns instead of inventing missing required fields", () => {
+  it("fills surfaces from the route without inventing unknown markers", () => {
     const answers = sanitiseAnswers(
       normalizeAnswers({
         route: "route.custom_web_platform",
@@ -101,9 +99,11 @@ describe("intake sanitisation", () => {
       }),
       "A workflow tool for staff",
     );
-    expect(answers.unknowns?.["q.context.starting_point"]).toBe("not_sure");
-    expect(answers.startingPoint).toBeTruthy();
+    expect(answers.unknowns?.["q.context.starting_point"]).toBeUndefined();
+    expect(answers.startingPoint).toBeFalsy();
     expect(answers.surfaces?.length).toBeGreaterThan(0);
+    expect(answers.roleCountBand).toBeFalsy();
+    expect(answers.productLevel).toBeFalsy();
   });
 });
 
@@ -236,19 +236,25 @@ describe("keyword fallback", () => {
     expect(draft.answers.route).toBe("route.website");
   });
 
-  it("maps portal language onto answers that the engine can price", () => {
+  it("maps portal language onto a custom-software concept without inventing prices", () => {
     const draft = fallbackIntakeDraft(RICH_PORTAL, normalizeAnswers({}));
     const answers = sanitiseAnswers(
       normalizeAnswers(draft.answers),
       RICH_PORTAL,
     );
-    const estimate = calculateEstimate(answers, PLACEHOLDER_PRICING_CONFIG);
-    expect(estimate.publicResult.recommendedScenario.range.likely).toBeGreaterThan(0);
-    expect(estimate.publicResult.currency).toBe("ZAR");
+    expect(draft.status).not.toBe("website_handoff");
+    expect(answers.route).not.toBe("route.website");
+    expect(JSON.stringify(draft.concept)).not.toMatch(/\bZAR\b|\bR\d/);
   });
 });
 
 describe("runIntake", () => {
+  it("keeps prices out of the intake prompt and does not ask the model to fill a budget", () => {
+    const prompt = buildIntakeSystemPrompt();
+    expect(prompt).toContain("Never invent prices");
+    expect(prompt).not.toContain("budgetBand");
+  });
+
   it("returns website_handoff when the model classifies a marketing site", async () => {
     const result = await runIntake(
       {
@@ -417,7 +423,46 @@ describe("runIntake", () => {
     expect(second.answers.surfaces).toEqual(["surface.public_web"]);
   });
 
-  it("falls back to keywords when AI is disabled and still produces a calculable bag", async () => {
+  it("keeps pay.none after a greedy AI patch tries to add payments", async () => {
+    const ideaText =
+      "We want an internal job board for staff. Payments are not part of this.";
+    const result = await runIntake(
+      {
+        ideaText,
+        round: 1,
+        previousAnswers: normalizeAnswers({
+          route: "route.internal_system",
+          surfaces: ["surface.admin_workspace"],
+        }),
+        askedQuestionIds: ["q.intake.payments"],
+        clarifications: [
+          { questionId: "q.intake.payments", values: ["pay.none"] },
+        ],
+      },
+      {
+        completeJson: async () =>
+          validAiPayload({
+            status: "ready",
+            answers: {
+              route: "route.internal_system",
+              surfaces: ["surface.admin_workspace"],
+              capabilities: [
+                "cap.access.registration_login",
+                "cap.payments.recurring",
+              ],
+            },
+            clarifyingQuestionIds: [],
+          }),
+      },
+    );
+
+    expect(result.answers.capabilities ?? []).not.toEqual(
+      expect.arrayContaining(["cap.payments.recurring"]),
+    );
+    expect(result.answers.paymentsFollowUps?.paymentModes).toContain("pay.none");
+  });
+
+  it("falls back to keywords when AI is disabled and still produces a concept", async () => {
     const result = await runIntake(
       { ideaText: RICH_PORTAL },
       { aiEnabled: false },
@@ -426,9 +471,8 @@ describe("runIntake", () => {
     expect(result.status === "ready" || result.status === "needs_clarification").toBe(
       true,
     );
-    const answersForPricing = fillDefaultsAndUnknowns(result.answers, RICH_PORTAL);
-    const estimate = calculateEstimate(answersForPricing, PLACEHOLDER_PRICING_CONFIG);
-    expect(estimate.publicResult.recommendedScenario.range.likely).toBeGreaterThan(0);
+    expect(result.concept.headline.length).toBeGreaterThan(0);
+    expect(JSON.stringify(result.concept)).not.toMatch(/\bZAR\b/);
   });
 
   it("uses messy OpenAI JSON instead of keyword fallback", async () => {

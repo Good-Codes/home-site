@@ -65,12 +65,12 @@ export function buildIntakeSystemPrompt(): string {
     "Use website_handoff only for marketing / brochure / landing-page websites with no custom product behaviour.",
     "concept needs: headline, summary, whoItsFor, coreCapabilities (JSON array of short strings, never one sentence), assumptions (JSON array of strings, never one sentence).",
     "Write concept copy in calm British/South African professional English. Do not mention Good Code internals.",
-    "answers must use ONLY these catalogue IDs (never invent IDs):",
+    "answers may use ONLY these high-impact catalogue IDs (never invent IDs). This mapping is for follow-ups and review facts, not pricing:",
     taxonomy,
-    "Prefer fewer high-confidence capabilities over stuffing the bag. Unknowns are expected — set answers.unknowns to not_sure or need_advice.",
-    "Never invent prices, budgets, hour counts, timelines as numbers, rates, ZAR/R amounts, or quotes.",
+    "Prefer fewer high-confidence facts over stuffing the bag. Unknowns are expected — set answers.unknowns to not_sure or need_advice.",
+    "Never invent prices, budgets, hour counts, timelines as numbers, rates, ZAR/R amounts, or quotes. Pricing happens in a later step.",
     "clarifyingQuestionIds: 0–3 IDs chosen only from: " + whitelist + ".",
-    "Ask follow-ups only when a high-impact fact is missing (surfaces, starting point, payments, integrations, users, sensitive data, timing).",
+    "Ask follow-ups only when a high-impact fact is missing for a planning estimate (surfaces, payments, integrations, native vs web, sensitive data).",
     "Never repeat an ID that appears in userClarifications, askedQuestionIds, or alreadyInferredAnswers.unknowns.",
     "If the description is already enough for a planning estimate, status=ready and clarifyingQuestionIds=[].",
     "If round is 2, status must be ready or website_handoff and clarifyingQuestionIds must be [].",
@@ -145,13 +145,11 @@ export async function runIntake(
     ideaText,
   });
 
-  if (input.clarifications?.length) {
-    answers = normalizeAnswers(
-      applyClarifications(answers, input.clarifications),
-    );
-  }
+  const answersForPrompt = input.clarifications?.length
+    ? normalizeAnswers(applyClarifications(answers, input.clarifications))
+    : answers;
 
-  const fallback = fallbackIntakeDraft(ideaText, answers);
+  const fallback = fallbackIntakeDraft(ideaText, answersForPrompt);
   let usedFallback = true;
   let requestedIds = fallback.clarifyingQuestionIds;
   let requestedStatus = fallback.status;
@@ -162,7 +160,7 @@ export async function runIntake(
     buildIntakeSystemPrompt(),
     buildIntakeUserPrompt({
       ideaText,
-      answers,
+      answers: answersForPrompt,
       clarifications: input.clarifications,
       askedQuestionIds: excludeIds,
       round,
@@ -183,6 +181,11 @@ export async function runIntake(
   }
 
   answers = filterCatalogueAnswers(mergeAnswerPatch(answers, patch));
+  if (input.clarifications?.length) {
+    answers = normalizeAnswers(
+      applyClarifications(answers, input.clarifications),
+    );
+  }
   const concept = sanitiseConcept(conceptSource, answers);
 
   const customWork =

@@ -170,7 +170,8 @@ export function ResultsView({
         </p>
         {result.usingPlaceholderConfiguration ? (
           <p className="mt-4 text-xs text-neutral-500">
-            Using seeded planning rates pending Good Code calibration.
+            Indicative planning estimate — a specialist reviews the scope before
+            a formal quotation.
           </p>
         ) : null}
       </div>
@@ -206,73 +207,77 @@ export function ResultsView({
         </section>
       ) : null}
 
-      <section className="space-y-4">
-        <h3 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">
-          Scope scenarios
-        </h3>
-        <div className="grid gap-3 md:grid-cols-3" role="tablist" aria-label="Estimate scenarios">
-          {allScenarios.map((scenario) => {
-            const active = scenario.id === selected.id;
-            return (
-              <button
-                key={scenario.id}
-                type="button"
-                role="tab"
-                aria-selected={active}
-                onClick={() => setActiveScenario(scenario.id)}
-                className={cn(
-                  optionCardClass,
-                  active && optionCardSelectedClass,
-                  "h-full",
-                )}
-              >
-                <span className="block text-base font-semibold">{scenario.name}</span>
-                <span className="mt-2 block text-lg font-semibold text-[#2f6f69] dark:text-[#9ed9d2]">
-                  {scenarioRange(scenario)}
-                </span>
-                <span className="mt-2 block text-sm leading-6 text-neutral-600 dark:text-neutral-300">
-                  {scenario.summary}
-                </span>
-              </button>
-            );
-          })}
-        </div>
-      </section>
+      {allScenarios.length > 1 ? (
+        <section className="space-y-4">
+          <h3 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">
+            Scope scenarios
+          </h3>
+          <div className="grid gap-3 md:grid-cols-3" role="tablist" aria-label="Estimate scenarios">
+            {allScenarios.map((scenario) => {
+              const active = scenario.id === selected.id;
+              return (
+                <button
+                  key={scenario.id}
+                  type="button"
+                  role="tab"
+                  aria-selected={active}
+                  onClick={() => setActiveScenario(scenario.id)}
+                  className={cn(
+                    optionCardClass,
+                    active && optionCardSelectedClass,
+                    "h-full",
+                  )}
+                >
+                  <span className="block text-base font-semibold">{scenario.name}</span>
+                  <span className="mt-2 block text-lg font-semibold text-[#2f6f69] dark:text-[#9ed9d2]">
+                    {scenarioRange(scenario)}
+                  </span>
+                  <span className="mt-2 block text-sm leading-6 text-neutral-600 dark:text-neutral-300">
+                    {scenario.summary}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </section>
+      ) : null}
 
-      <section className="space-y-4">
-        <h3 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">
-          Cost by phase
-        </h3>
-        <ul className="space-y-3">
-          {result.phaseBreakdown.map((phase) => {
-            const money = asMoney(phase.allocation);
-            const share =
-              "share" in phase.allocation ? phase.allocation.share : null;
-            return (
-              <li
-                key={phase.id}
-                className="flex flex-wrap items-baseline justify-between gap-2 border-b border-neutral-200 pb-3 dark:border-white/10"
-              >
-                <div>
-                  <p className="font-medium text-neutral-900 dark:text-neutral-100">
-                    {phase.name}
+      {result.phaseBreakdown.length > 0 ? (
+        <section className="space-y-4">
+          <h3 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">
+            Cost by phase
+          </h3>
+          <ul className="space-y-3">
+            {result.phaseBreakdown.map((phase) => {
+              const money = asMoney(phase.allocation);
+              const share =
+                "share" in phase.allocation ? phase.allocation.share : null;
+              return (
+                <li
+                  key={phase.id}
+                  className="flex flex-wrap items-baseline justify-between gap-2 border-b border-neutral-200 pb-3 dark:border-white/10"
+                >
+                  <div>
+                    <p className="font-medium text-neutral-900 dark:text-neutral-100">
+                      {phase.name}
+                    </p>
+                    {phase.description ? (
+                      <p className="text-sm text-neutral-500">{phase.description}</p>
+                    ) : null}
+                  </div>
+                  <p className="text-sm font-semibold text-neutral-800 dark:text-neutral-200">
+                    {money
+                      ? formatZarRange(money)
+                      : share !== null
+                        ? `${Math.round(share * 100)}%`
+                        : "—"}
                   </p>
-                  {phase.description ? (
-                    <p className="text-sm text-neutral-500">{phase.description}</p>
-                  ) : null}
-                </div>
-                <p className="text-sm font-semibold text-neutral-800 dark:text-neutral-200">
-                  {money
-                    ? formatZarRange(money)
-                    : share !== null
-                      ? `${Math.round(share * 100)}%`
-                      : "—"}
-                </p>
-              </li>
-            );
-          })}
-        </ul>
-      </section>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      ) : null}
 
       <section className="space-y-4">
         <h3 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">

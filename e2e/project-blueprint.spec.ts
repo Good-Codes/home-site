@@ -91,6 +91,45 @@ test.describe("signed-in account", () => {
   });
 });
 
+const READY_CALCULATE = {
+  result: {
+    estimateId: "e2e-result",
+    pricingVersion: "ai-estimate-v1",
+    currency: "ZAR",
+    generatedAt: "2026-09-10T10:00:00.000Z",
+    productSummary: "A dealership finance portal",
+    recommendedScenario: {
+      id: "recommended",
+      name: "Recommended",
+      summary: "Signed-in portal with documents and monthly payments.",
+      includedCapabilityIds: [],
+      range: { low: 550_000, likely: 850_000, high: 1_300_000 },
+      timeline: { minimumWeeks: 16, likelyWeeks: 22, maximumWeeks: 28 },
+    },
+    alternativeScenarios: [],
+    phaseBreakdown: [],
+    costDrivers: [
+      {
+        id: "payments",
+        title: "Monthly payments",
+        explanation: "A payment gateway and recurring collections raise the band.",
+      },
+    ],
+    confidence: {
+      level: "moderate",
+      explanation: "The brief is specific enough for a planning range.",
+      unknowns: [],
+      improvements: [],
+    },
+    assumptions: [{ id: "a1", text: "First release is web-only." }],
+    exclusions: ["Cloud usage", "Software licences"],
+    discoveryRecommended: false,
+    nextStepRecommendation:
+      "Talk with a Good Code specialist to refine this into a reviewed quotation.",
+  },
+  estimateId: "e2e-estimate",
+};
+
 test.describe("signed-in estimator", () => {
   test.beforeEach(async ({ page }) => {
     const loggedIn = await createCustomerAndLogin(page);
@@ -119,6 +158,13 @@ test.describe("signed-in estimator", () => {
         body: JSON.stringify(READY_INTAKE),
       });
     });
+    await page.route("**/api/project-blueprint/calculate", async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify(READY_CALCULATE),
+      });
+    });
 
     await page.getByRole("button", { name: /Start my estimate/i }).click();
     await expect(page.getByLabel(/Your idea/i)).toBeVisible();
@@ -129,6 +175,7 @@ test.describe("signed-in estimator", () => {
     await expect(
       page.getByRole("heading", { name: /A dealership finance portal/i }),
     ).toBeVisible();
+    await expect(page.getByRole("button", { name: /This isn’t what I meant/i })).toBeVisible();
     await expect(page.getByRole("button", { name: /Build my estimate/i })).toBeVisible();
 
     await page.getByRole("button", { name: /Build my estimate/i }).click();
@@ -234,6 +281,8 @@ test.describe("signed-in estimator", () => {
         "We need a brochure marketing website and a landing page for the company.",
       );
     await page.getByRole("button", { name: /Review my idea/i }).click();
+    await expect(page.getByText(/This looks like a marketing website/i)).toBeVisible();
+    await page.getByRole("button", { name: /Continue to website packages/i }).click();
     await expect(page).toHaveURL(/website-pricing/);
     await expect(page.getByText("Option A")).toBeVisible();
   });

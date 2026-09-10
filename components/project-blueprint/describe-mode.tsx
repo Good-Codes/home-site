@@ -78,6 +78,7 @@ export function DescribeMode({
   const [error, setError] = useState<string | null>(null);
   const [usedFallback, setUsedFallback] = useState(false);
   const [askedQuestionIds, setAskedQuestionIds] = useState<string[]>([]);
+  const [websiteHandoff, setWebsiteHandoff] = useState(false);
 
   const submitIntake = async (payload: {
     ideaText: string;
@@ -123,7 +124,8 @@ export function DescribeMode({
       setRound(data.round);
 
       if (data.status === "website_handoff") {
-        onWebsiteHandoff();
+        setWebsiteHandoff(true);
+        setQuestions([]);
         return;
       }
 
@@ -185,6 +187,7 @@ export function DescribeMode({
   };
 
   const showingQuestions = questions.length > 0;
+  const showingHandoff = websiteHandoff;
 
   return (
     <motion.div
@@ -198,18 +201,35 @@ export function DescribeMode({
           Describe the idea
         </p>
         <h2 className="text-3xl font-semibold text-neutral-900 dark:text-neutral-100">
-          {showingQuestions
+          {showingHandoff
+            ? "This looks like a marketing website"
+            : showingQuestions
             ? "A few details will make the estimate more honest"
             : "Tell us what you want to make possible"}
         </h2>
         <p className="text-base leading-7 text-neutral-600 dark:text-neutral-300">
-          {showingQuestions
+          {showingHandoff
+            ? "Website packages are usually a better fit than a custom product estimate. You can continue to those packages, or tell us to treat this as custom software."
+            : showingQuestions
             ? "We only ask what we could not infer from your description."
             : "A short plain-language description is enough. We will infer the product shape and only ask follow-ups when something important is missing."}
         </p>
       </header>
 
-      {!showingQuestions ? (
+      {showingHandoff ? (
+        <div className="space-y-6">
+          {concept ? (
+            <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-5 dark:border-white/10 dark:bg-white/[0.04]">
+              <p className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">
+                {concept.headline}
+              </p>
+              <p className="mt-2 text-sm leading-6 text-neutral-600 dark:text-neutral-300">
+                {concept.summary}
+              </p>
+            </div>
+          ) : null}
+        </div>
+      ) : !showingQuestions ? (
         <div className="space-y-2">
           <Label htmlFor="idea-text">Your idea</Label>
           <Textarea
@@ -321,7 +341,49 @@ export function DescribeMode({
       ) : null}
 
       <div className="flex flex-col gap-3 sm:flex-row">
-        {showingQuestions ? (
+        {showingHandoff ? (
+          <>
+            <BrandButton type="button" onClick={onWebsiteHandoff} disabled={pending}>
+              Continue to website packages
+            </BrandButton>
+            <BrandButton
+              type="button"
+              variant="outline"
+              disabled={pending || !answers}
+              onClick={() => {
+                if (!answers || !concept) return;
+                onReady({
+                  ideaText: text.trim(),
+                  answers: {
+                    ...answers,
+                    route:
+                      answers.route === "route.website"
+                        ? "route.custom_web_platform"
+                        : answers.route,
+                  },
+                  concept,
+                  usedFallback,
+                });
+              }}
+            >
+              No — estimate this as custom software
+            </BrandButton>
+            <BrandButton
+              type="button"
+              variant="outline"
+              disabled={pending}
+              onClick={() => {
+                setWebsiteHandoff(false);
+                setQuestions([]);
+                setSelections({});
+                setAskedQuestionIds([]);
+                setError(null);
+              }}
+            >
+              Edit description
+            </BrandButton>
+          </>
+        ) : showingQuestions ? (
           <>
             <BrandButton
               type="button"
@@ -337,6 +399,7 @@ export function DescribeMode({
                 setQuestions([]);
                 setSelections({});
                 setAskedQuestionIds([]);
+                setWebsiteHandoff(false);
                 setError(null);
               }}
               disabled={pending}

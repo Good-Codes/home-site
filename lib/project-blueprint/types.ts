@@ -73,7 +73,7 @@ export type PublicConfidence = {
 export type PublicAssumption = {
   id: string;
   text: string;
-  source?: "answer" | "default" | "engine";
+  source?: "answer" | "default" | "engine" | "model";
 };
 
 export type PublicEstimateResult = {

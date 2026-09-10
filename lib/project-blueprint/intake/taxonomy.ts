@@ -26,6 +26,14 @@ export function isCatalogueOptionId(id: string): boolean {
   return getCatalogueOptionIds().has(id);
 }
 
+export function catalogueOptionLabel(id: string): string | undefined {
+  for (const question of [...CATALOGUE_QUESTIONS, ...CATALOGUE_FOLLOW_UPS]) {
+    const option = question.options?.find((item) => item.id === id);
+    if (option) return option.label;
+  }
+  return undefined;
+}
+
 export function filterCatalogueIds(ids: string[] | undefined, cap: number): string[] {
   if (!ids?.length) return [];
   const allowed = getCatalogueOptionIds();
@@ -39,20 +47,17 @@ export function filterCatalogueIds(ids: string[] | undefined, cap: number): stri
   return unique;
 }
 
-/** Compact taxonomy list for the intake system prompt. */
+/** Compact high-impact IDs only — intake is not a pricing machine. */
 export function buildTaxonomyPrompt(): string {
-  const lines: string[] = [];
-  for (const question of CATALOGUE_QUESTIONS) {
-    if (!question.options?.length) continue;
-    if (question.answerKey === "budgetBand") continue;
-    const kind =
-      question.allowMultiple || question.inputType === "multi_select"
-        ? "multi"
-        : "single";
-    const opts = question.options
-      .map((option) => `${option.id} = ${option.label}`)
-      .join("; ");
-    lines.push(`${String(question.answerKey)} [${kind}]: ${opts}`);
-  }
-  return lines.join("\n");
+  return [
+    "route (single): route.website = marketing/brochure website; route.custom_web_platform = custom web product; route.customer_portal = customer portal; route.internal_system = internal tool; route.mobile_app = native mobile app; route.saas_multi_tenant = multi-tenant SaaS; route.unsure = still unclear",
+    "surfaces (multi): surface.public_web; surface.customer_portal; surface.admin_workspace; surface.native_mobile; surface.public_api; surface.reporting",
+    "startingPoint (single): start.new_idea; start.validated_concept; start.existing_product; start.legacy_replacement; start.connect_systems; start.needs_discovery",
+    "userGroups (multi): users.customers; users.employees; users.partners; users.admins",
+    "capabilities (multi, only if clearly stated): cap.access.registration_login; cap.workflow.status_tracking; cap.payments.one_time; cap.payments.recurring; cap.data.files",
+    "integrations (multi): integration.none; integration.payment_gateway; integration.erp; integration.unknown",
+    "qualityRequirements (multi): quality.personal_sensitive; quality.financial_info; quality.popia_privacy",
+    "timing (single): timing.no_deadline; timing.within_3_months; timing.3_to_6_months; timing.not_sure",
+    "Do not set a customer budget. Do not invent IDs. Leave fields empty when unsure and use answers.unknowns.",
+  ].join("\n");
 }

@@ -11,7 +11,7 @@ import type {
 import { filterCatalogueIds, isCatalogueOptionId } from "./taxonomy";
 
 const PRICING_PATTERN =
-  /\bR\s?\d[\d\s,]*(?:k|m)?\b|\bZAR\b|\bUSD\b|\$\s?\d[\d\s,]*|\bprice[ds]?\b|\bcosting\b|\bquote of\b|\bestimate of\b|\d+\s*(?:hours?|hrs|weeks?|days?|rand)\b/gi;
+  /\bR\s?\d[\d\s,]*(?:k|m)?\b|\bZAR\b|\bUSD\b|\$\s?\d[\d\s,]*|\bcosting\b|\bquote of\b|\bestimate of\b|\d+\s*(?:hours?|hrs)\b/gi;
 
 const LIST_CAPS = {
   surfaces: 6,
@@ -175,37 +175,14 @@ export function fillDefaultsAndUnknowns(
 
   if (!next.route) {
     next.route = "route.unsure";
-    next.unknowns!["q.route.product_type"] = "not_sure";
-  }
-
-  if (!next.startingPoint) {
-    next.startingPoint = "start.new_idea";
-    next.unknowns!["q.context.starting_point"] = "not_sure";
-  }
-
-  if (!next.primaryOutcome) {
-    next.primaryOutcome = "outcome.reduce_manual_work";
-    next.unknowns!["q.context.primary_outcome"] = "not_sure";
   }
 
   if (!next.surfaces?.length) {
     next.surfaces = surfacesForRoute(next.route ?? null);
-    next.unknowns!["q.surfaces.channels"] = "not_sure";
   }
 
   if (!next.userGroups?.length) {
     next.userGroups = userGroupsForRoute(next.route ?? null);
-    next.unknowns!["q.users.groups"] = "not_sure";
-  }
-
-  if (!next.userScale) {
-    next.userScale = "scale.unknown";
-    next.unknowns!["q.users.scale"] = "not_sure";
-  }
-
-  if (!next.roleCountBand) {
-    next.roleCountBand = "roles.3_5";
-    next.unknowns!["q.users.role_count"] = "not_sure";
   }
 
   if (next.multiTenant == null) {
@@ -220,7 +197,6 @@ export function fillDefaultsAndUnknowns(
       next.route === "route.saas_multi_tenant" ||
       (next.surfaces ?? []).includes("surface.customer_portal");
     next.capabilities = needsAccounts ? ["cap.access.registration_login"] : [];
-    next.unknowns!["q.cap.access"] = "not_sure";
   } else if (
     (next.route === "route.customer_portal" ||
       next.route === "route.saas_multi_tenant" ||
@@ -240,20 +216,7 @@ export function fillDefaultsAndUnknowns(
   if (!next.migrationProfile) {
     next.migrationProfile = next.integrations.includes("integration.none")
       ? "migration.none"
-      : "migration.unknown";
-    if (next.migrationProfile === "migration.unknown") {
-      next.unknowns!["q.integrations.migration"] = "not_sure";
-    }
-  }
-
-  if (!next.productLevel) {
-    next.productLevel = "level.production_mvp";
-    next.unknowns!["q.delivery.product_level"] = "not_sure";
-  }
-
-  if (!next.timing) {
-    next.timing = "timing.not_sure";
-    next.unknowns!["q.delivery.timing"] = "not_sure";
+      : undefined;
   }
 
   if (!next.existingAssets?.length) {
