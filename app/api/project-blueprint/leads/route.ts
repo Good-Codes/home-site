@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
+import { emptyFieldWriteBack } from "@/lib/account/profile";
 import { isDatabaseConfigured, prisma } from "@/lib/db";
 import { requireUser } from "@/lib/project-blueprint/auth/admin";
 import { isStaffRole } from "@/lib/auth/roles";
@@ -117,36 +118,60 @@ export async function POST(request: Request) {
     }
 
     const consentAt = new Date();
-    const lead = await prisma.lead.upsert({
-      where: { estimateId: estimateRowId },
-      create: {
-        userId: auth.user.id,
-        estimateId: estimateRowId,
-        name: body.name,
-        email: body.email,
-        company: body.company ?? null,
-        phone: body.phone ?? null,
-        consent: true,
-        consentAt,
-        preferredNextStep,
-        notes: body.notes ?? null,
-      },
-      update: {
-        name: body.name,
-        email: body.email,
-        company: body.company ?? null,
-        phone: body.phone ?? null,
-        consent: true,
-        consentAt,
-        preferredNextStep,
-        notes: body.notes ?? null,
-      },
-      select: { id: true },
-    });
+    const lead = await prisma.$transaction(async (tx) => {
+      const saved = await tx.lead.upsert({
+        where: { estimateId: estimateRowId },
+        create: {
+          userId: auth.user.id,
+          estimateId: estimateRowId,
+          name: body.name,
+          email: body.email,
+          company: body.company ?? null,
+          phone: body.phone ?? null,
+          consent: true,
+          consentAt,
+          preferredNextStep,
+          notes: body.notes ?? null,
+        },
+        update: {
+          name: body.name,
+          email: body.email,
+          company: body.company ?? null,
+          phone: body.phone ?? null,
+          consent: true,
+          consentAt,
+          preferredNextStep,
+          notes: body.notes ?? null,
+        },
+        select: { id: true },
+      });
 
-    await prisma.estimate.update({
-      where: { id: estimateRowId },
-      data: { status: "LEAD_CAPTURED" },
+      await tx.estimate.update({
+        where: { id: estimateRowId },
+        data: { status: "LEAD_CAPTURED" },
+      });
+
+      if (!isStaffRole(auth.user.role)) {
+        const current = await tx.user.findUnique({
+          where: { id: auth.user.id },
+          select: { name: true, phone: true, organisation: true },
+        });
+        const writeBack = current
+          ? emptyFieldWriteBack(current, {
+              name: body.name,
+              phone: body.phone,
+              organisation: body.company,
+            })
+          : null;
+        if (writeBack) {
+          await tx.user.update({
+            where: { id: auth.user.id },
+            data: writeBack,
+          });
+        }
+      }
+
+      return saved;
     });
 
     if (preferredNextStep === "email") {

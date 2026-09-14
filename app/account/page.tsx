@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
 import { ChangePasswordForm } from "@/components/auth/change-password-form";
+import { CustomerProfileForm } from "@/components/account/customer-profile-form";
 import { userHasPassword } from "@/lib/auth/change-password";
+import { isStaffRole } from "@/lib/auth/roles";
 import { auth } from "@/auth";
 
 export const metadata: Metadata = {
@@ -15,6 +17,9 @@ export default async function AccountPage() {
   if (!session?.user?.id) {
     redirect("/login?next=/account");
   }
+  if (isStaffRole(session.user.role)) {
+    redirect("/admin/account");
+  }
 
   const hasPassword = await userHasPassword(session.user.id);
 
@@ -25,18 +30,14 @@ export default async function AccountPage() {
       </p>
       <h1 className="mt-3 text-3xl font-semibold tracking-tight">Account</h1>
       <p className="mt-2 text-sm leading-6 text-neutral-600 dark:text-neutral-400">
-        {hasPassword
-          ? "Update your password for this account."
-          : "You sign in with Google, GitHub, or Microsoft."}
+        Keep your details up to date so estimates and follow-ups use the right
+        contact information.
       </p>
-      <dl className="mt-8 space-y-1">
-        <dt className="text-xs font-medium uppercase tracking-wide text-neutral-500">
-          Email
-        </dt>
-        <dd className="text-sm text-neutral-900 dark:text-neutral-100">
-          {session.user.email ?? "—"}
-        </dd>
-      </dl>
+
+      <section className="mt-10 space-y-4">
+        <h2 className="text-xl font-semibold tracking-tight">Profile</h2>
+        <CustomerProfileForm />
+      </section>
 
       <section className="mt-12 space-y-4">
         <h2 className="text-xl font-semibold tracking-tight">Password</h2>

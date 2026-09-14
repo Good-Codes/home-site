@@ -2,6 +2,11 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { Prisma } from "@prisma/client";
 
+import {
+  adminClientFromUserAndLead,
+  PROFILE_SELECT,
+  quoteClientSnapshot,
+} from "@/lib/account/profile";
 import { isDatabaseConfigured, prisma } from "@/lib/db";
 import { requireAdmin } from "@/lib/project-blueprint/auth/admin";
 
@@ -88,7 +93,23 @@ export async function POST(request: Request) {
   try {
     const estimate = await prisma.estimateResult.findUnique({
       where: { id: body.estimateId },
-      select: { id: true },
+      select: {
+        id: true,
+        estimate: {
+          select: {
+            user: { select: PROFILE_SELECT },
+            lead: {
+              select: {
+                name: true,
+                email: true,
+                company: true,
+                phone: true,
+                preferredNextStep: true,
+              },
+            },
+          },
+        },
+      },
     });
 
     if (!estimate) {
@@ -97,6 +118,12 @@ export async function POST(request: Request) {
 
     const status = body.issue ? "issued" : "draft";
     const actorId = auth.admin.userId;
+    const clientSnapshot = quoteClientSnapshot(
+      adminClientFromUserAndLead(
+        estimate.estimate.user,
+        estimate.estimate.lead,
+      ),
+    );
 
     const result = await prisma.$transaction(async (tx) => {
       const quotation = await tx.reviewedQuotation.create({
@@ -121,6 +148,7 @@ export async function POST(request: Request) {
             assumptions: body.assumptions,
             exclusions: body.exclusions,
             scenario: body.scenario,
+            client: clientSnapshot,
           } as Prisma.InputJsonValue,
           lineItemsSnapshot: body.lineItems as Prisma.InputJsonValue,
           milestonesSnapshot: body.milestones as Prisma.InputJsonValue,

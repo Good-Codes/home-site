@@ -5,6 +5,15 @@ import { useParams } from "next/navigation";
 
 import { BrandButton } from "@/components/project-blueprint/ui";
 import type { AdminEstimateDetail } from "@/lib/project-blueprint/admin/demo-data";
+import {
+  formatEnumLabel,
+  INDUSTRY_LABELS,
+  ORGANISATION_TYPE_LABELS,
+  PREFERRED_CONTACT_LABELS,
+  REFERRAL_SOURCE_LABELS,
+  SA_PROVINCE_LABELS,
+  TEAM_SIZE_LABELS,
+} from "@/lib/account/profile";
 import { formatZarRange, formatWeeks } from "@/lib/project-blueprint/format";
 
 export default function AdminEstimateDetailPage() {
@@ -118,17 +127,73 @@ export default function AdminEstimateDetailPage() {
               <dd>{estimate.client.email ?? "—"}</dd>
             </div>
             <div className="flex justify-between gap-4">
-              <dt className="text-neutral-500">Company</dt>
-              <dd>{estimate.client.company ?? "—"}</dd>
+              <dt className="text-neutral-500">Organisation</dt>
+              <dd>{estimate.client.organisation ?? "—"}</dd>
+            </div>
+            <div className="flex justify-between gap-4">
+              <dt className="text-neutral-500">Job title</dt>
+              <dd>{estimate.client.jobTitle ?? "—"}</dd>
             </div>
             <div className="flex justify-between gap-4">
               <dt className="text-neutral-500">Phone</dt>
               <dd>{estimate.client.phone ?? "—"}</dd>
             </div>
             <div className="flex justify-between gap-4">
+              <dt className="text-neutral-500">Preferred contact</dt>
+              <dd>
+                {formatEnumLabel(
+                  estimate.client.preferredContact,
+                  PREFERRED_CONTACT_LABELS,
+                ) ?? "—"}
+              </dd>
+            </div>
+            <div className="flex justify-between gap-4">
               <dt className="text-neutral-500">Preferred next step</dt>
               <dd className="capitalize">
                 {estimate.client.preferredNextStep?.replace(/_/g, " ") ?? "—"}
+              </dd>
+            </div>
+            <div className="flex justify-between gap-4">
+              <dt className="text-neutral-500">City</dt>
+              <dd>{estimate.client.city ?? "—"}</dd>
+            </div>
+            <div className="flex justify-between gap-4">
+              <dt className="text-neutral-500">Province</dt>
+              <dd>
+                {formatEnumLabel(estimate.client.province, SA_PROVINCE_LABELS) ??
+                  "—"}
+              </dd>
+            </div>
+            <div className="flex justify-between gap-4">
+              <dt className="text-neutral-500">Organisation type</dt>
+              <dd>
+                {formatEnumLabel(
+                  estimate.client.organisationType,
+                  ORGANISATION_TYPE_LABELS,
+                ) ?? "—"}
+              </dd>
+            </div>
+            <div className="flex justify-between gap-4">
+              <dt className="text-neutral-500">Industry</dt>
+              <dd>
+                {formatEnumLabel(estimate.client.industry, INDUSTRY_LABELS) ??
+                  "—"}
+              </dd>
+            </div>
+            <div className="flex justify-between gap-4">
+              <dt className="text-neutral-500">Team size</dt>
+              <dd>
+                {formatEnumLabel(estimate.client.teamSize, TEAM_SIZE_LABELS) ??
+                  "—"}
+              </dd>
+            </div>
+            <div className="flex justify-between gap-4">
+              <dt className="text-neutral-500">How they found us</dt>
+              <dd>
+                {formatEnumLabel(
+                  estimate.client.referralSource,
+                  REFERRAL_SOURCE_LABELS,
+                ) ?? "—"}
               </dd>
             </div>
           </dl>

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 
+import { organisationDisplay } from "@/lib/account/profile";
 import { isDatabaseConfigured, prisma } from "@/lib/db";
 import { requireAdmin } from "@/lib/project-blueprint/auth/admin";
 import {
@@ -50,6 +51,12 @@ export async function GET() {
               select: {
                 name: true,
                 email: true,
+                organisation: true,
+              },
+            },
+            lead: {
+              select: {
+                company: true,
               },
             },
           },
@@ -79,6 +86,10 @@ export async function GET() {
         id: row.id,
         status: row.estimate.status.toLowerCase(),
         clientName,
+        organisation: organisationDisplay(
+          user.organisation,
+          row.estimate.lead?.company,
+        ),
         rangeDisplay: range
           ? formatZarRange(
               range,

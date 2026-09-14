@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 
+import { adminClientFromUserAndLead, PROFILE_SELECT } from "@/lib/account/profile";
 import { isDatabaseConfigured, prisma } from "@/lib/db";
 import { getDemoEstimateDetail } from "@/lib/project-blueprint/admin/demo-data";
 import { requireAdmin } from "@/lib/project-blueprint/auth/admin";
@@ -65,10 +66,7 @@ export async function GET(_request: Request, context: RouteContext) {
             answers: true,
             concept: true,
             user: {
-              select: {
-                name: true,
-                email: true,
-              },
+              select: PROFILE_SELECT,
             },
             lead: {
               select: {
@@ -133,13 +131,7 @@ export async function GET(_request: Request, context: RouteContext) {
         id: row.id,
         status: row.estimate.status.toLowerCase(),
         createdAt: row.createdAt.toISOString(),
-        client: {
-          name: user.name?.trim() || lead?.name || user.email,
-          email: user.email || lead?.email ?? null,
-          company: lead?.company ?? null,
-          phone: lead?.phone ?? null,
-          preferredNextStep: lead?.preferredNextStep ?? null,
-        },
+        client: adminClientFromUserAndLead(user, lead),
         concept,
         answersSummary: {
           headline:

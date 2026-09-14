@@ -88,7 +88,8 @@ The container entrypoint runs `prisma migrate deploy` before `node server.js`. T
 
 - Customers create accounts at `/signup` or by signing in with Google, GitHub, or Microsoft. The first social sign-in **creates** a `CUSTOMER` with no password. Matching a verified email links the provider to the existing user and **does not** change role. `ADMIN` is assigned only by seed or in the database. Public signup and OAuth cannot self-promote.
 - Unified login is `/login`. `/admin/login` redirects there with `next=/admin/project-blueprint`. After social login, `/auth/continue` sends staff to the inbox and customers to the estimator.
-- Passwords are hashed with bcrypt (cost 12) via `bcryptjs`. Social-only users have no `passwordHash`; they cannot use email/password until an admin sets one. Signed-in users who have a password can change it at `/account`.
+- Passwords are hashed with bcrypt (cost 12) via `bcryptjs`. Social-only users have no `passwordHash`; they cannot use email/password until an admin sets one. Signed-in users who have a password can change it at `/account`. Customers also edit their profile there (name, phone, organisation, and optional context). Email is the login and cannot be changed on that page. Admins keep `/admin/account` as password-only.
+- Profile PII lives on `User`. `Lead` remains the consent snapshot for one estimate. Submitting a lead copies name / phone / organisation onto the profile **only if that profile field is still empty**. Issued quotes snapshot client details into `QuoteVersion.frozenSnapshot` and do not follow later profile edits.
 - Sessions are JWTs signed with `AUTH_SECRET` (httpOnly, SameSite=lax, Secure in production). The JWT `id` is the Prisma user UUID, not the provider subject.
 - `/custom-software-estimator` and customer APIs (`/api/project-blueprint/intake`, `calculate`, …) require a signed-in user.
 - `/admin` requires `ADMIN`. Being logged in as a customer is not enough.
@@ -140,7 +141,8 @@ Leave a provider’s id/secret unset to hide its button. Local and e2e keep work
 | Data | Suggested retention |
 |------|---------------------|
 | Active estimate drafts | Until abandoned / user deletion request |
-| Leads | Keep while commercial relationship active; purge on request |
+| Customer profile on `User` | Keep while the account exists; this is the business card (name, phone, organisation, and optional context). Leads are **not** rewritten when the profile changes |
+| Leads | Keep while commercial relationship active; purge on request. A lead is a consent snapshot of that enquiry |
 | Uploaded briefs | Align with estimate/lead retention; delete blobs + rows |
 | Analytics events | Aggregate; no PII; retain ~13 months |
 | Audit events | Longer retention (e.g. 24–36 months) for admin accountability |

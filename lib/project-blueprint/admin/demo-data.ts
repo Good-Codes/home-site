@@ -9,6 +9,7 @@ export type AdminEstimateListItem = {
   id: string;
   status: string;
   clientName: string | null;
+  organisation: string | null;
   rangeDisplay: string;
   confidence: string;
   nextStep: string;
@@ -23,9 +24,17 @@ export type AdminEstimateDetail = {
   client: {
     name: string | null;
     email: string | null;
-    company: string | null;
+    organisation: string | null;
     phone: string | null;
+    jobTitle: string | null;
+    preferredContact: string | null;
     preferredNextStep: string | null;
+    city: string | null;
+    province: string | null;
+    organisationType: string | null;
+    industry: string | null;
+    teamSize: string | null;
+    referralSource: string | null;
   };
   answersSummary: {
     headline: string;
@@ -169,6 +178,7 @@ export const DEMO_ESTIMATE_LIST: AdminEstimateListItem[] = [
     id: "demo-est-001",
     status: "lead_captured",
     clientName: "Thandi Molefe",
+    organisation: "Riverbank Logistics",
     rangeDisplay: "R420k–R760k",
     confidence: "moderate",
     nextStep: "Specialist review / quotation",
@@ -179,6 +189,7 @@ export const DEMO_ESTIMATE_LIST: AdminEstimateListItem[] = [
     id: "demo-est-002",
     status: "calculated",
     clientName: "Alex Naidoo",
+    organisation: null,
     rangeDisplay: "R180k–R310k",
     confidence: "early",
     nextStep: "Discovery workshop recommended",
@@ -189,6 +200,7 @@ export const DEMO_ESTIMATE_LIST: AdminEstimateListItem[] = [
     id: "demo-est-003",
     status: "in_review",
     clientName: "Johan Botha",
+    organisation: "Plainfield Clinics",
     rangeDisplay: "R620k–R1.05m",
     confidence: "moderate",
     nextStep: "Draft quotation in progress",
@@ -226,9 +238,17 @@ export function getDemoEstimateDetail(id: string): AdminEstimateDetail | null {
       email: listItem.clientName
         ? `${listItem.clientName.toLowerCase().replace(/\s+/g, ".")}@example.co.za`
         : null,
-      company: DEMO_CLIENT_COMPANY[id] ?? null,
+      organisation: DEMO_CLIENT_COMPANY[id] ?? null,
       phone: listItem.clientName ? "+27 82 000 0000" : null,
+      jobTitle: listItem.clientName ? "Operations lead" : null,
+      preferredContact: listItem.clientName ? "call" : null,
       preferredNextStep: listItem.clientName ? "call" : null,
+      city: listItem.clientName ? "Johannesburg" : null,
+      province: listItem.clientName ? "GP" : null,
+      organisationType: listItem.clientName ? "established" : null,
+      industry: listItem.clientName ? "logistics" : null,
+      teamSize: listItem.clientName ? "eleven_to_fifty" : null,
+      referralSource: listItem.clientName ? "referral" : null,
     },
     answersSummary: {
       headline: publicResult.productSummary,

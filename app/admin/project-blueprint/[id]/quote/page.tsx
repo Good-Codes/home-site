@@ -1,12 +1,17 @@
 "use client";
 
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { BrandButton } from "@/components/project-blueprint/ui";
+import type { AdminEstimateDetail } from "@/lib/project-blueprint/admin/demo-data";
+import {
+  formatEnumLabel,
+  PREFERRED_CONTACT_LABELS,
+} from "@/lib/account/profile";
 
 type LineItem = {
   kind: "work_package" | "custom" | "third_party" | "discount" | "other";
@@ -70,6 +75,29 @@ export default function AdminQuoteBuilderPage() {
     "idle",
   );
   const [message, setMessage] = useState("");
+  const [client, setClient] = useState<AdminEstimateDetail["client"] | null>(
+    null,
+  );
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const response = await fetch(
+          `/api/admin/project-blueprint/estimates/${encodeURIComponent(estimateId)}`,
+        );
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok || cancelled) return;
+        const estimate = data.estimate as AdminEstimateDetail | undefined;
+        if (estimate?.client) setClient(estimate.client);
+      } catch {
+        // Header is optional if the estimate cannot be loaded.
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [estimateId]);
 
   const subtotal = useMemo(
     () =>
@@ -164,6 +192,52 @@ export default function AdminQuoteBuilderPage() {
         </p>
       </header>
 
+      {client ? (
+        <section className="rounded-xl border border-neutral-200 bg-white p-5 dark:border-white/10 dark:bg-white/[0.03]">
+          <h2 className="text-lg font-semibold">Prepared for</h2>
+          <p className="mt-1 text-xs text-neutral-500">
+            Read-only. The customer updates this on their account.
+          </p>
+          <dl className="mt-4 grid gap-2 text-sm sm:grid-cols-2">
+            <div className="flex justify-between gap-4">
+              <dt className="text-neutral-500">Name</dt>
+              <dd>{client.name ?? "—"}</dd>
+            </div>
+            <div className="flex justify-between gap-4">
+              <dt className="text-neutral-500">Email</dt>
+              <dd>{client.email ?? "—"}</dd>
+            </div>
+            <div className="flex justify-between gap-4">
+              <dt className="text-neutral-500">Organisation</dt>
+              <dd>{client.organisation ?? "—"}</dd>
+            </div>
+            <div className="flex justify-between gap-4">
+              <dt className="text-neutral-500">Job title</dt>
+              <dd>{client.jobTitle ?? "—"}</dd>
+            </div>
+            <div className="flex justify-between gap-4">
+              <dt className="text-neutral-500">Phone</dt>
+              <dd>{client.phone ?? "—"}</dd>
+            </div>
+            <div className="flex justify-between gap-4">
+              <dt className="text-neutral-500">Preferred contact</dt>
+              <dd>
+                {formatEnumLabel(
+                  client.preferredContact,
+                  PREFERRED_CONTACT_LABELS,
+                ) ?? "—"}
+              </dd>
+            </div>
+            <div className="flex justify-between gap-4 sm:col-span-2">
+              <dt className="text-neutral-500">Preferred next step</dt>
+              <dd className="capitalize">
+                {client.preferredNextStep?.replace(/_/g, " ") ?? "—"}
+              </dd>
+            </div>
+          </dl>
+        </section>
+      ) : null}
+
       <p
         className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-100"
         role="status"
@@ -181,11 +255,17 @@ export default function AdminQuoteBuilderPage() {
             onChange={(e) =>
               setScenario(e.target.value as "lean" | "recommended" | "scale")
             }
-            className="flex h-10 w-full max-w-sm rounded-md border border-neutral-300 bg-white px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#67AFA7] dark:border-neutral-700 dark:bg-neutral-950"
+            className="flex h-10 w-full max-w-sm rounded-md border border-neutral-300 bg-white px-3 text-sm text-neutral-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#67AFA7] dark:border-neutral-700 dark:bg-neutral-950 dark:text-neutral-100"
           >
-            <option value="lean">Lean</option>
-            <option value="recommended">Recommended</option>
-            <option value="scale">Scale-ready</option>
+            <option value="lean" className="bg-white text-neutral-900">
+              Lean
+            </option>
+            <option value="recommended" className="bg-white text-neutral-900">
+              Recommended
+            </option>
+            <option value="scale" className="bg-white text-neutral-900">
+              Scale-ready
+            </option>
           </select>
         </section>
 
@@ -218,13 +298,23 @@ export default function AdminQuoteBuilderPage() {
                         ),
                       );
                     }}
-                    className="mt-1 flex h-9 w-full rounded-md border border-neutral-300 bg-white px-2 text-sm dark:border-neutral-700 dark:bg-neutral-950"
+                    className="mt-1 flex h-9 w-full rounded-md border border-neutral-300 bg-white px-2 text-sm text-neutral-900 dark:border-neutral-700 dark:bg-neutral-950 dark:text-neutral-100"
                   >
-                    <option value="work_package">Work package</option>
-                    <option value="custom">Custom</option>
-                    <option value="third_party">Third party</option>
-                    <option value="discount">Discount</option>
-                    <option value="other">Other</option>
+                    <option value="work_package" className="bg-white text-neutral-900">
+                      Work package
+                    </option>
+                    <option value="custom" className="bg-white text-neutral-900">
+                      Custom
+                    </option>
+                    <option value="third_party" className="bg-white text-neutral-900">
+                      Third party
+                    </option>
+                    <option value="discount" className="bg-white text-neutral-900">
+                      Discount
+                    </option>
+                    <option value="other" className="bg-white text-neutral-900">
+                      Other
+                    </option>
                   </select>
                 </div>
                 <div className="md:col-span-4">

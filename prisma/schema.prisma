@@ -57,6 +57,60 @@ enum PreferredNextStep {
   none
 }
 
+enum PreferredContact {
+  email
+  call
+  whatsapp
+}
+
+enum SaProvince {
+  EC
+  FS
+  GP
+  KZN
+  LP
+  MP
+  NC
+  NW
+  WC
+}
+
+enum OrganisationType {
+  startup
+  small_business
+  established
+  agency
+  npo
+  other
+}
+
+enum Industry {
+  retail
+  healthcare
+  finance
+  logistics
+  education
+  manufacturing
+  professional_services
+  government
+  other
+}
+
+enum TeamSize {
+  just_me
+  two_to_ten
+  eleven_to_fifty
+  fifty_one_plus
+}
+
+enum ReferralSource {
+  referral
+  google
+  linkedin
+  existing_client
+  other
+}
+
 enum AnswerRevisionSource {
   autosave
   review_edit
@@ -66,16 +120,26 @@ enum AnswerRevisionSource {
 }
 
 model User {
-  id                String    @id @default(uuid()) @db.Uuid
-  email             String    @unique
-  name              String?
-  passwordHash      String?
-  role              UserRole  @default(CUSTOMER)
-  isActive          Boolean   @default(true)
-  failedLoginCount  Int       @default(0)
-  lockedUntil       DateTime?
-  createdAt         DateTime  @default(now())
-  updatedAt         DateTime  @updatedAt
+  id                 String            @id @default(uuid()) @db.Uuid
+  email              String            @unique
+  name               String?
+  passwordHash       String?
+  role               UserRole          @default(CUSTOMER)
+  isActive           Boolean           @default(true)
+  failedLoginCount   Int               @default(0)
+  lockedUntil        DateTime?
+  phone              String?
+  preferredContact   PreferredContact?
+  organisation       String?
+  jobTitle           String?
+  city               String?
+  province           SaProvince?
+  organisationType   OrganisationType?
+  industry           Industry?
+  teamSize           TeamSize?
+  referralSource     ReferralSource?
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
 
   estimates           Estimate[]
   leads               Lead[]

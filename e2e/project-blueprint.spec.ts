@@ -78,6 +78,8 @@ test.describe("signed-in account", () => {
     test.skip(!loggedIn, "Database is not available for authenticated e2e");
     await page.goto("/account");
     await expect(page.getByRole("heading", { name: /^Account$/ })).toBeVisible();
+    await expect(page.getByRole("heading", { name: /Profile/i })).toBeVisible();
+    await expect(page.getByLabel(/Full name/i)).toBeVisible();
     await expect(page.getByRole("heading", { name: /Password/i })).toBeVisible();
     await expect(page.getByLabel(/Current password/i)).toBeVisible();
   });

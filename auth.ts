@@ -103,7 +103,20 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
       return true;
     },
-    async jwt({ token, user, account, profile }) {
+    async jwt({ token, user, account, profile, trigger, session }) {
+      if (trigger === "update") {
+        const nextName =
+          session && typeof session === "object" && "name" in session
+            ? session.name
+            : undefined;
+        if (typeof nextName === "string") {
+          const trimmed = nextName.trim();
+          token.name = trimmed.length ? trimmed : undefined;
+        } else if (nextName === null) {
+          token.name = undefined;
+        }
+      }
+
       if (account && account.provider !== "credentials") {
         const extracted = extractOAuthIdentity({
           provider: account.provider,

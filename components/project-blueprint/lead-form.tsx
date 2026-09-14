@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 
 import { smoothEase } from "@/lib/motion";
+import type { CustomerProfile } from "@/lib/account/profile";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -34,6 +35,31 @@ export function LeadForm({ estimateId, onClose }: LeadFormProps) {
       | "upload_brief"
       | "none",
   });
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const response = await fetch("/api/account/profile");
+        const data = (await response.json().catch(() => ({}))) as {
+          profile?: CustomerProfile;
+        };
+        if (!response.ok || cancelled || !data.profile) return;
+        setForm((current) => ({
+          ...current,
+          name: data.profile?.name ?? current.name,
+          email: data.profile?.email ?? current.email,
+          phone: data.profile?.phone ?? current.phone,
+          company: data.profile?.organisation ?? current.company,
+        }));
+      } catch {
+        // Prefill is optional; the form still works empty.
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const submit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -172,13 +198,23 @@ export function LeadForm({ estimateId, onClose }: LeadFormProps) {
                   preferredNextStep: e.target.value as typeof f.preferredNextStep,
                 }))
               }
-              className="flex h-9 w-full rounded-md border border-neutral-300 bg-transparent px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#67AFA7] dark:border-neutral-700"
+              className="flex h-9 w-full rounded-md border border-neutral-300 bg-white px-3 text-sm text-neutral-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#67AFA7] dark:border-neutral-700 dark:bg-neutral-950 dark:text-neutral-100"
             >
-              <option value="email">Email me this estimate</option>
-              <option value="call">Prefer a call</option>
-              <option value="workshop">Book a workshop</option>
-              <option value="upload_brief">I will upload a brief</option>
-              <option value="none">No follow-up yet</option>
+              <option value="email" className="bg-white text-neutral-900">
+                Email me this estimate
+              </option>
+              <option value="call" className="bg-white text-neutral-900">
+                Prefer a call
+              </option>
+              <option value="workshop" className="bg-white text-neutral-900">
+                Book a workshop
+              </option>
+              <option value="upload_brief" className="bg-white text-neutral-900">
+                I will upload a brief
+              </option>
+              <option value="none" className="bg-white text-neutral-900">
+                No follow-up yet
+              </option>
             </select>
           </div>
           <div className="space-y-2 sm:col-span-2">
