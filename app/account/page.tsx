@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
+import {
+  AccountCard,
+  AccountPageHeader,
+} from "@/components/account/account-chrome";
 import { ChangePasswordForm } from "@/components/auth/change-password-form";
 import { CustomerProfileForm } from "@/components/account/customer-profile-form";
 import { userHasPassword } from "@/lib/auth/change-password";
@@ -24,37 +28,32 @@ export default async function AccountPage() {
   const hasPassword = await userHasPassword(session.user.id);
 
   return (
-    <main className="container mx-auto max-w-2xl px-6 py-16">
-      <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#2f6f69] dark:text-[#9ed9d2]">
-        Good Code
-      </p>
-      <h1 className="mt-3 text-3xl font-semibold tracking-tight">Account</h1>
-      <p className="mt-2 text-sm leading-6 text-neutral-600 dark:text-neutral-400">
-        Keep your details up to date so estimates and follow-ups use the right
-        contact information.
-      </p>
+    <main className="container mx-auto max-w-3xl px-6 py-16">
+      <AccountPageHeader
+        eyebrow="Good Code"
+        title="Account"
+        description="Keep your details up to date so estimates and follow-ups use the right contact information."
+      />
 
-      <section className="mt-10 space-y-4">
-        <h2 className="text-xl font-semibold tracking-tight">Profile</h2>
-        <CustomerProfileForm />
-      </section>
+      <div className="mt-10 space-y-6">
+        <AccountCard
+          title="Profile"
+          description="Your business card for planning estimates. Optional fields can stay blank."
+        >
+          <CustomerProfileForm />
+        </AccountCard>
 
-      <section className="mt-12 space-y-4">
-        <h2 className="text-xl font-semibold tracking-tight">Password</h2>
-        {hasPassword ? (
-          <>
-            <p className="text-sm leading-6 text-neutral-600 dark:text-neutral-400">
-              You will stay signed in after the change.
-            </p>
-            <ChangePasswordForm />
-          </>
-        ) : (
-          <p className="text-sm leading-6 text-neutral-600 dark:text-neutral-400">
-            You sign in with Google, GitHub, or Microsoft, so there is no
-            password to change here.
-          </p>
-        )}
-      </section>
+        <AccountCard
+          title="Password"
+          description={
+            hasPassword
+              ? "You will stay signed in after the change."
+              : "You sign in with Google, GitHub, or Microsoft, so there is no password to change here."
+          }
+        >
+          {hasPassword ? <ChangePasswordForm /> : null}
+        </AccountCard>
+      </div>
     </main>
   );
 }

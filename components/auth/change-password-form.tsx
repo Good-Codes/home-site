@@ -116,9 +116,11 @@ export function ChangePasswordForm({
           {success}
         </p>
       ) : null}
-      <BrandButton type="submit" disabled={submitting} className="w-full">
-        {submitting ? "Updating…" : "Update password"}
-      </BrandButton>
+      <div className="flex justify-start pt-2">
+        <BrandButton type="submit" disabled={submitting}>
+          {submitting ? "Updating…" : "Update password"}
+        </BrandButton>
+      </div>
     </form>
   );
 }

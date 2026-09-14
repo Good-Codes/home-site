@@ -3,6 +3,10 @@
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 
+import {
+  AccountFieldGroup,
+  ReadonlyField,
+} from "@/components/account/account-chrome";
 import { BrandButton } from "@/components/project-blueprint/ui";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -37,7 +41,7 @@ const emptyProfile: Omit<CustomerProfile, "email"> = {
 };
 
 const selectClass =
-  "flex h-9 w-full rounded-md border border-neutral-300 bg-white px-3 text-sm text-neutral-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#67AFA7] dark:border-neutral-700 dark:bg-neutral-950 dark:text-neutral-100";
+  "flex h-9 w-full rounded-md border border-neutral-300 bg-white px-3 text-sm text-neutral-900 shadow-xs outline-none transition-[color,box-shadow] focus-visible:border-[#67AFA7] focus-visible:ring-[3px] focus-visible:ring-[#67AFA7]/50 dark:border-white/10 dark:bg-white/[0.04] dark:text-neutral-100";
 
 const optionClass = "bg-white text-neutral-900";
 
@@ -67,7 +71,11 @@ function OptionalSelect({
           Prefer not to say
         </option>
         {options.map((option) => (
-          <option key={option.value} value={option.value} className={optionClass}>
+          <option
+            key={option.value}
+            value={option.value}
+            className={optionClass}
+          >
             {option.label}
           </option>
         ))}
@@ -176,20 +184,16 @@ export function CustomerProfileForm() {
   }
 
   return (
-    <form onSubmit={onSubmit} className="space-y-4">
-      <div className="space-y-1">
-        <p className="text-xs font-medium uppercase tracking-wide text-neutral-500">
-          Email
-        </p>
-        <p className="text-sm text-neutral-900 dark:text-neutral-100">
-          {email || "—"}
-        </p>
-        <p className="text-xs text-neutral-500">
-          This is your sign-in email and cannot be changed here.
-        </p>
-      </div>
-
-      <div className="grid gap-4 sm:grid-cols-2">
+    <form onSubmit={onSubmit} className="space-y-8">
+      <AccountFieldGroup
+        title="Contact"
+        description="How we reach you about estimates and follow-ups."
+      >
+        <ReadonlyField
+          label="Email"
+          value={email}
+          hint="This is your sign-in email and cannot be changed here."
+        />
         <div className="space-y-2">
           <Label htmlFor="profile-name">Full name</Label>
           <Input
@@ -232,6 +236,9 @@ export function CustomerProfileForm() {
             label: PREFERRED_CONTACT_LABELS[value],
           }))}
         />
+      </AccountFieldGroup>
+
+      <AccountFieldGroup title="Organisation">
         <div className="space-y-2">
           <Label htmlFor="profile-organisation">Organisation</Label>
           <Input
@@ -262,6 +269,9 @@ export function CustomerProfileForm() {
             }
           />
         </div>
+      </AccountFieldGroup>
+
+      <AccountFieldGroup title="Location">
         <div className="space-y-2">
           <Label htmlFor="profile-city">City</Label>
           <Input
@@ -289,6 +299,9 @@ export function CustomerProfileForm() {
             label: SA_PROVINCE_LABELS[value],
           }))}
         />
+      </AccountFieldGroup>
+
+      <AccountFieldGroup title="About your work">
         <OptionalSelect
           id="profile-org-type"
           label="Organisation type"
@@ -353,22 +366,27 @@ export function CustomerProfileForm() {
             label: REFERRAL_SOURCE_LABELS[value],
           }))}
         />
-      </div>
+      </AccountFieldGroup>
 
       {error ? (
-        <p className="text-sm text-red-600 dark:text-red-400" role="alert">
+        <p className="pt-4 text-sm text-red-600 dark:text-red-400" role="alert">
           {error}
         </p>
       ) : null}
       {success ? (
-        <p className="text-sm text-[#2f6f69] dark:text-[#9ed9d2]" role="status">
+        <p
+          className="pt-4 text-sm text-[#2f6f69] dark:text-[#9ed9d2]"
+          role="status"
+        >
           {success}
         </p>
       ) : null}
 
-      <BrandButton type="submit" disabled={saving}>
-        {saving ? "Saving…" : "Save profile"}
-      </BrandButton>
+      <div className="flex justify-start pt-2">
+        <BrandButton type="submit" disabled={saving}>
+          {saving ? "Saving…" : "Save profile"}
+        </BrandButton>
+      </div>
     </form>
   );
 }
