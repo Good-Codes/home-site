@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ next?: string; error?: string }>;
+  searchParams: Promise<{ next?: string; error?: string; reset?: string }>;
 }) {
   const params = await searchParams;
   const nextPath = params.next ? safeCallbackPath(params.next) : "";
@@ -33,6 +33,7 @@ export default async function LoginPage({
           nextPath={nextPath}
           oauthProviders={enabledOAuthProviders()}
           oauthError={oauthErrorMessage(params.error)}
+          resetSuccess={params.reset === "success"}
         />
       </div>
     </main>

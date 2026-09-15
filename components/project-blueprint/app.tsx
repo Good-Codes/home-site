@@ -444,6 +444,8 @@ export function ProjectBlueprintApp() {
           >
             <ResultsView
               result={result}
+              estimateId={estimateId}
+              showSave
               onRecalculate={() => {
                 setPhase("review");
               }}

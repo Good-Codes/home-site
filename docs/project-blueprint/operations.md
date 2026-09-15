@@ -25,11 +25,8 @@ Copy `.env.example` → `.env.local` (never commit secrets). Next.js reads `.env
 | `PROJECT_BLUEPRINT_AI_INTAKE_MODEL` | Optional | Default `gpt-4o-mini` |
 | `PROJECT_BLUEPRINT_AI_ESTIMATE_ENABLED` | Optional | Set `false` to disable the pricing model (calculate returns an error) |
 | `PROJECT_BLUEPRINT_AI_ESTIMATE_MODEL` | Optional | Default `gpt-4o`. Pin this in production. |
-| `RESEND_API_KEY` | Yes (email) | Transactional email |
+| `RESEND_API_KEY` | Yes (password-reset email) | Transactional email via Resend |
 | `RESEND_FROM_EMAIL` | Yes (email) | Verified sender, e.g. `estimates@goodcode.co.za` |
-| `DOCRAPTOR_API_KEY` | Yes (PDF) | PDF/UA generation |
-| `ATTACHMENT_SCANNER_API_TOKEN` | Yes (uploads) | Malware scan API |
-| `ATTACHMENT_SCANNER_WEBHOOK_SECRET` | Yes (uploads) | Verify scan callbacks |
 
 **Vercel / production:** `AUTH_SECRET` and `DATABASE_URL` must be set. The app refuses to start in production without `AUTH_SECRET`. Restrict scanner and email secrets to the server.
 
@@ -88,7 +85,10 @@ The container entrypoint runs `prisma migrate deploy` before `node server.js`. T
 
 - Customers create accounts at `/signup` or by signing in with Google, GitHub, or Microsoft. The first social sign-in **creates** a `CUSTOMER` with no password. Matching a verified email links the provider to the existing user and **does not** change role. `ADMIN` is assigned only by seed or in the database. Public signup and OAuth cannot self-promote.
 - Unified login is `/login`. `/admin/login` redirects there with `next=/admin/project-blueprint`. After social login, `/auth/continue` sends staff to the inbox and customers to the estimator.
-- Passwords are hashed with bcrypt (cost 12) via `bcryptjs`. Social-only users have no `passwordHash`; they cannot use email/password until an admin sets one. Signed-in users who have a password can change it at `/account`. Customers also edit their profile there (name, phone, organisation, and optional context). Email is the login and cannot be changed on that page. Admins keep `/admin/account` as password-only.
+- Passwords are hashed with bcrypt (cost 12) via `bcryptjs`. Social-only users have no `passwordHash` until they set one (forgot-password email) or an admin sets one. Signed-in users who have a password can change it at `/account`. Customers also edit their profile there (name, phone, organisation, and optional context). Email is the login and cannot be changed on that page. Admins keep `/admin/account` as password-only.
+- Forgot password is `/forgot-password`. The app always shows the same success copy. If the email matches an **active** account, Resend sends a one-hour, single-use link to `/reset-password`. Tokens are stored as SHA-256 hashes. A successful reset unlocks a locked account. With `RESEND_API_KEY` unset, the send is stubbed so local/e2e still work — add the key for real inbox delivery.
+- Customers can save **at most five** calculated estimates to `/account`. Delete removes the estimate from the profile only (`savedToProfileAt = null`); the admin inbox still has the row.
+- `GET /api/account/estimates/{id}/pdf` returns an owner-only PDF rendered from HTML (Chromium). The file states clearly that it is not an official quotation.
 - Profile PII lives on `User`. `Lead` remains the consent snapshot for one estimate. Submitting a lead copies name / phone / organisation onto the profile **only if that profile field is still empty**. Issued quotes snapshot client details into `QuoteVersion.frozenSnapshot` and do not follow later profile edits.
 - Sessions are JWTs signed with `AUTH_SECRET` (httpOnly, SameSite=lax, Secure in production). The JWT `id` is the Prisma user UUID, not the provider subject.
 - `/custom-software-estimator` and customer APIs (`/api/project-blueprint/intake`, `calculate`, …) require a signed-in user.
@@ -108,21 +108,25 @@ Leave a provider’s id/secret unset to hide its button. Local and e2e keep work
 
 ## 4. Resend
 
+Used for **password-reset** mail. Estimate-by-email was removed.
+
 1. Verify sending domain (SPF/DKIM/DMARC).
-2. Set `RESEND_FROM_EMAIL` to a verified address.
-3. Use idempotency keys: `estimate-email:{result_id}`, `quote-email:{quote_version_id}`.
-4. Store consent timestamp on `Lead` before first send.
+2. Set `RESEND_API_KEY` and `RESEND_FROM_EMAIL` to a verified address.
+3. Idempotency keys: `password-reset:{userId}:{tokenHashPrefix}`.
+4. Locally, an unset `RESEND_API_KEY` stubs the send and still returns the generic success message.
 5. Monitor bounces; do not retry indefinitely on hard bounces.
 
 ---
 
-## 5. DocRaptor
+## 5. Estimate PDFs
 
-1. Create account; copy API key to `DOCRAPTOR_API_KEY`.
-2. Generate PDF/UA-1 from the canonical HTML document URL or HTML payload (same frozen snapshot as web).
-3. On failure: log `PDF_UNAVAILABLE`, offer HTML fallback, allow retry.
-4. Do not embed rates or private traces in the HTML source fed to DocRaptor.
-5. Estimate documents are available only to the owning user or staff.
+Planning-estimate PDFs are generated in-process: frozen `publicResult` HTML → Chromium (`puppeteer`) → PDF. There is no DocRaptor key.
+
+1. Local `npm run dev` uses Puppeteer’s downloaded Chrome unless `PUPPETEER_EXECUTABLE_PATH` is set.
+2. The Docker image installs Alpine Chromium and sets `PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser`.
+3. The download is session-gated: the signed-in customer must own the estimate and it must have a calculated result.
+4. The PDF banner and footer state that the document is **not an official quotation**.
+5. Never include rates, margins, or `calculationTrace` in the HTML.
 
 ---
 
@@ -226,9 +230,8 @@ npm run dev
 - [ ] `NEXT_PUBLIC_SITE_URL` / `AUTH_URL` match production HTTPS origin
 - [ ] OAuth redirect URIs registered for each enabled provider
 - [ ] Bootstrap admin created; public signup cannot create staff
-- [ ] Resend domain verified; test estimate email
-- [ ] DocRaptor test PDF/UA; HTML fallback tested
-- [ ] Scanner webhook reachable over HTTPS; fail-closed upload tested
+- [ ] Resend domain verified; test password-reset email
+- [ ] Estimate PDF download (signed-in owner) shows the not-a-quote disclaimer
 - [ ] At least one `ADMIN` bootstrapped
 - [ ] Placeholder warning visible in admin; decision made to ship placeholder or publish calibrated rates first
 - [ ] Sitemap/metadata for `/custom-software-estimator`
@@ -249,6 +252,5 @@ npm run dev
 | Login loops | `AUTH_SECRET` rotation invalidates cookies; `AUTH_URL` / site URL mismatch; OAuth callback URI mismatch |
 | Estimator redirects to login | Session cookie missing or expired; user must sign in |
 | Calculate 401 | API gated by Auth.js session — page login is not enough if the cookie is absent |
-| Emails missing | Resend domain/DNS; consent row; idempotency replay |
-| PDF fails | DocRaptor quota/key; HTML size; UA flags |
-| Uploads stuck pending | Webhook URL/secret; scanner status; fail-closed policy |
+| Emails missing | Resend domain/DNS; `RESEND_API_KEY`; spam folder; token expiry |
+| PDF fails | Chromium path (`PUPPETEER_EXECUTABLE_PATH`); Docker package; HTML size |

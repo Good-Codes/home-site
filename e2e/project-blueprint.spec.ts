@@ -55,6 +55,7 @@ test.describe("Project Blueprint surfaces", () => {
   test("login page has no serious accessibility violations", async ({ page }) => {
     await page.goto("/login");
     await expect(page.getByRole("heading", { name: /Sign in/i })).toBeVisible();
+    await expect(page.getByRole("link", { name: /Forgot password/i })).toBeVisible();
 
     const results = await new AxeBuilder({ page }).include("main").analyze();
     const serious = results.violations.filter((v) =>
@@ -70,6 +71,14 @@ test.describe("Project Blueprint surfaces", () => {
     await expect(page).toHaveURL(/\/login/);
     await expect(page.getByRole("heading", { name: /Sign in/i })).toBeVisible();
   });
+
+  test("forgot-password page is public", async ({ page }) => {
+    await page.goto("/forgot-password");
+    await expect(
+      page.getByRole("heading", { name: /Forgot password/i }),
+    ).toBeVisible();
+    await expect(page.getByLabel(/Email/i)).toBeVisible();
+  });
 });
 
 test.describe("signed-in account", () => {
@@ -78,6 +87,7 @@ test.describe("signed-in account", () => {
     test.skip(!loggedIn, "Database is not available for authenticated e2e");
     await page.goto("/account");
     await expect(page.getByRole("heading", { name: /^Account$/ })).toBeVisible();
+    await expect(page.getByRole("heading", { name: /Saved estimates/i })).toBeVisible();
     await expect(page.getByRole("heading", { name: /Profile/i })).toBeVisible();
     await expect(page.getByLabel(/Full name/i)).toBeVisible();
     await expect(page.getByRole("heading", { name: /Password/i })).toBeVisible();
@@ -89,6 +99,20 @@ test.describe("signed-in account", () => {
     test.skip(!loggedIn, "Database is not available for authenticated e2e");
     await page.goto("/admin/users");
     await expect(page).not.toHaveURL(/\/admin\/users/);
+  });
+
+  test("estimate PDF requires a session and ownership", async ({ page }) => {
+    const anonymous = await page.request.get(
+      "/api/account/estimates/22222222-2222-4222-8222-222222222222/pdf",
+    );
+    expect(anonymous.status()).toBe(401);
+
+    const loggedIn = await createCustomerAndLogin(page);
+    test.skip(!loggedIn, "Database is not available for authenticated e2e");
+    const owned = await page.request.get(
+      "/api/account/estimates/22222222-2222-4222-8222-222222222222/pdf",
+    );
+    expect(owned.status()).toBe(404);
   });
 });
 
@@ -166,6 +190,32 @@ test.describe("signed-in estimator", () => {
         body: JSON.stringify(READY_CALCULATE),
       });
     });
+    await page.route(/\/api\/account\/estimates\/[^/]+\/pdf(?:\?|$)/, async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/pdf",
+        body: Buffer.from("%PDF-1.4 e2e"),
+        headers: {
+          "Content-Disposition":
+            'attachment; filename="good-code-planning-estimate.pdf"',
+        },
+      });
+    });
+    await page.route(/\/api\/account\/estimates\/?$/, async (route) => {
+      if (route.request().method() === "GET") {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({ estimates: [], savedCount: 0 }),
+        });
+        return;
+      }
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({ ok: true, saved: true, alreadySaved: false }),
+      });
+    });
 
     await page.getByRole("button", { name: /Start my estimate/i }).click();
     await expect(page.getByLabel(/Your idea/i)).toBeVisible();
@@ -185,8 +235,23 @@ test.describe("signed-in estimator", () => {
     });
     await expect(page.getByText(/Recommended investment range/i)).toBeVisible();
     await expect(
-      page.getByRole("button", { name: /Email me this estimate/i }),
+      page.getByRole("button", { name: /Save to my profile/i }),
     ).toBeVisible();
+    await expect(
+      page.getByRole("button", { name: /Download a PDF copy of this estimate/i }),
+    ).toBeVisible();
+
+    await page.getByRole("button", { name: /Save to my profile/i }).click();
+    await expect(
+      page.getByRole("link", { name: /Saved to your profile/i }),
+    ).toBeVisible();
+
+    const downloadPromise = page.waitForEvent("download");
+    await page
+      .getByRole("button", { name: /Download a PDF copy of this estimate/i })
+      .click();
+    const download = await downloadPromise;
+    expect(download.suggestedFilename()).toMatch(/planning-estimate\.pdf/i);
   });
 
   test("asks follow-ups only when intake needs clarification", async ({ page }) => {

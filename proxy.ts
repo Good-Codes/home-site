@@ -31,7 +31,20 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL(safeCallbackPath(next, dest), request.url));
   }
 
-  if (path === "/login" || path === "/signup") {
+  if (
+    (path === "/forgot-password" || path === "/reset-password") &&
+    session?.user
+  ) {
+    const dest = isStaffRole(role) ? "/admin/account" : "/account";
+    return NextResponse.redirect(new URL(dest, request.url));
+  }
+
+  if (
+    path === "/login" ||
+    path === "/signup" ||
+    path === "/forgot-password" ||
+    path === "/reset-password"
+  ) {
     return NextResponse.next();
   }
 
@@ -92,6 +105,8 @@ export const config = {
     "/auth/continue",
     "/login",
     "/signup",
+    "/forgot-password",
+    "/reset-password",
     "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };

@@ -19,10 +19,12 @@ export function LoginForm({
   nextPath,
   oauthProviders,
   oauthError,
+  resetSuccess,
 }: {
   nextPath: string;
   oauthProviders: OAuthProviderId[];
   oauthError?: string | null;
+  resetSuccess?: boolean;
 }) {
   const router = useRouter();
   const [email, setEmail] = useState("");
@@ -67,6 +69,11 @@ export function LoginForm({
 
   return (
     <div className="space-y-4">
+      {resetSuccess && !error ? (
+        <p className="text-sm text-[#2f6f69] dark:text-[#9ed9d2]" role="status">
+          Your password has been updated. Sign in with your new password.
+        </p>
+      ) : null}
       {error ? (
         <p className="text-sm text-red-600 dark:text-red-400" role="alert">
           {error}
@@ -102,6 +109,14 @@ export function LoginForm({
         <BrandButton type="submit" disabled={submitting} className="w-full">
           {submitting ? "Signing in…" : "Sign in"}
         </BrandButton>
+        <p className="text-sm text-neutral-600 dark:text-neutral-400">
+          <Link
+            href="/forgot-password"
+            className="font-medium text-[#2f6f69] underline-offset-2 hover:underline dark:text-[#9ed9d2]"
+          >
+            Forgot password?
+          </Link>
+        </p>
         <p className="text-sm text-neutral-600 dark:text-neutral-400">
           New here?{" "}
           <Link

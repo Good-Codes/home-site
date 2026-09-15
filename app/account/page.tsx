@@ -5,8 +5,10 @@ import {
   AccountCard,
   AccountPageHeader,
 } from "@/components/account/account-chrome";
+import { SavedEstimatesList } from "@/components/account/saved-estimates-list";
 import { ChangePasswordForm } from "@/components/auth/change-password-form";
 import { CustomerProfileForm } from "@/components/account/customer-profile-form";
+import { listSavedEstimates } from "@/lib/account/estimates";
 import { userHasPassword } from "@/lib/auth/change-password";
 import { isStaffRole } from "@/lib/auth/roles";
 import { auth } from "@/auth";
@@ -26,6 +28,7 @@ export default async function AccountPage() {
   }
 
   const hasPassword = await userHasPassword(session.user.id);
+  const savedEstimates = await listSavedEstimates(session.user.id);
 
   return (
     <main className="container mx-auto max-w-3xl px-6 py-16">
@@ -36,6 +39,13 @@ export default async function AccountPage() {
       />
 
       <div className="mt-10 space-y-6">
+        <AccountCard
+          title="Saved estimates"
+          description="Keep up to five planning estimates here. Removing one only hides it from this list — it stays in the Good Code inbox."
+        >
+          <SavedEstimatesList estimates={savedEstimates} />
+        </AccountCard>
+
         <AccountCard
           title="Profile"
           description="Your business card for planning estimates. Optional fields can stay blank."

@@ -6,36 +6,13 @@ import { getDemoEstimateDetail } from "@/lib/project-blueprint/admin/demo-data";
 import { requireAdmin } from "@/lib/project-blueprint/auth/admin";
 import { buildReviewSummary } from "@/lib/project-blueprint/summary";
 import { normalizeAnswers } from "@/lib/project-blueprint/answers";
-import type { PublicEstimateResult } from "@/lib/project-blueprint/types";
+import { sanitizePublicResult } from "@/lib/project-blueprint/estimate/sanitize-public";
 
 export const dynamic = "force-dynamic";
 
 type RouteContext = {
   params: Promise<{ id: string }>;
 };
-
-function sanitizePublicResult(raw: Record<string, unknown>): PublicEstimateResult {
-  const {
-    privateTrace: _privateTrace,
-    calculationTrace: _calculationTrace,
-    rates: _rates,
-    margins: _margins,
-    roleRates: _roleRates,
-    sellRates: _sellRates,
-    hours: _hours,
-    ...safe
-  } = raw;
-
-  void _privateTrace;
-  void _calculationTrace;
-  void _rates;
-  void _margins;
-  void _roleRates;
-  void _sellRates;
-  void _hours;
-
-  return safe as unknown as PublicEstimateResult;
-}
 
 export async function GET(_request: Request, context: RouteContext) {
   const { id } = await context.params;

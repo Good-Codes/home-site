@@ -6,7 +6,6 @@ import { isDatabaseConfigured, prisma } from "@/lib/db";
 import { requireUser } from "@/lib/project-blueprint/auth/admin";
 import { isStaffRole } from "@/lib/auth/roles";
 import { trackBlueprintEvent } from "@/lib/project-blueprint/analytics/events";
-import { sendEstimateEmail } from "@/lib/project-blueprint/email/resend";
 
 export const dynamic = "force-dynamic";
 
@@ -76,23 +75,8 @@ export async function POST(request: Request) {
 
   const body = parsed.data;
   const preferredNextStep = mapIntent(body.preferredNextStep, body.intent);
-  const siteUrl =
-    process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ??
-    "https://www.goodcode.co.za";
-  const accountUrl = `${siteUrl}/account`;
 
   if (!isDatabaseConfigured()) {
-    if (preferredNextStep === "email") {
-      await sendEstimateEmail({
-        to: body.email,
-        estimateId: body.estimateId,
-        accountUrl,
-        summaryLine:
-          "Your indicative Project Blueprint planning estimate is ready to review.",
-        idempotencyKey: `estimate-email:local:${body.estimateId}:${body.email}`,
-      });
-    }
-
     void trackBlueprintEvent(
       "reviewed_quote_requested",
       { preferredNextStep, demo: true },
@@ -173,17 +157,6 @@ export async function POST(request: Request) {
 
       return saved;
     });
-
-    if (preferredNextStep === "email") {
-      await sendEstimateEmail({
-        to: body.email,
-        estimateId: body.estimateId,
-        accountUrl,
-        summaryLine:
-          "Your indicative Project Blueprint planning estimate is ready to review.",
-        idempotencyKey: `estimate-email:${body.estimateId}:${lead.id}`,
-      });
-    }
 
     void trackBlueprintEvent(
       "reviewed_quote_requested",

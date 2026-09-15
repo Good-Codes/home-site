@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { motion, useReducedMotion } from "framer-motion";
 
 import { cn } from "@/lib/utils";
@@ -14,7 +15,6 @@ import type {
 } from "@/lib/project-blueprint/types";
 import { formatWeeks, formatZarRange } from "@/lib/project-blueprint/format";
 import { BrandButton, optionCardClass, optionCardSelectedClass } from "./ui";
-import { LeadForm } from "./lead-form";
 
 /** Accept shared PublicEstimateResult plus engine-shaped extras from the API. */
 export type EstimateResultViewModel = PublicEstimateResult & {
@@ -30,8 +30,29 @@ export type EstimateResultViewModel = PublicEstimateResult & {
 
 type ResultsViewProps = {
   result: EstimateResultViewModel;
+  estimateId?: string | null;
+  savedToProfile?: boolean;
+  showSave?: boolean;
+  showDelete?: boolean;
   onRecalculate?: () => void;
 };
+
+async function downloadEstimatePdf(estimateId: string): Promise<void> {
+  const response = await fetch(`/api/account/estimates/${estimateId}/pdf`);
+  if (!response.ok) {
+    const data = (await response.json().catch(() => ({}))) as { error?: string };
+    throw new Error(data.error || "Unable to download this PDF right now.");
+  }
+  const blob = await response.blob();
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "good-code-planning-estimate.pdf";
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+}
 
 function scenarioRange(scenario: PublicScenarioResult): string {
   return formatZarRange(scenario.range);
@@ -50,13 +71,49 @@ function asMoney(value: MoneyRange | { share: number }): MoneyRange | null {
 
 export function ResultsView({
   result,
+  estimateId,
+  savedToProfile = false,
+  showSave = false,
+  showDelete = false,
   onRecalculate,
 }: ResultsViewProps) {
+  const router = useRouter();
   const prefersReducedMotion = useReducedMotion();
   const [activeScenario, setActiveScenario] = useState<ScenarioKind>(
     result.recommendedScenario.id,
   );
-  const [showLead, setShowLead] = useState(false);
+  const [saved, setSaved] = useState(savedToProfile);
+  const [saveError, setSaveError] = useState("");
+  const [saveBusy, setSaveBusy] = useState(false);
+  const [pdfError, setPdfError] = useState("");
+  const [pdfBusy, setPdfBusy] = useState(false);
+  const [deleteBusy, setDeleteBusy] = useState(false);
+
+  useEffect(() => {
+    setSaved(savedToProfile);
+  }, [savedToProfile, estimateId]);
+
+  useEffect(() => {
+    if (!showSave || !estimateId) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const response = await fetch("/api/account/estimates");
+        const data = (await response.json().catch(() => ({}))) as {
+          estimates?: { id: string }[];
+        };
+        if (!response.ok || cancelled) return;
+        if (data.estimates?.some((item) => item.id === estimateId)) {
+          setSaved(true);
+        }
+      } catch {
+        // Optional; save still works from the button.
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [showSave, estimateId]);
 
   const allScenarios: PublicScenarioResult[] = [
     result.recommendedScenario,
@@ -303,9 +360,122 @@ export function ResultsView({
           {nextStep}
         </p>
         <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-          <BrandButton type="button" onClick={() => setShowLead(true)}>
-            Email me this estimate
-          </BrandButton>
+          {showSave && estimateId && !saved ? (
+            <BrandButton
+              type="button"
+              disabled={saveBusy}
+              onClick={async () => {
+                setSaveError("");
+                setSaveBusy(true);
+                try {
+                  const response = await fetch("/api/account/estimates", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ estimateId }),
+                  });
+                  const data = (await response.json().catch(() => ({}))) as {
+                    error?: string;
+                  };
+                  if (response.status === 409) {
+                    setSaveError(
+                      data.error ||
+                        "You already have 5 estimates on your profile. Delete one from your account to save this one.",
+                    );
+                    return;
+                  }
+                  if (!response.ok) {
+                    throw new Error(
+                      data.error || "Unable to save this estimate right now.",
+                    );
+                  }
+                  setSaved(true);
+                } catch (error) {
+                  setSaveError(
+                    error instanceof Error
+                      ? error.message
+                      : "Unable to save this estimate right now.",
+                  );
+                } finally {
+                  setSaveBusy(false);
+                }
+              }}
+            >
+              {saveBusy ? "Saving…" : "Save to my profile"}
+            </BrandButton>
+          ) : null}
+          {showSave && estimateId && saved ? (
+            <BrandButton href={`/account/estimates/${estimateId}`}>
+              Saved to your profile
+            </BrandButton>
+          ) : null}
+          {estimateId ? (
+            <BrandButton
+              type="button"
+              variant={showSave && !saved ? "outline" : "solid"}
+              disabled={pdfBusy}
+              onClick={async () => {
+                setPdfError("");
+                setPdfBusy(true);
+                try {
+                  await downloadEstimatePdf(estimateId);
+                } catch (error) {
+                  setPdfError(
+                    error instanceof Error
+                      ? error.message
+                      : "Unable to download this PDF right now.",
+                  );
+                } finally {
+                  setPdfBusy(false);
+                }
+              }}
+            >
+              {pdfBusy
+                ? "Preparing PDF…"
+                : "Download a PDF copy of this estimate"}
+            </BrandButton>
+          ) : null}
+          {showDelete && estimateId ? (
+            <BrandButton
+              type="button"
+              variant="outline"
+              disabled={deleteBusy}
+              onClick={async () => {
+                if (
+                  !window.confirm(
+                    "Remove this estimate from your profile? Good Code will still keep a copy for review.",
+                  )
+                ) {
+                  return;
+                }
+                setDeleteBusy(true);
+                try {
+                  const response = await fetch(
+                    `/api/account/estimates/${estimateId}`,
+                    { method: "DELETE" },
+                  );
+                  const data = (await response.json().catch(() => ({}))) as {
+                    error?: string;
+                  };
+                  if (!response.ok) {
+                    throw new Error(
+                      data.error || "Unable to remove this estimate right now.",
+                    );
+                  }
+                  router.push("/account");
+                  router.refresh();
+                } catch (error) {
+                  setSaveError(
+                    error instanceof Error
+                      ? error.message
+                      : "Unable to remove this estimate right now.",
+                  );
+                  setDeleteBusy(false);
+                }
+              }}
+            >
+              {deleteBusy ? "Removing…" : "Delete from profile"}
+            </BrandButton>
+          ) : null}
           <BrandButton href="/contact-us" variant="outline">
             Talk to the team
           </BrandButton>
@@ -315,14 +485,25 @@ export function ResultsView({
             </BrandButton>
           ) : null}
         </div>
+        {saveError ? (
+          <p className="mt-3 text-sm text-red-700 dark:text-red-300" role="alert">
+            {saveError}{" "}
+            {saveError.toLowerCase().includes("5") ? (
+              <a
+                href="/account"
+                className="font-medium underline-offset-4 hover:underline"
+              >
+                Open account
+              </a>
+            ) : null}
+          </p>
+        ) : null}
+        {pdfError ? (
+          <p className="mt-3 text-sm text-red-700 dark:text-red-300" role="alert">
+            {pdfError}
+          </p>
+        ) : null}
       </section>
-
-      {showLead ? (
-        <LeadForm
-          estimateId={result.estimateId}
-          onClose={() => setShowLead(false)}
-        />
-      ) : null}
     </motion.div>
   );
 }
