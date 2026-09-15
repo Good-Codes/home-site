@@ -78,7 +78,7 @@ export default function Contact() {
         body: JSON.stringify(formData),
       });
 
-      const data = await response.json();
+      const data = await response.json().catch(() => ({}));
 
       if (!response.ok) {
         throw new Error(data.error || "Something went wrong");
@@ -133,6 +133,8 @@ export default function Contact() {
               name="name"
               type="text"
               required
+              maxLength={120}
+              autoComplete="name"
               value={formData.name}
               onChange={handleChange}
               className="mt-1"
@@ -147,6 +149,8 @@ export default function Contact() {
               name="email"
               type="email"
               required
+              maxLength={254}
+              autoComplete="email"
               value={formData.email}
               onChange={handleChange}
               className="mt-1"
@@ -160,6 +164,8 @@ export default function Contact() {
               id="phone"
               name="phone"
               type="tel"
+              maxLength={50}
+              autoComplete="tel"
               value={formData.phone}
               onChange={handleChange}
               className="mt-1"
@@ -174,6 +180,7 @@ export default function Contact() {
               name="details"
               rows={4}
               required
+              maxLength={5000}
               value={formData.details}
               onChange={handleChange}
               className="mt-1"
@@ -182,8 +189,13 @@ export default function Contact() {
           </motion.div>
 
           <motion.div variants={fieldVariants} className="md:col-span-2">
-              <Button size="lg" type="submit" className="w-full bg-[#67AFA7] text-white hover:bg-[#559e97] focus-visible:ring-[#67AFA7]">
-                Submit
+              <Button
+                size="lg"
+                type="submit"
+                disabled={status === "loading"}
+                className="w-full bg-[#67AFA7] text-white hover:bg-[#559e97] focus-visible:ring-[#67AFA7]"
+              >
+                {status === "loading" ? "Sending…" : "Submit"}
               </Button>
           </motion.div>
 
@@ -193,6 +205,8 @@ export default function Contact() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               className="col-span-2 text-center text-red-600 dark:text-red-400"
+              role="alert"
+              aria-live="polite"
             >
               {errorMessage}
             </motion.p>

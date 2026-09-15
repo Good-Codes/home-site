@@ -25,8 +25,10 @@ Copy `.env.example` → `.env.local` (never commit secrets). Next.js reads `.env
 | `PROJECT_BLUEPRINT_AI_INTAKE_MODEL` | Optional | Default `gpt-4o-mini` |
 | `PROJECT_BLUEPRINT_AI_ESTIMATE_ENABLED` | Optional | Set `false` to disable the pricing model (calculate returns an error) |
 | `PROJECT_BLUEPRINT_AI_ESTIMATE_MODEL` | Optional | Default `gpt-4o`. Pin this in production. |
-| `RESEND_API_KEY` | Yes (password-reset email) | Transactional email via Resend |
-| `RESEND_FROM_EMAIL` | Yes (email) | Verified sender, e.g. `estimates@goodcode.co.za` |
+| `RESEND_API_KEY` | Yes (password-reset and contact-form email) | Transactional email via Resend |
+| `RESEND_FROM_EMAIL` | Yes (password-reset email) | Verified sender, e.g. `estimates@goodcode.co.za` |
+| `CONTACT_EMAIL_FROM` | Yes (contact form) | Verified From address for website leads |
+| `CONTACT_EMAIL_TO` | Yes (contact form) | Internal inbox that receives website leads |
 
 **Vercel / production:** `AUTH_SECRET` and `DATABASE_URL` must be set. The app refuses to start in production without `AUTH_SECRET`. Restrict scanner and email secrets to the server.
 
@@ -108,13 +110,14 @@ Leave a provider’s id/secret unset to hide its button. Local and e2e keep work
 
 ## 4. Resend
 
-Used for **password-reset** mail. Estimate-by-email was removed.
+Used for **password-reset** mail and **website contact-form** leads. Estimate-by-email was removed.
 
 1. Verify sending domain (SPF/DKIM/DMARC).
 2. Set `RESEND_API_KEY` and `RESEND_FROM_EMAIL` to a verified address.
-3. Idempotency keys: `password-reset:{userId}:{tokenHashPrefix}`.
-4. Locally, an unset `RESEND_API_KEY` stubs the send and still returns the generic success message.
-5. Monitor bounces; do not retry indefinitely on hard bounces.
+3. Set `CONTACT_EMAIL_FROM` (verified From) and `CONTACT_EMAIL_TO` (internal inbox) for `/api/contact`.
+4. Idempotency keys: `password-reset:{userId}:{tokenHashPrefix}`.
+5. Locally, an unset `RESEND_API_KEY` stubs password-reset send and still returns the generic success message. The contact form requires `RESEND_API_KEY`, `CONTACT_EMAIL_FROM`, and `CONTACT_EMAIL_TO` or it returns 503.
+6. Monitor bounces; do not retry indefinitely on hard bounces.
 
 ---
 
