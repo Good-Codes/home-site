@@ -393,7 +393,7 @@ test.describe("estimator onboarding tutorial", () => {
     await expect(dialog.getByText(/Four short steps/i)).toBeVisible();
 
     await page.getByRole("button", { name: /^Next step$/i }).click();
-    await expect(dialog.getByText(/Answer only what’s missing/i)).toBeVisible();
+    await expect(dialog.getByText(/Answer the planning questions/i)).toBeVisible();
 
     await page.getByRole("button", { name: /^Next step$/i }).click();
     await expect(dialog.getByText(/Confirm the blueprint/i)).toBeVisible();

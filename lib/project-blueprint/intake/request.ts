@@ -9,8 +9,8 @@ export const intakeClarificationSchema = z.object({
 
 export const intakeRequestSchema = z.object({
   ideaText: z.string().min(20).max(4000),
-  round: z.number().int().min(0).max(2).optional(),
-  clarifications: z.array(intakeClarificationSchema).max(6).optional().nullable(),
+  round: z.number().int().min(0).max(8).optional(),
+  clarifications: z.array(intakeClarificationSchema).max(12).optional().nullable(),
   previousAnswers: projectBlueprintAnswersSchema.optional().nullable(),
   askedQuestionIds: z.array(z.string().min(1).max(80)).max(16).optional().nullable(),
   estimateId: z.string().uuid().optional().nullable(),

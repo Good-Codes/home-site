@@ -12,6 +12,8 @@ import type {
   IntakeResult,
   ProjectBlueprintAnswers,
 } from "@/lib/project-blueprint/types";
+import { selectionsFromAnswers } from "@/lib/project-blueprint/intake/whitelist";
+import { ESTIMATE_INFO_RETENTION_DISCLOSURE } from "@/lib/project-blueprint/disclosures";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { BrandButton, OptionSelectedMark, optionCardClass, optionCardSelectedClass } from "./ui";
@@ -131,7 +133,7 @@ export function DescribeMode({
 
       if (data.status === "needs_clarification" && data.clarifyingQuestions.length) {
         setQuestions(data.clarifyingQuestions);
-        setSelections({});
+        setSelections(selectionsFromAnswers(data.answers, data.clarifyingQuestions));
         setAskedQuestionIds((prev) => [
           ...new Set([
             ...prev,
@@ -177,7 +179,7 @@ export function DescribeMode({
     }));
     void submitIntake({
       ideaText: text.trim(),
-      nextRound: Math.min(round + 1, 2),
+      nextRound: round + 1,
       clarifications,
       previousAnswers: answers,
       askedQuestionIds: [
@@ -204,15 +206,15 @@ export function DescribeMode({
           {showingHandoff
             ? "This looks like a marketing website"
             : showingQuestions
-            ? "A few details will make the estimate more honest"
+            ? "Confirm the planning details"
             : "Tell us what you want to make possible"}
         </h2>
         <p className="text-base leading-7 text-neutral-600 dark:text-neutral-300">
           {showingHandoff
             ? "Website packages are usually a better fit than a custom product estimate. You can continue to those packages, or tell us to treat this as custom software."
             : showingQuestions
-            ? "We only ask what we could not infer from your description."
-            : "A short plain-language description is enough. We will infer the product shape and only ask follow-ups when something important is missing."}
+            ? "Answer these planning questions so the estimate is based on what you actually need. If we pre-selected an option from your description, change it if it isn’t right."
+            : "A short plain-language description is enough. We will infer the product shape, then ask a short set of planning questions every time."}
         </p>
       </header>
 
@@ -243,6 +245,9 @@ export function DescribeMode({
           <p className="text-sm text-neutral-500 dark:text-neutral-400">
             A rough answer is completely fine. Include who it is for, what they
             need to do, and any systems it should connect to.
+          </p>
+          <p className="text-sm leading-6 text-neutral-500 dark:text-neutral-400">
+            {ESTIMATE_INFO_RETENTION_DISCLOSURE}
           </p>
         </div>
       ) : (

@@ -1,6 +1,6 @@
 /**
- * Intake orchestration: OpenAI (or keyword fallback) → sanitised answers → 0–3 follow-ups.
- * Does not calculate prices.
+ * Intake orchestration: OpenAI (or keyword fallback) → sanitised answers →
+ * the full clarifying-question set. Does not calculate prices.
  */
 
 import { normalizeAnswers } from "../answers";
@@ -40,19 +40,11 @@ type IntakeAiDeps = {
 
 function clampRound(value: number | undefined): number {
   if (typeof value !== "number" || Number.isNaN(value)) return 0;
-  return Math.min(2, Math.max(0, Math.floor(value)));
+  return Math.min(8, Math.max(0, Math.floor(value)));
 }
 
 function uniqueQuestionIds(ids: Array<string | undefined | null>): string[] {
   return [...new Set(ids.filter((id): id is string => Boolean(id)))];
-}
-
-function hasCriticalScope(answers: ProjectBlueprintAnswers): boolean {
-  return Boolean(
-    answers.route &&
-      answers.route !== "route.website" &&
-      (answers.surfaces?.length ?? 0) > 0,
-  );
 }
 
 export function buildIntakeSystemPrompt(): string {
@@ -69,11 +61,11 @@ export function buildIntakeSystemPrompt(): string {
     taxonomy,
     "Prefer fewer high-confidence facts over stuffing the bag. Unknowns are expected — set answers.unknowns to not_sure or need_advice.",
     "Never invent prices, budgets, hour counts, timelines as numbers, rates, ZAR/R amounts, or quotes. Pricing happens in a later step.",
-    "clarifyingQuestionIds: 0–3 IDs chosen only from: " + whitelist + ".",
-    "Ask follow-ups only when a high-impact fact is missing for a planning estimate (surfaces, payments, integrations, native vs web, sensitive data).",
-    "Never repeat an ID that appears in userClarifications, askedQuestionIds, or alreadyInferredAnswers.unknowns.",
-    "If the description is already enough for a planning estimate, status=ready and clarifyingQuestionIds=[].",
-    "If round is 2, status must be ready or website_handoff and clarifyingQuestionIds must be [].",
+    "The application always asks every planning question from this list after intake: " +
+      whitelist +
+      ".",
+    "Infer answers for those questions when the description is clear so the form can pre-select them. Do not omit a question because you inferred it.",
+    "Never invent a customer quote or lead. Return status=website_handoff only for marketing / brochure / landing-page websites with no custom product behaviour; otherwise status=needs_clarification on the first pass.",
   ].join("\n");
 }
 
@@ -92,9 +84,9 @@ export function buildIntakeUserPrompt(input: {
       userClarifications: input.clarifications ?? [],
       askedQuestionIds: input.askedQuestionIds ?? [],
       instruction:
-        input.round >= 2
-          ? "Final round. Return status ready or website_handoff. Do not ask more questions."
-          : "Ask at most 3 clarifying questions, and only for missing high-impact facts. Do not re-ask IDs in userClarifications, askedQuestionIds, or alreadyInferredAnswers.unknowns.",
+        (input.clarifications?.length ?? 0) > 0
+          ? "The customer has confirmed the planning questions. Return status ready or website_handoff. Do not ask more questions."
+          : "Infer catalogue answers for pre-fill. The application will still show every planning question. Prefer status=needs_clarification unless this is clearly a marketing website.",
     },
     null,
     2,
@@ -223,20 +215,15 @@ export async function runIntake(
     };
   }
 
-  const forceReady = round >= 2;
   const clarifyingQuestions = selectClarifyingQuestions({
     requestedIds,
     answers,
     ideaText,
     round,
-    forceReady,
     excludeIds,
   });
 
-  const needsMore =
-    !forceReady &&
-    clarifyingQuestions.length > 0 &&
-    (requestedStatus === "needs_clarification" || !hasCriticalScope(answers));
+  const needsMore = clarifyingQuestions.length > 0;
 
   return {
     status: needsMore ? "needs_clarification" : "ready",

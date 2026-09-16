@@ -98,9 +98,6 @@ export default function AdminEstimateDetailPage() {
           <BrandButton href="/admin/project-blueprint" variant="outline">
             Inbox
           </BrandButton>
-          <BrandButton href={`/admin/project-blueprint/${estimate.id}/quote`}>
-            Request quote
-          </BrandButton>
         </div>
       </div>
 

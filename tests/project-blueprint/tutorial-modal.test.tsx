@@ -35,7 +35,7 @@ describe("EstimatorTutorialModal", () => {
     expect(screen.getByText(/Four short steps/i)).toBeTruthy();
 
     fireEvent.click(screen.getByRole("button", { name: /Next step/i }));
-    expect(screen.getByText(/Answer only what’s missing/i)).toBeTruthy();
+    expect(screen.getByText(/Answer the planning questions/i)).toBeTruthy();
 
     fireEvent.click(screen.getByRole("button", { name: /Next step/i }));
     expect(screen.getByText(/Confirm the blueprint/i)).toBeTruthy();

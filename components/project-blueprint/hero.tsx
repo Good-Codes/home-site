@@ -53,8 +53,8 @@ export function ProjectBlueprintHero({ onStart, onContinue }: ProjectBlueprintHe
           </p>
           <p className="mt-3 max-w-2xl text-base leading-7 text-neutral-600 dark:text-neutral-300">
             Tell us what you want to make possible — in your own words. We infer
-            the product shape, ask a few follow-ups only if something important
-            is missing, and return a realistic budget range and delivery window.
+            the product shape, ask a short set of planning questions, and return
+            a realistic budget range and delivery window.
           </p>
           <p className="mt-4 max-w-2xl text-sm leading-6 text-neutral-500 dark:text-neutral-400">
             A planning estimate, not a fixed quote. Sign in to describe your idea
@@ -89,7 +89,7 @@ export function ProjectBlueprintHero({ onStart, onContinue }: ProjectBlueprintHe
             align="left"
             eyebrow="What you receive"
             title="An indicative plan you can act on"
-            description="Investment range, delivery window, cost drivers, assumptions, and a clear next step — before we ask for contact details."
+            description="Investment range, delivery window, cost drivers, assumptions, and a clear next step."
             className="max-w-2xl"
           />
         </motion.div>

@@ -20,10 +20,10 @@ export const ESTIMATOR_TUTORIAL_STEPS: readonly EstimatorTutorialStep[] = [
   },
   {
     id: "clarify",
-    title: "Answer only what’s missing",
-    duration: "About 1 minute, only if needed",
+    title: "Answer the planning questions",
+    duration: "About 2 minutes",
     description:
-      "We infer the product shape from your description and only ask follow-ups when something important is still unclear. “I’m not sure yet” is a valid answer and simply widens the planning range.",
+      "You’ll confirm where people will use the product, integrations, timeline, and a few other planning facts. If we inferred an answer from your description, you can still change it.",
   },
   {
     id: "review",
@@ -37,7 +37,7 @@ export const ESTIMATOR_TUTORIAL_STEPS: readonly EstimatorTutorialStep[] = [
     title: "Get your planning range",
     duration: "Instant",
     description:
-      "You’ll receive an indicative investment range, delivery window, and the main cost drivers. This is a planning estimate, not a fixed quote — a specialist reviews complex work before a formal quotation.",
+      "You’ll receive an indicative investment range, delivery window, and the main cost drivers. This is a rough planning estimate and is subject to change after a specialist reviews the scope.",
   },
 ];
 

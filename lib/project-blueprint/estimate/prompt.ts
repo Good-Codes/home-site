@@ -24,6 +24,7 @@ export function buildEstimateSystemPrompt(): string {
     "HOW TO THINK ABOUT SCOPE",
     "Judge the product described, not a package catalogue. Weigh: surfaces (web, portal, admin, native), authentication, workflows, payments, third-party integrations, data migration, mobile in or out of scope, POPIA / personal or financial information, and quality bar (prototype versus production first release).",
     "Price a credible first release, not an unbounded platform.",
+    "Respect the customer's requested completion window when setting delivery weeks. If that window is tighter than a credible first release, widen the cost band and say so rather than promising an unrealistic date.",
     "",
     "INCLUSIONS unless the customer excluded them: product design for the described surfaces, engineering, QA, project management, and launch/stabilisation appropriate to the quality bar.",
     "EXCLUSIONS unless the customer explicitly included them: software licences, cloud usage, app-store fees, legal, ongoing care or hosting retainers, hardware.",

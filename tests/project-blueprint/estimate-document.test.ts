@@ -40,14 +40,15 @@ const result: PublicEstimateResult = {
 };
 
 describe("estimate PDF HTML", () => {
-  it("includes the not-a-quote disclaimer, range, and contact", () => {
+  it("includes the rough-estimate disclaimer, retention notice, range, and contact", () => {
     const html = renderEstimateDocumentHtml({
       result,
       referenceId: "est-123",
     });
 
     expect(html).toContain(ESTIMATE_PDF_DISCLAIMER);
-    expect(html.toLowerCase()).toContain("not an official quotation");
+    expect(html.toLowerCase()).toContain("subject to change");
+    expect(html.toLowerCase()).toContain("we keep the description");
     expect(html).toContain("A dealership finance portal");
     expect(html).toContain("est-123");
     expect(html).toContain("Good Code");
