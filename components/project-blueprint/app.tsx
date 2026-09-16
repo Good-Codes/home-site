@@ -16,10 +16,12 @@ import type {
   PublicScenarioResult,
   ScenarioKind,
 } from "@/lib/project-blueprint/types";
+import { readSkipEstimatorTutorial } from "@/lib/project-blueprint/tutorial";
 import { ProjectBlueprintHero } from "./hero";
 import { ReviewScreen } from "./review-screen";
 import { ResultsView, type EstimateResultViewModel } from "./results-view";
 import { DescribeMode } from "./describe-mode";
+import { EstimatorTutorialModal } from "./tutorial-modal";
 
 type Phase = "hero" | "describe" | "review" | "results";
 type SaveStatus = "idle" | "saving" | "saved" | "error";
@@ -205,6 +207,7 @@ export function ProjectBlueprintApp() {
   const [resumeReady, setResumeReady] = useState(false);
   const [estimateId, setEstimateId] = useState<string | null>(null);
   const [canResume, setResumeAvailable] = useState(false);
+  const [tutorialOpen, setTutorialOpen] = useState(false);
 
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const estimateIdRef = useRef<string | null>(null);
@@ -307,6 +310,7 @@ export function ProjectBlueprintApp() {
   const startNewEstimate = () => {
     if (saveTimer.current) clearTimeout(saveTimer.current);
     estimateIdRef.current = null;
+    setTutorialOpen(false);
     setEstimateId(null);
     setAnswers(emptyAnswers());
     setConcept(null);
@@ -315,6 +319,14 @@ export function ProjectBlueprintApp() {
     setCalcError(null);
     setResumeAvailable(false);
     setPhase("describe");
+  };
+
+  const handleStartClick = () => {
+    if (readSkipEstimatorTutorial()) {
+      startNewEstimate();
+      return;
+    }
+    setTutorialOpen(true);
   };
 
   const continueLastEstimate = () => {
@@ -381,7 +393,7 @@ export function ProjectBlueprintApp() {
             transition={{ duration: 0.3, ease: smoothEase }}
           >
             <ProjectBlueprintHero
-              onStart={startNewEstimate}
+              onStart={handleStartClick}
               onContinue={canResume ? continueLastEstimate : undefined}
             />
           </motion.div>
@@ -453,6 +465,11 @@ export function ProjectBlueprintApp() {
           </motion.section>
         )}
       </AnimatePresence>
+      <EstimatorTutorialModal
+        open={tutorialOpen}
+        onOpenChange={setTutorialOpen}
+        onStart={startNewEstimate}
+      />
     </div>
   );
 }
