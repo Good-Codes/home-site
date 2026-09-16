@@ -47,7 +47,9 @@ COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
 COPY --from=builder --chown=nextjs:nodejs /app/package.json ./package.json
 COPY --chown=nextjs:nodejs docker-entrypoint.sh ./docker-entrypoint.sh
 
-RUN chmod +x ./docker-entrypoint.sh \
+# Strip CRLF so Windows checkouts can still exec this on Alpine.
+RUN sed -i 's/\r$//' ./docker-entrypoint.sh \
+  && chmod +x ./docker-entrypoint.sh \
   && mkdir -p /home/nextjs \
   && chown nextjs:nodejs /home/nextjs
 
@@ -55,4 +57,4 @@ USER nextjs
 
 EXPOSE 3002
 
-ENTRYPOINT ["./docker-entrypoint.sh"]
+ENTRYPOINT ["/bin/sh", "./docker-entrypoint.sh"]
