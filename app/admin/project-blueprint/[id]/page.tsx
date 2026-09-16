@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 
 import { BrandButton } from "@/components/project-blueprint/ui";
-import type { AdminEstimateDetail } from "@/lib/project-blueprint/admin/demo-data";
+import type { AdminEstimateDetail } from "@/lib/project-blueprint/admin/types";
 import {
   formatEnumLabel,
   INDUSTRY_LABELS,

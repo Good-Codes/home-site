@@ -6,21 +6,58 @@ import { isDatabaseConfigured, prisma } from "@/lib/db";
 import { requireUser } from "@/lib/project-blueprint/auth/admin";
 import { isStaffRole } from "@/lib/auth/roles";
 import { trackBlueprintEvent } from "@/lib/project-blueprint/analytics/events";
+import {
+  PERSON_NAME_MAX,
+  sanitizePersonName,
+  sanitizePlainText,
+} from "@/lib/security/text";
 
 export const dynamic = "force-dynamic";
 
 const bodySchema = z.object({
-  name: z.string().trim().min(1).max(120),
+  name: z
+    .string()
+    .max(PERSON_NAME_MAX)
+    .transform((value) => sanitizePersonName(value, PERSON_NAME_MAX))
+    .pipe(z.string().min(1).max(PERSON_NAME_MAX)),
   email: z.string().trim().email().max(254),
-  company: z.string().trim().max(160).optional(),
-  phone: z.string().trim().max(40).optional(),
+  company: z
+    .string()
+    .max(160)
+    .optional()
+    .transform((value) =>
+      value
+        ? sanitizePlainText(value, { maxLength: 160 }) || undefined
+        : undefined,
+    ),
+  phone: z
+    .string()
+    .max(40)
+    .optional()
+    .transform((value) =>
+      value
+        ? sanitizePlainText(value, { maxLength: 40 }) || undefined
+        : undefined,
+    ),
   consent: z.literal(true),
   preferredNextStep: z
     .enum(["email", "call", "workshop", "upload_brief", "none"])
     .optional()
     .default("email"),
   estimateId: z.string().min(1),
-  notes: z.string().trim().max(2000).optional(),
+  notes: z
+    .string()
+    .max(2000)
+    .optional()
+    .transform((value) =>
+      value
+        ? sanitizePlainText(value, {
+            maxLength: 2000,
+            keepNewlines: true,
+            collapseWhitespace: true,
+          }) || undefined
+        : undefined,
+    ),
   intent: z.string().optional(),
 });
 
@@ -77,18 +114,10 @@ export async function POST(request: Request) {
   const preferredNextStep = mapIntent(body.preferredNextStep, body.intent);
 
   if (!isDatabaseConfigured()) {
-    void trackBlueprintEvent(
-      "reviewed_quote_requested",
-      { preferredNextStep, demo: true },
-      { estimateId: body.estimateId },
-    ).catch(() => undefined);
-
-    return NextResponse.json({
-      ok: true,
-      demo: true,
-      leadId: `local-lead-${Date.now()}`,
-      warning: "Lead accepted locally (database unset). Not persisted.",
-    });
+    return NextResponse.json(
+      { error: "Unable to save your details right now." },
+      { status: 503 },
+    );
   }
 
   try {

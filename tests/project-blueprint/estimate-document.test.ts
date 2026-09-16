@@ -54,4 +54,16 @@ describe("estimate PDF HTML", () => {
     expect(html).not.toContain("calculationTrace");
     expect(html).not.toContain("sellRates");
   });
+
+  it("encodes quotes in user-influenced PDF text", () => {
+    const html = renderEstimateDocumentHtml({
+      result: {
+        ...result,
+        productSummary: `Dealer's portal`,
+      },
+      referenceId: "est-123",
+    });
+    expect(html).toContain("Dealer&#039;s portal");
+    expect(html).not.toContain("Dealer's portal");
+  });
 });

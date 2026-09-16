@@ -3,6 +3,7 @@ import type {
   IntakeConcept,
   PublicEstimateResult,
 } from "@/lib/project-blueprint/types";
+import { escapeHtml } from "@/lib/security/text";
 
 import {
   ESTIMATE_PDF_CONTACT,
@@ -39,14 +40,6 @@ const styles = `
     color: #404040;
   }
 `;
-
-function escapeHtml(value: string): string {
-  return value
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;");
-}
 
 function assumptionText(item: { text: string } | string): string {
   return typeof item === "string" ? item : item.text;

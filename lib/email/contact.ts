@@ -7,8 +7,16 @@ import {
 } from "@/lib/account/estimates";
 import { isStaffRole } from "@/lib/auth/roles";
 import { isDatabaseConfigured, prisma } from "@/lib/db";
-import { CONTACT_NO_ESTIMATE } from "@/lib/email/constants";
+import {
+  CONTACT_HONEYPOT_FIELD,
+  CONTACT_NO_ESTIMATE,
+} from "@/lib/email/constants";
 import { parseIntakeConcept } from "@/lib/project-blueprint/types";
+import {
+  escapeHtml,
+  sanitizePersonName,
+  sanitizePlainText,
+} from "@/lib/security/text";
 
 export { CONTACT_NO_ESTIMATE };
 
@@ -48,22 +56,14 @@ export type ResolveContactResult =
   | { success: true; data: ContactEnquiry }
   | { success: false; error: string; status: 400 | 404 };
 
-function escapeHtml(value: string) {
-  return value.replace(
-    /[&<>"']/g,
-    (character) =>
-      ({
-        "&": "&amp;",
-        "<": "&lt;",
-        ">": "&gt;",
-        '"': "&quot;",
-        "'": "&#039;",
-      })[character] ?? character,
-  );
-}
-
 function getString(value: unknown) {
   return typeof value === "string" ? value.trim() : "";
+}
+
+export function isContactHoneypotFilled(body: unknown): boolean {
+  const values = asRecord(body);
+  if (!values) return false;
+  return getString(values[CONTACT_HONEYPOT_FIELD]).length > 0;
 }
 
 function asRecord(body: unknown): Record<string, unknown> | null {
@@ -108,11 +108,31 @@ export function estimateSnippetFromRecord(estimate: {
 function parseGuestEnquiry(
   values: Record<string, unknown>,
 ): ResolveContactResult {
+  const rawName = getString(values.name);
+  const rawEmail = getString(values.email);
+  const rawPhone = getString(values.phone);
+  const rawDetails = getString(values.details);
+
+  if (
+    rawName.length > FIELD_LIMITS.name ||
+    rawEmail.length > FIELD_LIMITS.email ||
+    rawPhone.length > FIELD_LIMITS.phone ||
+    rawDetails.length > FIELD_LIMITS.details
+  ) {
+    return { success: false, error: "One or more fields are too long.", status: 400 };
+  }
+
   const submission = {
-    name: getString(values.name).replace(/\s+/g, " "),
-    email: getString(values.email),
-    phone: getString(values.phone).replace(/\s+/g, " "),
-    details: getString(values.details),
+    name: sanitizePersonName(rawName, FIELD_LIMITS.name),
+    email: rawEmail,
+    phone: sanitizePlainText(rawPhone, {
+      maxLength: FIELD_LIMITS.phone,
+    }),
+    details: sanitizePlainText(rawDetails, {
+      maxLength: FIELD_LIMITS.details,
+      keepNewlines: true,
+      collapseWhitespace: true,
+    }),
   };
 
   if (!submission.name || !submission.email || !submission.details) {
@@ -125,15 +145,6 @@ function parseGuestEnquiry(
 
   if (!EMAIL_PATTERN.test(submission.email)) {
     return { success: false, error: "Please enter a valid email address.", status: 400 };
-  }
-
-  if (
-    submission.name.length > FIELD_LIMITS.name ||
-    submission.email.length > FIELD_LIMITS.email ||
-    submission.phone.length > FIELD_LIMITS.phone ||
-    submission.details.length > FIELD_LIMITS.details
-  ) {
-    return { success: false, error: "One or more fields are too long.", status: 400 };
   }
 
   return {
@@ -200,10 +211,15 @@ export async function resolveContactEnquiry(
     estimate = snippet;
   }
 
-  const details = getString(values.details);
-  if (details.length > FIELD_LIMITS.details) {
+  const rawDetails = getString(values.details);
+  if (rawDetails.length > FIELD_LIMITS.details) {
     return { success: false, error: "One or more fields are too long.", status: 400 };
   }
+  const details = sanitizePlainText(rawDetails, {
+    maxLength: FIELD_LIMITS.details,
+    keepNewlines: true,
+    collapseWhitespace: true,
+  });
   if (!estimate && !details) {
     return {
       success: false,
@@ -215,9 +231,12 @@ export async function resolveContactEnquiry(
   return {
     success: true,
     data: {
-      name: user.name?.trim() || "Good Code customer",
+      name:
+        sanitizePersonName(user.name ?? "") || "Good Code customer",
       email: user.email,
-      phone: user.phone?.trim() || "",
+      phone: user.phone
+        ? sanitizePlainText(user.phone, { maxLength: FIELD_LIMITS.phone })
+        : "",
       details,
       estimate,
       fromAccount: true,

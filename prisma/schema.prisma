@@ -177,13 +177,14 @@ model OAuthAccount {
 
 model Estimate {
   id               String         @id @default(uuid()) @db.Uuid
-  userId           String         @db.Uuid
-  user             User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId           String?        @db.Uuid
+  user             User?          @relation(fields: [userId], references: [id], onDelete: SetNull)
   status           EstimateStatus @default(IN_PROGRESS)
   answers          Json           @default("{}")
   concept          Json?
   lastScreen       String?
   savedToProfileAt DateTime?
+  clientSnapshot   Json?
   createdAt        DateTime       @default(now())
   updatedAt        DateTime       @updatedAt
 
@@ -228,8 +229,8 @@ model EstimateResult {
 
 model Lead {
   id                String             @id @default(uuid()) @db.Uuid
-  userId            String             @db.Uuid
-  user              User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId            String?            @db.Uuid
+  user              User?              @relation(fields: [userId], references: [id], onDelete: SetNull)
   estimateId        String             @unique @db.Uuid
   estimate          Estimate           @relation(fields: [estimateId], references: [id], onDelete: Cascade)
   name              String

@@ -4,6 +4,7 @@ import { Prisma } from "@prisma/client";
 
 import {
   adminClientFromUserAndLead,
+  parseClientSnapshot,
   PROFILE_SELECT,
   quoteClientSnapshot,
 } from "@/lib/account/profile";
@@ -64,30 +65,10 @@ export async function POST(request: Request) {
   const body = parsed.data;
 
   if (!isDatabaseConfigured()) {
-    const quoteId = `local-quote-${Date.now()}`;
-    return NextResponse.json({
-      ok: true,
-      demo: true,
-      warning: "Quotation saved in-memory only (database unset). Not persisted.",
-      quotation: {
-        id: quoteId,
-        estimateId: body.estimateId,
-        status: body.issue ? "issued" : "draft",
-        scenario: body.scenario,
-        versionNumber: 1,
-        lineItemCount: body.lineItems.length,
-        milestoneCount: body.milestones.length,
-        assumptions: body.assumptions,
-        exclusions: body.exclusions,
-        overrideReason: body.overrideReason ?? null,
-        issued: body.issue,
-        totals: {
-          subtotalZar: body.subtotalZar ?? null,
-          taxZar: body.taxZar ?? null,
-          totalZar: body.totalZar ?? null,
-        },
-      },
-    });
+    return NextResponse.json(
+      { error: "Database is not configured." },
+      { status: 503 },
+    );
   }
 
   try {
@@ -98,6 +79,7 @@ export async function POST(request: Request) {
         estimate: {
           select: {
             user: { select: PROFILE_SELECT },
+            clientSnapshot: true,
             lead: {
               select: {
                 name: true,
@@ -118,10 +100,11 @@ export async function POST(request: Request) {
 
     const status = body.issue ? "issued" : "draft";
     const actorId = auth.admin.userId;
-    const clientSnapshot = quoteClientSnapshot(
+    const quoteClient = quoteClientSnapshot(
       adminClientFromUserAndLead(
         estimate.estimate.user,
         estimate.estimate.lead,
+        parseClientSnapshot(estimate.estimate.clientSnapshot),
       ),
     );
 
@@ -148,7 +131,7 @@ export async function POST(request: Request) {
             assumptions: body.assumptions,
             exclusions: body.exclusions,
             scenario: body.scenario,
-            client: clientSnapshot,
+            client: quoteClient,
           } as Prisma.InputJsonValue,
           lineItemsSnapshot: body.lineItems as Prisma.InputJsonValue,
           milestonesSnapshot: body.milestones as Prisma.InputJsonValue,

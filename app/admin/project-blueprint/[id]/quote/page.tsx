@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { BrandButton } from "@/components/project-blueprint/ui";
-import type { AdminEstimateDetail } from "@/lib/project-blueprint/admin/demo-data";
+import type { AdminEstimateDetail } from "@/lib/project-blueprint/admin/types";
 import {
   formatEnumLabel,
   PREFERRED_CONTACT_LABELS,

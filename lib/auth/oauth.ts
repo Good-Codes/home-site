@@ -3,6 +3,7 @@ import "server-only";
 import { UserRole } from "@prisma/client";
 
 import { isDatabaseConfigured, prisma } from "@/lib/db";
+import { sanitizePersonName } from "@/lib/security/text";
 
 export type OAuthIdentity = {
   provider: string;
@@ -117,8 +118,9 @@ export function extractOAuthIdentity(input: {
     return { ok: false, reason: "email" };
   }
 
-  const name =
-    input.user?.name?.trim() || stringField(profile, "name") || null;
+  const rawName =
+    input.user?.name?.trim() || stringField(profile, "name") || "";
+  const name = rawName ? sanitizePersonName(rawName) || null : null;
 
   return {
     ok: true,
@@ -226,7 +228,7 @@ export async function upsertOAuthUser(
     provider,
     providerAccountId,
     email,
-    name: input.name?.trim() || null,
+    name: input.name ? sanitizePersonName(input.name) || null : null,
     emailVerified: true,
   };
 

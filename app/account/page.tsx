@@ -8,6 +8,7 @@ import {
 import { SavedEstimatesList } from "@/components/account/saved-estimates-list";
 import { ChangePasswordForm } from "@/components/auth/change-password-form";
 import { CustomerProfileForm } from "@/components/account/customer-profile-form";
+import { DeleteAccountCard } from "@/components/account/delete-account-card";
 import { listSavedEstimates } from "@/lib/account/estimates";
 import { userHasPassword } from "@/lib/auth/change-password";
 import { isStaffRole } from "@/lib/auth/roles";
@@ -62,6 +63,13 @@ export default async function AccountPage() {
           }
         >
           {hasPassword ? <ChangePasswordForm /> : null}
+        </AccountCard>
+
+        <AccountCard
+          title="Delete account"
+          description="This cannot be undone. Estimates stay with Good Code."
+        >
+          <DeleteAccountCard />
         </AccountCard>
       </div>
     </main>

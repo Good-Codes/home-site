@@ -99,6 +99,7 @@ export function SignupForm({
             name="name"
             type="text"
             autoComplete="name"
+            maxLength={120}
             value={name}
             onChange={(event) => setName(event.target.value)}
           />

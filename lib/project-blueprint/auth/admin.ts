@@ -4,6 +4,7 @@ import type { UserRole } from "@prisma/client";
 
 import { auth } from "@/auth";
 import { isStaffRole } from "@/lib/auth/roles";
+import { isDatabaseConfigured, prisma } from "@/lib/db";
 
 export type AppUser = {
   id: string;
@@ -52,7 +53,34 @@ export async function requireCustomer(): Promise<
   if (session.user.role !== "CUSTOMER") {
     return { ok: false, status: 403, error: "Customer access required." };
   }
-  return session;
+
+  if (!isDatabaseConfigured()) {
+    return session;
+  }
+
+  const row = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    select: {
+      id: true,
+      email: true,
+      name: true,
+      role: true,
+      isActive: true,
+    },
+  });
+  if (!row || !row.isActive || row.role !== "CUSTOMER") {
+    return { ok: false, status: 401, error: "Authentication required." };
+  }
+
+  return {
+    ok: true,
+    user: {
+      id: row.id,
+      email: row.email,
+      name: row.name,
+      role: row.role,
+    },
+  };
 }
 
 /**

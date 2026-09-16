@@ -42,6 +42,15 @@ describe("customer profile helpers", () => {
     expect(parsed.data).not.toHaveProperty("role");
   });
 
+  it("keeps apostrophes in profile names and strips markup", () => {
+    const parsed = profileUpdateSchema.safeParse({
+      name: "O'Brien <b>Ada</b>",
+    });
+    expect(parsed.success).toBe(true);
+    if (!parsed.success) return;
+    expect(parsed.data.name).toBe("O'Brien Ada");
+  });
+
   it("treats empty strings as null", () => {
     const parsed = profileUpdateSchema.safeParse({
       name: "  ",
@@ -124,5 +133,37 @@ describe("customer profile helpers", () => {
       phone: "0821",
       jobTitle: null,
     });
+  });
+
+  it("uses a retained client snapshot when the user is gone", () => {
+    const client = adminClientFromUserAndLead(
+      null,
+      {
+        name: "Lead Name",
+        email: "lead@example.com",
+        company: "Lead Co",
+        phone: "0111",
+        preferredNextStep: "call",
+      },
+      {
+        name: "Sipho",
+        email: "sipho@example.com",
+        organisation: "Acme",
+        phone: "0821",
+        jobTitle: "Ops",
+        preferredContact: "email",
+        city: "Polokwane",
+        province: "LP",
+        organisationType: "small_business",
+        industry: "logistics",
+        teamSize: "two_to_ten",
+        referralSource: "google",
+      },
+    );
+    expect(client.name).toBe("Sipho");
+    expect(client.email).toBe("sipho@example.com");
+    expect(client.organisation).toBe("Acme");
+    expect(client.city).toBe("Polokwane");
+    expect(client.preferredNextStep).toBe("call");
   });
 });
