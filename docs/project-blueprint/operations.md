@@ -32,8 +32,8 @@ Host-only Next.js still works: copy `.env.example` → `.env.local`. Next.js rea
 | `PROJECT_BLUEPRINT_AI_ESTIMATE_MODEL` | Optional | Default `gpt-4o`. Pin this in production. |
 | `RESEND_API_KEY` | Yes (password-reset and contact-form email) | Transactional email via Resend |
 | `RESEND_FROM_EMAIL` | Yes (password-reset email) | Verified sender, e.g. `estimates@goodcode.co.za` |
-| `CONTACT_EMAIL_FROM` | Yes (contact form) | Verified From address for website leads |
-| `CONTACT_EMAIL_TO` | Yes (contact form) | Internal inbox that receives website leads |
+| `CONTACT_EMAIL_FROM` | Optional | Contact-form From address; falls back to `RESEND_FROM_EMAIL` |
+| `CONTACT_EMAIL_TO` | Optional | Contact-form inbox; falls back to `admin@goodcode.co.za` |
 
 **Production:** `AUTH_SECRET` and `DATABASE_URL` must be set. The app refuses to start in production without `AUTH_SECRET`. Restrict scanner and email secrets to the server.
 
@@ -114,10 +114,11 @@ Used for **password-reset** mail and **website contact-form** leads. Estimate-by
 
 1. Verify sending domain (SPF/DKIM/DMARC).
 2. Set `RESEND_API_KEY` and `RESEND_FROM_EMAIL` to a verified address.
-3. Set `CONTACT_EMAIL_FROM` (verified From) and `CONTACT_EMAIL_TO` (internal inbox) for `/api/contact`.
+3. Optional: `CONTACT_EMAIL_FROM` (verified From) and `CONTACT_EMAIL_TO` (defaults to `admin@goodcode.co.za`) for `/api/contact`.
 4. Idempotency keys: `password-reset:{userId}:{tokenHashPrefix}`.
-5. Locally, an unset `RESEND_API_KEY` stubs password-reset send and still returns the generic success message. The contact form requires `RESEND_API_KEY`, `CONTACT_EMAIL_FROM`, and `CONTACT_EMAIL_TO` or it returns 503.
-6. Monitor bounces; do not retry indefinitely on hard bounces.
+5. Locally, an unset `RESEND_API_KEY` stubs both password-reset and contact-form sends so local/e2e still work.
+6. Signed-in customers with at least one saved estimate skip name/email/phone on `/contact-us`. The form sends their profile details plus either the selected estimate (reference + description) or a free-text project description.
+7. Monitor bounces; do not retry indefinitely on hard bounces.
 
 ---
 

@@ -299,6 +299,26 @@ export type IntakeConcept = {
   assumptions: string[];
 };
 
+export function parseIntakeConcept(value: unknown): IntakeConcept | undefined {
+  if (!value || typeof value !== "object") return undefined;
+  const row = value as Record<string, unknown>;
+  const headline = typeof row.headline === "string" ? row.headline.trim() : "";
+  const summary = typeof row.summary === "string" ? row.summary.trim() : "";
+  const whoItsFor = typeof row.whoItsFor === "string" ? row.whoItsFor.trim() : "";
+  if (!headline && !summary && !whoItsFor) return undefined;
+  return {
+    headline,
+    summary,
+    whoItsFor,
+    coreCapabilities: Array.isArray(row.coreCapabilities)
+      ? row.coreCapabilities.filter((item): item is string => typeof item === "string")
+      : [],
+    assumptions: Array.isArray(row.assumptions)
+      ? row.assumptions.filter((item): item is string => typeof item === "string")
+      : [],
+  };
+}
+
 export type IntakeClarifyingOption = {
   id: string;
   label: string;
