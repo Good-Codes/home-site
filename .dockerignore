@@ -4,9 +4,16 @@ node_modules
 .pnp.*
 .yarn
 
-# next.js
+# next.js / build
 .next
 out
+coverage
+test-results
+playwright-report
+tests
+e2e
+*.tsbuildinfo
+next-env.d.ts
 
 # git / editor
 .git
@@ -14,22 +21,20 @@ out
 .cursor
 .vscode
 .idea
+
+# docs (not needed in the image)
 *.md
 docs
 
 # env and secrets
-.env*
+.env
+.env.*
+!.env.example
 
 # misc
 .DS_Store
 *.pem
 npm-debug.log*
-coverage
 .vercel
-*.tsbuildinfo
-next-env.d.ts
+.github
 deploy
-.dockerignore
-Dockerfile
-docker-compose.yml
-docker-compose*.yml

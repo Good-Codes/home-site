@@ -1,56 +1,42 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-## Getting Started
+## Run with Docker
 
-First, run the development server:
+The app and Postgres run entirely in containers. From the repo root:
 
 ```bash
+docker compose up --build
+```
+
+Open [http://127.0.0.1:3002](http://127.0.0.1:3002). On first boot the web container waits for Postgres, applies Prisma migrations, seeds the first admin, then starts Next.js on port 3002 (host and container). Set `APP_PORT` to change both.
+
+Default local admin (override with `BOOTSTRAP_ADMIN_*` before first seed):
+
+- Email: `admin@goodcode.local`
+- Password: `local-admin-change-me`
+
+Optional secrets (OpenAI, Resend, OAuth) can live in `.env` or `.env.local`. Compose already forces `DATABASE_URL` to the `db` service, so a host-only URL in those files is ignored inside the container.
+
+```bash
+docker compose down          # stop
+docker compose down -v       # stop and wipe the database volume
+```
+
+Production / VPS: set `AUTH_SECRET`, `AUTH_URL`, and `NEXT_PUBLIC_SITE_URL`, then rebuild so the public URL is baked into the client bundle.
+
+See `docs/project-blueprint/operations.md` for environment variables, nginx, and TLS.
+
+## Host development (optional)
+
+If you want Next.js on the host instead of the `web` container:
+
+```bash
+docker compose up db -d
+cp .env.example .env.local
+npm install
+npm run db:migrate
+npm run db:seed
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font).
-
-## Deploy on the TruServ VPS (Docker)
-
-Production is a single Next.js container. Host nginx already serves other apps on this machine (Antler on `127.0.0.1:3000`, stag-hunt on `127.0.0.1:3001`), so this site publishes **localhost-only** on **port 3002**.
-
-The Project Blueprint estimator needs the same secrets as local/Vercel (see `docs/project-blueprint/operations.md`). Pass them at build and runtime with:
-
-```bash
-docker compose --env-file .env.local up --build -d
-curl -sI http://127.0.0.1:3002
-```
-
-If 3002 is already taken, change only the left-hand port in `docker-compose.yml` (`127.0.0.1:HOST_PORT:3000`) and the `proxy_pass` port in the nginx sample.
-
-### nginx
-
-Copy the sample vhost, then reload nginx. This does not replace the Antler site (`server_name 156.38.220.234`).
-
-```bash
-sudo cp deploy/nginx/goodcode.co.za.conf /etc/nginx/sites-available/goodcode.co.za
-sudo ln -s /etc/nginx/sites-available/goodcode.co.za /etc/nginx/sites-enabled/
-sudo nginx -t && sudo systemctl reload nginx
-```
-
-Point DNS A records for `goodcode.co.za` and `www.goodcode.co.za` at `156.38.220.234`.
-
-Optional TLS after DNS is live. Certbot is not installed on the VPS by default:
-
-```bash
-sudo apt update
-sudo apt install -y certbot python3-certbot-nginx
-sudo certbot --nginx -d goodcode.co.za -d www.goodcode.co.za
-```
-
-### Useful Compose commands
-
-```bash
-docker compose --env-file .env.local up --build -d
-docker compose logs -f web
-docker compose down
-```
+For that workflow, publish Postgres to the host (for example `127.0.0.1:5433:5432` on `db`) and keep `DATABASE_URL` on `127.0.0.1:5433`.

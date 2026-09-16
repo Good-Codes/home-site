@@ -6,7 +6,9 @@ Operational setup for local development, staging, and production. Complements [`
 
 ## 1. Environment variables
 
-Copy `.env.example` → `.env.local` (never commit secrets). Next.js reads `.env.local`; the Prisma CLI only auto-loads `.env`. Use `npm run db:migrate` / `npm run db:seed` so both files are applied.
+The supported way to run the site is Docker: `docker compose up --build`. Compose injects `DATABASE_URL` to the `db` service. Optional secrets (OpenAI, Resend, OAuth, a real `AUTH_SECRET`) can live in `.env` or `.env.local` — never commit them.
+
+Host-only Next.js still works: copy `.env.example` → `.env.local`. Next.js reads `.env.local`; the Prisma CLI only auto-loads `.env`. Use `npm run db:migrate` / `npm run db:seed` so both files are applied.
 
 | Variable | Required | Purpose |
 |----------|----------|---------|
@@ -38,48 +40,42 @@ Copy `.env.example` → `.env.local` (never commit secrets). Next.js reads `.env
 
 Identity, estimates, leads, quotes, calibration, and analytics live in Postgres. Prisma schema: `prisma/schema.prisma`.
 
-### Local (Docker)
+### Local (fully containerized)
+
+```bash
+docker compose up --build
+```
+
+Open `http://127.0.0.1:3002`. The `web` service waits until Postgres is healthy, runs `prisma migrate deploy`, seeds the first admin when `BOOTSTRAP_ADMIN_PASSWORD` is at least 12 characters, then starts Next.js. Default local login is `admin@goodcode.local` / `local-admin-change-me`. Change those before any shared or production deploy.
+
+Postgres stays on the Docker network (`db:5432`). The app container always uses `postgresql://homesite:homesite@db:5432/homesite`.
+
+### Host Next.js (optional)
 
 ```bash
 docker compose up db -d
-# Postgres is published at 127.0.0.1:5433
 ```
 
-Point `.env.local` at:
+Publish Postgres to the host if you need it (`127.0.0.1:5433:5432` on `db`), then point `.env.local` at:
 
 ```
 DATABASE_URL="postgresql://homesite:homesite@127.0.0.1:5433/homesite"
 ```
 
-Then (from the project root, with `DATABASE_URL` in `.env.local`):
+Then:
 
 ```bash
 npm run db:migrate
-npm run db:seed      # creates the first ADMIN when BOOTSTRAP_ADMIN_* are set
+npm run db:seed
 npm run db:generate
 npm run dev
 ```
 
 Plain `npx prisma migrate deploy` fails with `P1012` if `DATABASE_URL` is only in `.env.local`.
 
-### Local (app + database)
-
-```bash
-docker compose up --build
-```
-
-The `web` service waits until Postgres is healthy, runs `prisma migrate deploy`, then starts Next.js. Seed the first admin from the host:
-
-```bash
-$env:DATABASE_URL="postgresql://homesite:homesite@127.0.0.1:5433/homesite"
-$env:BOOTSTRAP_ADMIN_EMAIL="you@goodcode.co.za"
-$env:BOOTSTRAP_ADMIN_PASSWORD="choose-a-long-password"
-npx prisma db seed
-```
-
 ### Deploy
 
-The container entrypoint runs `prisma migrate deploy` before `node server.js`. The `web` image stays stateless; Postgres holds all data.
+`docker compose up --build -d`. The entrypoint runs migrations and seed before `next start`. The `web` image stays stateless; Postgres holds all data. Set a real `AUTH_SECRET` and production `AUTH_URL` / `NEXT_PUBLIC_SITE_URL`. Compose publishes the app on `127.0.0.1:3002` by default so it does not collide with Antler on 3000.
 
 ---
 
@@ -213,12 +209,9 @@ Engine placeholder config ships with **`isPlaceholder = true`**.
 ## 11. Local seed / reset checklist
 
 ```bash
-docker compose up db -d
-npm run db:generate
-npm run db:migrate
-npm run db:seed
-npm run dev
+docker compose up --build
 # Confirm:
+# - http://127.0.0.1:3002 serves the site
 # - users table has one ADMIN when bootstrap env is set
 # - /custom-software-estimator redirects to /login when signed out
 ```
