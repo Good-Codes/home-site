@@ -11,6 +11,22 @@ if [ -z "${AUTH_SECRET:-}" ]; then
   exit 1
 fi
 
+resolve_public_url() {
+  if [ -n "${SITE_URL:-}" ]; then
+    printf '%s\n' "$SITE_URL"
+    return
+  fi
+  case "${AUTH_URL:-}" in
+    https://*) printf '%s\n' "$AUTH_URL" ;;
+    *) printf '%s\n' "http://127.0.0.1:${PORT:-3002}" ;;
+  esac
+}
+
+AUTH_URL="$(resolve_public_url)"
+export AUTH_URL
+export NEXT_PUBLIC_SITE_URL="$AUTH_URL"
+echo "Auth.js origin: ${AUTH_URL}"
+
 echo "Applying database migrations..."
 n=0
 until node node_modules/prisma/build/index.js migrate deploy; do

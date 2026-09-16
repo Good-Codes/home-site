@@ -1,5 +1,7 @@
 import "server-only";
 
+import { runtimeEnv } from "@/lib/env/runtime";
+
 import type { IdeaClassificationResult } from "../types";
 import { classifyIdeaKeywords } from "./keyword";
 
@@ -19,8 +21,8 @@ export async function classifyIdea(
 ): Promise<IdeaClassificationResult> {
   try {
     if (
-      process.env.PROJECT_BLUEPRINT_AI_CLASSIFIER_ENABLED === "true" &&
-      process.env.OPENAI_API_KEY
+      runtimeEnv("PROJECT_BLUEPRINT_AI_CLASSIFIER_ENABLED") === "true" &&
+      runtimeEnv("OPENAI_API_KEY")
     ) {
       const { classifyIdeaWithAiOrKeywords } = await import("./ai");
       return await classifyIdeaWithAiOrKeywords(ideaText);

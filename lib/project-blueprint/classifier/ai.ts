@@ -8,6 +8,8 @@ import "server-only";
 
 import { z } from "zod";
 
+import { runtimeEnv } from "@/lib/env/runtime";
+
 import type { IdeaClassificationResult } from "../types";
 import { classifyIdeaKeywords } from "./keyword";
 
@@ -36,8 +38,8 @@ const aiPayloadSchema = z.object({
 
 function isAiClassifierEnabled(): boolean {
   return (
-    process.env.PROJECT_BLUEPRINT_AI_CLASSIFIER_ENABLED === "true" &&
-    Boolean(process.env.OPENAI_API_KEY)
+    runtimeEnv("PROJECT_BLUEPRINT_AI_CLASSIFIER_ENABLED") === "true" &&
+    Boolean(runtimeEnv("OPENAI_API_KEY"))
   );
 }
 
@@ -51,11 +53,11 @@ export async function classifyIdeaWithAi(
 ): Promise<IdeaClassificationResult | null> {
   if (!isAiClassifierEnabled()) return null;
 
-  const apiKey = process.env.OPENAI_API_KEY;
+  const apiKey = runtimeEnv("OPENAI_API_KEY");
   if (!apiKey) return null;
 
   const model =
-    process.env.PROJECT_BLUEPRINT_AI_CLASSIFIER_MODEL ?? "gpt-4o-mini";
+    runtimeEnv("PROJECT_BLUEPRINT_AI_CLASSIFIER_MODEL") ?? "gpt-4o-mini";
 
   try {
     const response = await fetch("https://api.openai.com/v1/chat/completions", {

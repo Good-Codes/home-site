@@ -4,6 +4,7 @@ import { createHash, randomBytes } from "node:crypto";
 
 import { isDatabaseConfigured, prisma } from "@/lib/db";
 import { sendPasswordResetEmail } from "@/lib/email/resend";
+import { runtimeEnv } from "@/lib/env/runtime";
 
 import {
   PASSWORD_MIN_LENGTH,
@@ -32,7 +33,8 @@ export function createResetToken(): string {
 
 function siteOrigin(): string {
   return (
-    process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ||
+    runtimeEnv("AUTH_URL")?.replace(/\/$/, "") ||
+    runtimeEnv("NEXT_PUBLIC_SITE_URL")?.replace(/\/$/, "") ||
     "https://www.goodcode.co.za"
   );
 }

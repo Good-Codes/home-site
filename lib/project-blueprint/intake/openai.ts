@@ -7,6 +7,8 @@ import "server-only";
 
 import { z } from "zod";
 
+import { runtimeEnv } from "@/lib/env/runtime";
+
 import { completeChatJson } from "../ai/complete-json";
 import { coerceIntakePayload } from "./coerce";
 
@@ -55,10 +57,10 @@ export const openaiIntakePayloadSchema = z.object({
 export type OpenAiIntakePayload = z.infer<typeof openaiIntakePayloadSchema>;
 
 export function isAiIntakeEnabled(): boolean {
-  if (!process.env.OPENAI_API_KEY) return false;
-  if (process.env.PROJECT_BLUEPRINT_AI_INTAKE_ENABLED === "false") return false;
-  if (process.env.PROJECT_BLUEPRINT_AI_CLASSIFIER_ENABLED === "false") {
-    return process.env.PROJECT_BLUEPRINT_AI_INTAKE_ENABLED === "true";
+  if (!runtimeEnv("OPENAI_API_KEY")) return false;
+  if (runtimeEnv("PROJECT_BLUEPRINT_AI_INTAKE_ENABLED") === "false") return false;
+  if (runtimeEnv("PROJECT_BLUEPRINT_AI_CLASSIFIER_ENABLED") === "false") {
+    return runtimeEnv("PROJECT_BLUEPRINT_AI_INTAKE_ENABLED") === "true";
   }
   return true;
 }
@@ -72,12 +74,12 @@ export async function completeIntakeJson(
   system: string,
   user: string,
 ): Promise<unknown> {
-  const apiKey = process.env.OPENAI_API_KEY;
+  const apiKey = runtimeEnv("OPENAI_API_KEY");
   if (!apiKey) throw new Error("OPENAI_API_KEY missing");
 
   const model =
-    process.env.PROJECT_BLUEPRINT_AI_INTAKE_MODEL ??
-    process.env.PROJECT_BLUEPRINT_AI_CLASSIFIER_MODEL ??
+    runtimeEnv("PROJECT_BLUEPRINT_AI_INTAKE_MODEL") ??
+    runtimeEnv("PROJECT_BLUEPRINT_AI_CLASSIFIER_MODEL") ??
     "gpt-4o-mini";
 
   return completeChatJson({

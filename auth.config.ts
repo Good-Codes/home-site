@@ -1,8 +1,12 @@
 import type { NextAuthConfig } from "next-auth";
 
+import { useSecureAuthCookies } from "@/lib/auth/secure-cookies";
+import { runtimeEnv } from "@/lib/env/runtime";
+
 function authSecret(): string | undefined {
-  if (process.env.AUTH_SECRET?.trim()) {
-    return process.env.AUTH_SECRET.trim();
+  const fromEnv = runtimeEnv("AUTH_SECRET");
+  if (fromEnv) {
+    return fromEnv;
   }
   if (process.env.NEXT_PHASE === "phase-production-build") {
     return "build-time-placeholder-not-used-at-runtime";
@@ -29,7 +33,7 @@ export const authConfig = {
         httpOnly: true,
         sameSite: "lax",
         path: "/",
-        secure: process.env.NODE_ENV === "production",
+        secure: useSecureAuthCookies(),
       },
     },
   },

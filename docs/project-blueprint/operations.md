@@ -8,16 +8,19 @@ Operational setup for local development, staging, and production. Complements [`
 
 The supported way to run the site is Docker: `docker compose up --build`. Compose injects `DATABASE_URL` to the `db` service. Optional secrets (OpenAI, Resend, OAuth, a real `AUTH_SECRET`) can live in `.env` or `.env.local` — never commit them.
 
+Host-dev `.env` files often set `AUTH_URL=http://127.0.0.1:3000`. Compose ignores that HTTP origin and binds Auth.js to `http://127.0.0.1:$APP_PORT` (default 3002). Set `SITE_URL=https://…` for a public HTTPS origin. Secrets such as `OPENAI_API_KEY` are read from `env_file`; do not rely on empty `${VAR:-}` interpolations.
+
 Host-only Next.js still works: copy `.env.example` → `.env.local`. Next.js reads `.env.local`; the Prisma CLI only auto-loads `.env`. Use `npm run db:migrate` / `npm run db:seed` so both files are applied.
 
 | Variable | Required | Purpose |
 |----------|----------|---------|
 | `DATABASE_URL` | Yes | PostgreSQL connection string for Prisma |
 | `AUTH_SECRET` | Yes (production) | 32+ random bytes used to sign Auth.js JWT cookies. Generate with `openssl rand -base64 32` |
-| `AUTH_URL` | Recommended | Canonical origin Auth.js uses for callbacks, e.g. `https://www.goodcode.co.za` |
-| `NEXT_PUBLIC_SITE_URL` | Yes | Canonical origin for links |
-| `BOOTSTRAP_ADMIN_EMAIL` | Seed only | First staff admin email (`npx prisma db seed`) |
-| `BOOTSTRAP_ADMIN_PASSWORD` | Seed only | Min 12 characters; never used by public signup |
+| `AUTH_URL` | Recommended | Canonical origin Auth.js uses for callbacks, e.g. `https://www.goodcode.co.za`. Docker overwrites HTTP host-dev values with the published app port |
+| `SITE_URL` | Docker / VPS | Public origin for the Compose stack. Use this for production HTTPS; it becomes `AUTH_URL` at container start |
+| `NEXT_PUBLIC_SITE_URL` | Yes | Canonical origin for links. Docker build uses `SITE_URL` (default `http://127.0.0.1:3002`) |
+| `BOOTSTRAP_ADMIN_EMAIL` | Seed only | Staff admin email. Docker seed upserts this user on every boot |
+| `BOOTSTRAP_ADMIN_PASSWORD` | Seed only | Min 12 characters; never used by public signup. Docker seed resets this user's password on every boot |
 | `AUTH_GOOGLE_ID` / `AUTH_GOOGLE_SECRET` | Optional | Google OAuth client; omit to hide Google sign-in |
 | `AUTH_GITHUB_ID` / `AUTH_GITHUB_SECRET` | Optional | GitHub OAuth app; omit to hide GitHub sign-in |
 | `AUTH_MICROSOFT_ENTRA_ID_ID` / `AUTH_MICROSOFT_ENTRA_ID_SECRET` | Optional | Microsoft Entra (Azure) app; omit to hide Microsoft sign-in |
@@ -46,7 +49,7 @@ Identity, estimates, leads, quotes, calibration, and analytics live in Postgres.
 docker compose up --build
 ```
 
-Open `http://127.0.0.1:3002`. The `web` service waits until Postgres is healthy, runs `prisma migrate deploy`, seeds the first admin when `BOOTSTRAP_ADMIN_PASSWORD` is at least 12 characters, then starts Next.js. Default local login is `admin@goodcode.local` / `local-admin-change-me`. Change those before any shared or production deploy.
+Open `http://127.0.0.1:3002`. The `web` service waits until Postgres is healthy, runs `prisma migrate deploy`, upserts the bootstrap admin when `BOOTSTRAP_ADMIN_PASSWORD` is at least 12 characters, then starts Next.js. Sign in with the `BOOTSTRAP_ADMIN_*` values from `.env`. If those are unset, the Compose defaults are `admin@goodcode.local` / `local-admin-change-me`. Change those before any shared or production deploy.
 
 Postgres stays on the Docker network (`db:5432`). The app container always uses `postgresql://homesite:homesite@db:5432/homesite`.
 
@@ -75,7 +78,7 @@ Plain `npx prisma migrate deploy` fails with `P1012` if `DATABASE_URL` is only i
 
 ### Deploy
 
-`docker compose up --build -d`. The entrypoint runs migrations and seed before `next start`. The `web` image stays stateless; Postgres holds all data. Set a real `AUTH_SECRET` and production `AUTH_URL` / `NEXT_PUBLIC_SITE_URL`. Compose publishes the app on `127.0.0.1:3002` by default so it does not collide with Antler on 3000.
+`docker compose up --build -d`. The entrypoint runs migrations and seed before `next start`. The `web` image stays stateless; Postgres holds all data. Set a real `AUTH_SECRET` and `SITE_URL` (https origin). Compose publishes the app on `127.0.0.1:3002` by default so it does not collide with Antler on 3000.
 
 ---
 
@@ -164,7 +167,7 @@ Document a data-subject request process (export/delete) for leads and uploads.
 ## 8. Admin bootstrap
 
 1. Set `BOOTSTRAP_ADMIN_EMAIL` and `BOOTSTRAP_ADMIN_PASSWORD` (min 12 characters).
-2. Run `npm run db:seed`. This creates the first `ADMIN` if none exists. Public signup cannot self-promote.
+2. Run `npm run db:seed`, or restart the Compose `web` service. Seed creates that admin or updates their password, role, and lockout if the user already exists. Public signup cannot self-promote.
 3. There is one staff role: `ADMIN`. Admins can use the estimate inbox, draft and issue quotations, record calibration, and view pricing metadata.
 4. Sign in at `/login` and open `/admin/project-blueprint`.
 

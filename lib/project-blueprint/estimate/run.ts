@@ -4,6 +4,8 @@
 
 import { createHash } from "node:crypto";
 
+import { runtimeEnv } from "@/lib/env/runtime";
+
 import type { IntakeConcept, ProjectBlueprintAnswers, PublicEstimateResult } from "../types";
 import { DEFAULT_ESTIMATE_MODEL, PROMPT_VERSION } from "./constants";
 import { formatEstimateValidationIssues, parseEstimatePayload } from "./coerce";
@@ -75,7 +77,7 @@ async function maybeComplete(
 function resolveModel(deps: EstimateDeps): string {
   return (
     deps.model ??
-    process.env.PROJECT_BLUEPRINT_AI_ESTIMATE_MODEL ??
+    runtimeEnv("PROJECT_BLUEPRINT_AI_ESTIMATE_MODEL") ??
     DEFAULT_ESTIMATE_MODEL
   );
 }

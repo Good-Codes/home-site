@@ -8,21 +8,21 @@ The app and Postgres run entirely in containers. From the repo root:
 docker compose up --build
 ```
 
-Open [http://127.0.0.1:3002](http://127.0.0.1:3002). On first boot the web container waits for Postgres, applies Prisma migrations, seeds the first admin, then starts Next.js on port 3002 (host and container). Set `APP_PORT` to change both.
+Open [http://127.0.0.1:3002](http://127.0.0.1:3002). On first boot the web container waits for Postgres, applies Prisma migrations, upserts the bootstrap admin, then starts Next.js on port 3002 (host and container). Set `APP_PORT` to change both.
 
-Default local admin (override with `BOOTSTRAP_ADMIN_*` before first seed):
+Sign in with `BOOTSTRAP_ADMIN_EMAIL` / `BOOTSTRAP_ADMIN_PASSWORD` from `.env`. If those are unset, the Compose defaults are:
 
 - Email: `admin@goodcode.local`
 - Password: `local-admin-change-me`
 
-Optional secrets (OpenAI, Resend, OAuth) can live in `.env` or `.env.local`. Compose already forces `DATABASE_URL` to the `db` service, so a host-only URL in those files is ignored inside the container.
+Optional secrets (OpenAI, Resend, OAuth) live in `.env` or `.env.local`. Put the OpenAI key there and leave OAuth IDs blank unless they are real. Compose forces `DATABASE_URL` to the `db` service and points Auth.js at port 3002, even if `.env` still has host-dev `:3000` URLs. Production HTTPS should set `SITE_URL`.
 
 ```bash
 docker compose down          # stop
 docker compose down -v       # stop and wipe the database volume
 ```
 
-Production / VPS: set `AUTH_SECRET`, `AUTH_URL`, and `NEXT_PUBLIC_SITE_URL`, then rebuild so the public URL is baked into the client bundle.
+Production / VPS: set `AUTH_SECRET` and `SITE_URL` (https origin), then rebuild so the public URL is baked into the client bundle. `SITE_URL` also becomes `AUTH_URL` inside the container.
 
 See `docs/project-blueprint/operations.md` for environment variables, nginx, and TLS.
 

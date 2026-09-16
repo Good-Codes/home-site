@@ -16,22 +16,24 @@ async function main() {
     return;
   }
 
-  const existingAdmin = await prisma.user.findFirst({
-    where: { role: UserRole.ADMIN },
-    select: { email: true },
-  });
-  if (existingAdmin) {
-    console.info(`Admin already exists: ${existingAdmin.email}`);
-    return;
-  }
-
-  const existing = await prisma.user.findUnique({ where: { email } });
-  if (existing) {
-    console.info(`User already exists: ${email}`);
-    return;
-  }
-
   const passwordHash = await bcrypt.hash(password, 12);
+  const existing = await prisma.user.findUnique({ where: { email } });
+
+  if (existing) {
+    await prisma.user.update({
+      where: { id: existing.id },
+      data: {
+        passwordHash,
+        role: UserRole.ADMIN,
+        isActive: true,
+        failedLoginCount: 0,
+        lockedUntil: null,
+      },
+    });
+    console.info(`Updated bootstrap admin ${email}`);
+    return;
+  }
+
   await prisma.user.create({
     data: {
       email,

@@ -30,7 +30,11 @@ export async function completeChatJson(input: {
   });
 
   if (!response.ok) {
-    throw new Error(`OpenAI HTTP ${response.status}`);
+    const body = await response.text().catch(() => "");
+    const snippet = body.replace(/\s+/g, " ").trim().slice(0, 300);
+    throw new Error(
+      snippet ? `OpenAI HTTP ${response.status}: ${snippet}` : `OpenAI HTTP ${response.status}`,
+    );
   }
 
   const json = (await response.json()) as {

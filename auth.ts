@@ -11,6 +11,7 @@ import {
   clientKeyFromRequest,
 } from "@/lib/auth/rate-limit";
 import { verifyCredentials } from "@/lib/auth/verify-credentials";
+import { runtimeEnv } from "@/lib/env/runtime";
 
 class AccountLockedError extends CredentialsSignin {
   code = "account_locked";
@@ -19,7 +20,7 @@ class AccountLockedError extends CredentialsSignin {
 if (
   process.env.NODE_ENV === "production" &&
   process.env.NEXT_PHASE !== "phase-production-build" &&
-  !process.env.AUTH_SECRET?.trim()
+  !runtimeEnv("AUTH_SECRET")
 ) {
   throw new Error("AUTH_SECRET is required in production.");
 }
