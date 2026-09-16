@@ -1,3 +1,5 @@
+name: homesite
+
 services:
   db:
     image: postgres:16
@@ -6,8 +8,6 @@ services:
       POSTGRES_USER: homesite
       POSTGRES_PASSWORD: homesite
       POSTGRES_DB: homesite
-    ports:
-      - "127.0.0.1:5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -23,8 +23,9 @@ services:
       args:
         NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-http://127.0.0.1:3002}
     ports:
-      - "127.0.0.1:3002:3000"
+      - "${APP_BIND:-127.0.0.1}:${APP_PORT:-3002}:${APP_PORT:-3002}"
     restart: unless-stopped
+    shm_size: 256mb
     depends_on:
       db:
         condition: service_healthy
@@ -36,9 +37,9 @@ services:
     environment:
       NODE_ENV: production
       HOSTNAME: 0.0.0.0
-      PORT: "3000"
+      PORT: ${APP_PORT:-3002}
       DATABASE_URL: postgresql://homesite:homesite@db:5432/homesite
-      AUTH_SECRET: ${AUTH_SECRET:-change-me-generate-with-openssl-rand-base64-32}
+      AUTH_SECRET: ${AUTH_SECRET:-dev-only-insecure-auth-secret-min-32-chars}
       AUTH_URL: ${AUTH_URL:-http://127.0.0.1:3002}
       NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-http://127.0.0.1:3002}
       AUTH_GOOGLE_ID: ${AUTH_GOOGLE_ID:-}
@@ -48,23 +49,30 @@ services:
       AUTH_MICROSOFT_ENTRA_ID_ID: ${AUTH_MICROSOFT_ENTRA_ID_ID:-}
       AUTH_MICROSOFT_ENTRA_ID_SECRET: ${AUTH_MICROSOFT_ENTRA_ID_SECRET:-}
       AUTH_MICROSOFT_ENTRA_ID_ISSUER: ${AUTH_MICROSOFT_ENTRA_ID_ISSUER:-https://login.microsoftonline.com/common/v2.0}
-      BOOTSTRAP_ADMIN_EMAIL: ${BOOTSTRAP_ADMIN_EMAIL:-}
-      BOOTSTRAP_ADMIN_PASSWORD: ${BOOTSTRAP_ADMIN_PASSWORD:-}
+      BOOTSTRAP_ADMIN_EMAIL: ${BOOTSTRAP_ADMIN_EMAIL:-admin@goodcode.local}
+      BOOTSTRAP_ADMIN_PASSWORD: ${BOOTSTRAP_ADMIN_PASSWORD:-local-admin-change-me}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      PROJECT_BLUEPRINT_AI_INTAKE_ENABLED: ${PROJECT_BLUEPRINT_AI_INTAKE_ENABLED:-true}
+      PROJECT_BLUEPRINT_AI_INTAKE_MODEL: ${PROJECT_BLUEPRINT_AI_INTAKE_MODEL:-gpt-4o-mini}
+      PROJECT_BLUEPRINT_AI_ESTIMATE_ENABLED: ${PROJECT_BLUEPRINT_AI_ESTIMATE_ENABLED:-true}
+      PROJECT_BLUEPRINT_AI_ESTIMATE_MODEL: ${PROJECT_BLUEPRINT_AI_ESTIMATE_MODEL:-gpt-4o}
       RESEND_API_KEY: ${RESEND_API_KEY:-}
       RESEND_FROM_EMAIL: ${RESEND_FROM_EMAIL:-estimates@goodcode.co.za}
-      PUPPETEER_EXECUTABLE_PATH: /usr/bin/chromium-browser
+      CONTACT_EMAIL_FROM: ${CONTACT_EMAIL_FROM:-}
+      CONTACT_EMAIL_TO: ${CONTACT_EMAIL_TO:-}
+      PUPPETEER_EXECUTABLE_PATH: /usr/bin/chromium
     healthcheck:
       test:
         [
           "CMD",
           "node",
           "-e",
-          "fetch('http://127.0.0.1:3000/').then((r) => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))",
+          "fetch('http://127.0.0.1:${APP_PORT:-3002}/').then((r) => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))",
         ]
-      interval: 30s
+      interval: 15s
       timeout: 5s
-      retries: 3
-      start_period: 40s
+      retries: 8
+      start_period: 90s
 
 volumes:
   postgres_data:
