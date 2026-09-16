@@ -3,14 +3,22 @@ import {
   AUTH_RATE_LIMIT_WINDOW_MS,
 } from "./constants";
 
+export {
+  clientKeyFromHeaders,
+  clientKeyFromRequest,
+} from "@/lib/http/client-key";
+
 const hits = new Map<string, number[]>();
 
-export function checkAuthRateLimit(key: string): boolean {
+export function checkAuthRateLimit(
+  key: string,
+  maxHits: number = AUTH_RATE_LIMIT_MAX_HITS,
+): boolean {
   const now = Date.now();
   const previous = (hits.get(key) ?? []).filter(
     (stamp) => now - stamp < AUTH_RATE_LIMIT_WINDOW_MS,
   );
-  if (previous.length >= AUTH_RATE_LIMIT_MAX_HITS) {
+  if (previous.length >= maxHits) {
     hits.set(key, previous);
     return false;
   }
@@ -21,19 +29,4 @@ export function checkAuthRateLimit(key: string): boolean {
 
 export function resetAuthRateLimitForTests(): void {
   hits.clear();
-}
-
-export function clientKeyFromHeaders(headers: {
-  get(name: string): string | null;
-}): string {
-  const forwarded = headers.get("x-forwarded-for");
-  if (forwarded) {
-    const first = forwarded.split(",")[0]?.trim();
-    if (first) return first;
-  }
-  return headers.get("x-real-ip")?.trim() || "anonymous";
-}
-
-export function clientKeyFromRequest(request: Request): string {
-  return clientKeyFromHeaders(request.headers);
 }

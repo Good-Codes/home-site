@@ -1,7 +1,8 @@
 /**
- * In-memory rate limit for public intake requests.
- * Best-effort protection for the OpenAI route (per serverless instance).
+ * In-memory rate limit for intake requests (per Node process).
  */
+
+export { clientKeyFromRequest } from "@/lib/http/client-key";
 
 const WINDOW_MS = 10 * 60 * 1000;
 const MAX_HITS = 12;
@@ -22,13 +23,4 @@ export function checkIntakeRateLimit(key: string): boolean {
 
 export function resetIntakeRateLimitForTests(): void {
   hits.clear();
-}
-
-export function clientKeyFromRequest(request: Request): string {
-  const forwarded = request.headers.get("x-forwarded-for");
-  if (forwarded) {
-    const first = forwarded.split(",")[0]?.trim();
-    if (first) return first;
-  }
-  return request.headers.get("x-real-ip")?.trim() || "anonymous";
 }

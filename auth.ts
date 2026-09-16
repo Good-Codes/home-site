@@ -5,6 +5,7 @@ import { headers } from "next/headers";
 import { authConfig } from "@/auth.config";
 import { buildOAuthProviders } from "@/lib/auth/build-oauth-providers";
 import { extractOAuthIdentity, upsertOAuthUser } from "@/lib/auth/oauth";
+import { AUTH_RATE_LIMIT_NAT_MAX_HITS } from "@/lib/auth/constants";
 import {
   checkAuthRateLimit,
   clientKeyFromHeaders,
@@ -80,8 +81,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       }
 
       const headerList = await headers();
-      const rateKey = `oauth:${clientKeyFromHeaders(headerList)}:${account.provider}`;
-      if (!checkAuthRateLimit(rateKey)) {
+      const clientKey = clientKeyFromHeaders(headerList);
+      const ipRateKey = `oauth:ip:${clientKey}:${account.provider}`;
+      if (!checkAuthRateLimit(ipRateKey, AUTH_RATE_LIMIT_NAT_MAX_HITS)) {
         return "/login?error=oauth_denied";
       }
 
@@ -93,6 +95,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       });
       if (!extracted.ok) {
         return "/login?error=oauth_email";
+      }
+
+      const emailRateKey = `oauth:email:${account.provider}:${extracted.identity.email}`;
+      if (!checkAuthRateLimit(emailRateKey)) {
+        return "/login?error=oauth_denied";
       }
 
       const result = await upsertOAuthUser(extracted.identity);

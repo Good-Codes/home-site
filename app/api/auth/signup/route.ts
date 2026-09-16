@@ -1,7 +1,10 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
-import { PASSWORD_MIN_LENGTH } from "@/lib/auth/constants";
+import {
+  AUTH_RATE_LIMIT_NAT_MAX_HITS,
+  PASSWORD_MIN_LENGTH,
+} from "@/lib/auth/constants";
 import {
   checkAuthRateLimit,
   clientKeyFromRequest,
@@ -19,8 +22,8 @@ const bodySchema = z.object({
 });
 
 export async function POST(request: Request) {
-  const key = `signup:${clientKeyFromRequest(request)}`;
-  if (!checkAuthRateLimit(key)) {
+  const ipKey = `signup:ip:${clientKeyFromRequest(request)}`;
+  if (!checkAuthRateLimit(ipKey, AUTH_RATE_LIMIT_NAT_MAX_HITS)) {
     return NextResponse.json(
       { error: "Too many sign-up attempts. Please wait a few minutes." },
       { status: 429 },
@@ -36,6 +39,14 @@ export async function POST(request: Request) {
         details: parsed.error.flatten(),
       },
       { status: 400 },
+    );
+  }
+
+  const emailKey = `signup:email:${parsed.data.email.trim().toLowerCase()}`;
+  if (!checkAuthRateLimit(emailKey)) {
+    return NextResponse.json(
+      { error: "Too many sign-up attempts. Please wait a few minutes." },
+      { status: 429 },
     );
   }
 

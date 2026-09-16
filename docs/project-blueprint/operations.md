@@ -35,7 +35,7 @@ Host-only Next.js still works: copy `.env.example` → `.env.local`. Next.js rea
 | `CONTACT_EMAIL_FROM` | Yes (contact form) | Verified From address for website leads |
 | `CONTACT_EMAIL_TO` | Yes (contact form) | Internal inbox that receives website leads |
 
-**Vercel / production:** `AUTH_SECRET` and `DATABASE_URL` must be set. The app refuses to start in production without `AUTH_SECRET`. Restrict scanner and email secrets to the server.
+**Production:** `AUTH_SECRET` and `DATABASE_URL` must be set. The app refuses to start in production without `AUTH_SECRET`. Restrict scanner and email secrets to the server.
 
 ---
 
@@ -92,6 +92,7 @@ Plain `npx prisma migrate deploy` fails with `P1012` if `DATABASE_URL` is only i
 - `GET /api/account/estimates/{id}/pdf` returns an owner-only PDF rendered from HTML (Chromium). The file states clearly that it is not an official quotation.
 - Profile PII lives on `User`. `Lead` remains the consent snapshot for one estimate. Submitting a lead copies name / phone / organisation onto the profile **only if that profile field is still empty**. Issued quotes snapshot client details into `QuoteVersion.frozenSnapshot` and do not follow later profile edits.
 - Sessions are JWTs signed with `AUTH_SECRET` (httpOnly, SameSite=lax, Secure in production). The JWT `id` is the Prisma user UUID, not the provider subject.
+- Auth, signup, and OAuth rate limits are **in-memory** (one Docker `web` process) and keyed by an HMAC of the client identity, not a raw IP. Production nginx must set `X-Real-IP` (`$remote_addr`); Compose binds the app to `127.0.0.1` so Node is not public. Signup and OAuth allow a more generous per-client cap (office NAT) plus a stricter per-email cap. nginx access logs are separate from the app and may still record IPs.
 - `/custom-software-estimator` and customer APIs (`/api/project-blueprint/intake`, `calculate`, …) require a signed-in user.
 - `/admin` requires `ADMIN`. Being logged in as a customer is not enough.
 
@@ -249,6 +250,7 @@ docker compose up --build
 | Symptom | First checks |
 |---------|----------------|
 | Login loops | `AUTH_SECRET` rotation invalidates cookies; `AUTH_URL` / site URL mismatch; OAuth callback URI mismatch |
+| 429 on login/signup | In-memory rate limit (10 / 15 min per email+client, 30 / 15 min per client for signup/OAuth). Restart the `web` container to clear the Map; account lockout lives in Postgres |
 | Estimator redirects to login | Session cookie missing or expired; user must sign in |
 | Calculate 401 | API gated by Auth.js session — page login is not enough if the cookie is absent |
 | Emails missing | Resend domain/DNS; `RESEND_API_KEY`; spam folder; token expiry |
