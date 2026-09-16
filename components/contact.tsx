@@ -7,9 +7,12 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { motion, type Variants } from 'framer-motion';
-import { Phone } from 'lucide-react';
+import { motion, type Variants } from "framer-motion";
+import { Phone } from "lucide-react";
+import type { SavedEstimateListItem } from "@/lib/account/estimate-types";
+import { CONTACT_NO_ESTIMATE } from "@/lib/email/constants";
 import { smoothEase } from "@/lib/motion";
+import { cn } from "@/lib/utils";
 
 const packageLabels: Record<string, string> = {
   starter: "Starter",
@@ -17,28 +20,42 @@ const packageLabels: Record<string, string> = {
   "business-plus": "Business Plus",
 };
 
-export default function Contact() {
+const selectClassName = cn(
+  "file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
+  "focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]",
+);
+
+export default function Contact({
+  savedEstimates = [],
+}: {
+  savedEstimates?: SavedEstimateListItem[];
+}) {
+  const useAccountForm = savedEstimates.length > 0;
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     phone: "",
     details: "",
   });
+  const [estimateId, setEstimateId] = useState(
+    useAccountForm ? savedEstimates[0]?.id ?? CONTACT_NO_ESTIMATE : CONTACT_NO_ESTIMATE,
+  );
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState("");
   const router = useRouter();
+  const describeNewProject = !useAccountForm || estimateId === CONTACT_NO_ESTIMATE;
 
   const sectionVariants: Variants = {
     hidden: { opacity: 0, y: 30 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: smoothEase } }
+    visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: smoothEase } },
   };
   const containerVariants: Variants = {
     hidden: {},
-    visible: { transition: { staggerChildren: 0.15 } }
+    visible: { transition: { staggerChildren: 0.15 } },
   };
   const fieldVariants: Variants = {
     hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: 'easeOut' } }
+    visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } },
   };
 
   React.useEffect(() => {
@@ -53,16 +70,19 @@ export default function Contact() {
         ? "I'm interested in a Good Code website package."
         : "";
 
-    if (!details) {
-      return;
+    if (details) {
+      setFormData((current) =>
+        current.details ? current : { ...current, details },
+      );
+      if (useAccountForm) {
+        setEstimateId(CONTACT_NO_ESTIMATE);
+      }
     }
+  }, [useAccountForm]);
 
-    setFormData((current) => (
-      current.details ? current : { ...current, details }
-    ));
-  }, []);
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
@@ -71,11 +91,18 @@ export default function Contact() {
     setStatus("loading");
     setErrorMessage("");
 
+    const payload = useAccountForm
+      ? {
+          estimateId,
+          details: describeNewProject ? formData.details : "",
+        }
+      : formData;
+
     try {
       const response = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(payload),
       });
 
       const data = await response.json().catch(() => ({}));
@@ -89,7 +116,11 @@ export default function Contact() {
       router.push("/thank-you");
     } catch (error: unknown) {
       setStatus("error");
-      setErrorMessage(error instanceof Error ? error.message : "Failed to send message. Please try again.");
+      setErrorMessage(
+        error instanceof Error
+          ? error.message
+          : "Failed to send message. Please try again.",
+      );
     }
   };
 
@@ -114,7 +145,9 @@ export default function Contact() {
             Get in Touch
           </h2>
           <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-neutral-600 dark:text-neutral-300">
-            Tell us about your project, and we'll get back to you with a practical next step.
+            {useAccountForm
+              ? "Choose a saved planning estimate, or describe a new project, and we'll get back to you with a practical next step."
+              : "Tell us about your project, and we'll get back to you with a practical next step."}
           </p>
         </div>
 
@@ -126,80 +159,111 @@ export default function Contact() {
           whileInView="visible"
           viewport={{ once: true }}
         >
-          <motion.div variants={fieldVariants} className="flex flex-col text-left">
-            <Label htmlFor="name">Name *</Label>
-            <Input
-              id="name"
-              name="name"
-              type="text"
-              required
-              maxLength={120}
-              autoComplete="name"
-              value={formData.name}
-              onChange={handleChange}
-              className="mt-1"
-              disabled={status === "loading"}
-            />
-          </motion.div>
+          {useAccountForm ? (
+            <motion.div variants={fieldVariants} className="flex flex-col text-left md:col-span-2">
+              <Label htmlFor="estimateId">Saved estimate *</Label>
+              <select
+                id="estimateId"
+                name="estimateId"
+                required
+                value={estimateId}
+                onChange={(event) => setEstimateId(event.target.value)}
+                className={cn(selectClassName, "mt-1")}
+                disabled={status === "loading"}
+              >
+                <option value={CONTACT_NO_ESTIMATE}>
+                  No estimate — I&apos;ll describe the project
+                </option>
+                {savedEstimates.map((item) => (
+                  <option key={item.id} value={item.id}>
+                    {item.productSummary}
+                    {item.rangeLabel ? ` · ${item.rangeLabel}` : ""}
+                  </option>
+                ))}
+              </select>
+            </motion.div>
+          ) : (
+            <>
+              <motion.div variants={fieldVariants} className="flex flex-col text-left">
+                <Label htmlFor="name">Name *</Label>
+                <Input
+                  id="name"
+                  name="name"
+                  type="text"
+                  required
+                  maxLength={120}
+                  autoComplete="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  className="mt-1"
+                  disabled={status === "loading"}
+                />
+              </motion.div>
 
-          <motion.div variants={fieldVariants} className="flex flex-col text-left">
-            <Label htmlFor="email">Email *</Label>
-            <Input
-              id="email"
-              name="email"
-              type="email"
-              required
-              maxLength={254}
-              autoComplete="email"
-              value={formData.email}
-              onChange={handleChange}
-              className="mt-1"
-              disabled={status === "loading"}
-            />
-          </motion.div>
+              <motion.div variants={fieldVariants} className="flex flex-col text-left">
+                <Label htmlFor="email">Email *</Label>
+                <Input
+                  id="email"
+                  name="email"
+                  type="email"
+                  required
+                  maxLength={254}
+                  autoComplete="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  className="mt-1"
+                  disabled={status === "loading"}
+                />
+              </motion.div>
 
-          <motion.div variants={fieldVariants} className="flex flex-col text-left">
-            <Label htmlFor="phone">Phone</Label>
-            <Input
-              id="phone"
-              name="phone"
-              type="tel"
-              maxLength={50}
-              autoComplete="tel"
-              value={formData.phone}
-              onChange={handleChange}
-              className="mt-1"
-              disabled={status === "loading"}
-            />
-          </motion.div>
+              <motion.div variants={fieldVariants} className="flex flex-col text-left">
+                <Label htmlFor="phone">Phone</Label>
+                <Input
+                  id="phone"
+                  name="phone"
+                  type="tel"
+                  maxLength={50}
+                  autoComplete="tel"
+                  value={formData.phone}
+                  onChange={handleChange}
+                  className="mt-1"
+                  disabled={status === "loading"}
+                />
+              </motion.div>
+            </>
+          )}
 
-          <motion.div variants={fieldVariants} className="flex flex-col text-left md:col-span-2">
+          <div
+            className={cn(
+              "flex flex-col text-left md:col-span-2",
+              useAccountForm && !describeNewProject && "hidden",
+            )}
+          >
             <Label htmlFor="details">Project Details *</Label>
             <Textarea
               id="details"
               name="details"
-              rows={4}
-              required
+              rows={6}
+              required={describeNewProject}
               maxLength={5000}
               value={formData.details}
               onChange={handleChange}
-              className="mt-1"
+              className="mt-1 min-h-32 resize-y field-sizing-fixed"
               disabled={status === "loading"}
             />
-          </motion.div>
+          </div>
 
           <motion.div variants={fieldVariants} className="md:col-span-2">
-              <Button
-                size="lg"
-                type="submit"
-                disabled={status === "loading"}
-                className="w-full bg-[#67AFA7] text-white hover:bg-[#559e97] focus-visible:ring-[#67AFA7]"
-              >
-                {status === "loading" ? "Sending…" : "Submit"}
-              </Button>
+            <Button
+              size="lg"
+              type="submit"
+              disabled={status === "loading"}
+              className="w-full bg-[#67AFA7] text-white hover:bg-[#559e97] focus-visible:ring-[#67AFA7]"
+            >
+              {status === "loading" ? "Sending…" : "Submit"}
+            </Button>
           </motion.div>
 
-          {/* Status messages */}
           {status === "error" && (
             <motion.p
               initial={{ opacity: 0 }}
@@ -213,15 +277,13 @@ export default function Contact() {
           )}
         </motion.form>
 
-        {/* Extra link (optional) */}
         <motion.div
           className="mt-8 text-center"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5, duration: 0.6 }}
           viewport={{ once: true }}
-        >
-        </motion.div>
+        />
       </div>
     </motion.section>
   );

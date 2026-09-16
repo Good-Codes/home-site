@@ -63,8 +63,8 @@ export default function Footer() {
             <a href="tel:+27835603912" className={linkClass}>
               <Phone className="mr-1 inline h-3.5 w-3.5" />+27 83 560 3912
             </a>
-            <a href="mailto:2bc.katlego@gmail.com" className={linkClass}>
-              <Mail className="mr-1 inline h-3.5 w-3.5" />2bc.katlego@gmail.com
+            <a href="mailto:admin@goodcode.co.za" className={linkClass}>
+              <Mail className="mr-1 inline h-3.5 w-3.5" />admin@goodcode.co.za
             </a>
           </div>
 
@@ -130,8 +130,8 @@ export default function Footer() {
               </li>
               <li className="flex items-center justify-center gap-2">
                 <Mail className="h-4 w-4" />
-                <a href="mailto:2bc.katlego@gmail.com" className={linkClass}>
-                  2bc.katlego@gmail.com
+                <a href="mailto:admin@goodcode.co.za" className={linkClass}>
+                  admin@goodcode.co.za
                 </a>
               </li>
             </ul>

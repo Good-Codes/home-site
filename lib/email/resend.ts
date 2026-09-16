@@ -1,10 +1,17 @@
 import "server-only";
 
+import { DEFAULT_CONTACT_INBOX } from "@/lib/email/constants";
+import { runtimeEnv } from "@/lib/env/runtime";
+
+export { DEFAULT_CONTACT_INBOX };
+
 export type SendEmailInput = {
   to: string;
   subject: string;
   html: string;
   text: string;
+  from?: string;
+  replyTo?: string;
   idempotencyKey?: string;
 };
 
@@ -12,8 +19,16 @@ export type SendEmailResult =
   | { ok: true; messageId: string; stub: boolean }
   | { ok: false; error: string; code: "EMAIL_UNAVAILABLE" | "SEND_FAILED" };
 
-function fromAddress(): string {
-  return process.env.RESEND_FROM_EMAIL?.trim() || "estimates@goodcode.co.za";
+function defaultFromAddress(): string {
+  return runtimeEnv("RESEND_FROM_EMAIL") || "estimates@goodcode.co.za";
+}
+
+export function contactFromAddress(): string {
+  return runtimeEnv("CONTACT_EMAIL_FROM") || defaultFromAddress();
+}
+
+export function contactToAddress(): string {
+  return runtimeEnv("CONTACT_EMAIL_TO") || DEFAULT_CONTACT_INBOX;
 }
 
 /**
@@ -23,11 +38,11 @@ function fromAddress(): string {
 export async function sendEmail(
   input: SendEmailInput,
 ): Promise<SendEmailResult> {
-  const apiKey = process.env.RESEND_API_KEY?.trim();
-  const from = fromAddress();
+  const apiKey = runtimeEnv("RESEND_API_KEY");
+  const from = input.from?.trim() || defaultFromAddress();
 
   if (!apiKey) {
-    console.info("[PLACEHOLDER] sendEmail stub — RESEND_API_KEY unset", {
+    console.info("[email] sendEmail stub — RESEND_API_KEY unset", {
       to: input.to,
       subject: input.subject,
     });
@@ -48,6 +63,7 @@ export async function sendEmail(
         subject: input.subject,
         html: input.html,
         text: input.text,
+        ...(input.replyTo ? { replyTo: input.replyTo } : {}),
       },
       input.idempotencyKey
         ? { idempotencyKey: input.idempotencyKey }
@@ -96,5 +112,25 @@ export async function sendPasswordResetEmail(
     `,
     text: `Reset your Good Code password\n\n${input.resetUrl}\n\nThis link expires in one hour. If you did not ask for this, ignore this email.`,
     idempotencyKey: input.idempotencyKey,
+  });
+}
+
+export type SendContactEnquiryEmailInput = {
+  replyTo: string;
+  subject: string;
+  html: string;
+  text: string;
+};
+
+export async function sendContactEnquiryEmail(
+  input: SendContactEnquiryEmailInput,
+): Promise<SendEmailResult> {
+  return sendEmail({
+    from: contactFromAddress(),
+    to: contactToAddress(),
+    replyTo: input.replyTo,
+    subject: input.subject,
+    html: input.html,
+    text: input.text,
   });
 }

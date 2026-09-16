@@ -5,7 +5,7 @@ import { getOwnedCalculatedEstimate } from "@/lib/account/estimates";
 import { sanitizePublicResult } from "@/lib/project-blueprint/estimate/sanitize-public";
 import { ResultsView } from "@/components/project-blueprint/results-view";
 import type { EstimateResultViewModel } from "@/components/project-blueprint/results-view";
-import type { IntakeConcept } from "@/lib/project-blueprint/types";
+import { parseIntakeConcept } from "@/lib/project-blueprint/types";
 import { isStaffRole } from "@/lib/auth/roles";
 import { auth } from "@/auth";
 
@@ -13,24 +13,6 @@ export const metadata: Metadata = {
   title: "Saved estimate",
   robots: { index: false, follow: false },
 };
-
-function asConcept(value: unknown): IntakeConcept | undefined {
-  if (!value || typeof value !== "object") return undefined;
-  const row = value as Record<string, unknown>;
-  const headline = typeof row.headline === "string" ? row.headline : "";
-  if (!headline) return undefined;
-  return {
-    headline,
-    summary: typeof row.summary === "string" ? row.summary : "",
-    whoItsFor: typeof row.whoItsFor === "string" ? row.whoItsFor : "",
-    coreCapabilities: Array.isArray(row.coreCapabilities)
-      ? row.coreCapabilities.filter((item): item is string => typeof item === "string")
-      : [],
-    assumptions: Array.isArray(row.assumptions)
-      ? row.assumptions.filter((item): item is string => typeof item === "string")
-      : [],
-  };
-}
 
 export default async function SavedEstimatePage({
   params,
@@ -58,7 +40,7 @@ export default async function SavedEstimatePage({
 
   const result: EstimateResultViewModel = {
     ...sanitizePublicResult(latest.publicResult as Record<string, unknown>),
-    concept: asConcept(estimate.concept),
+    concept: parseIntakeConcept(estimate.concept),
   };
 
   return (
