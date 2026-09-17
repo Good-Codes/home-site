@@ -29,8 +29,8 @@ export default function HomeFinalCta() {
               size="lg"
               className="bg-[#67AFA7] text-white hover:bg-[#559e97] focus-visible:ring-[#67AFA7]"
             >
-              <Link href="/contact-us">
-                Request a quote
+              <Link href="/website-pricing">
+                View Pricing
                 <ArrowRight className="h-4 w-4" aria-hidden />
               </Link>
             </Button>
@@ -40,7 +40,7 @@ export default function HomeFinalCta() {
               size="lg"
               className="border-white/25 bg-transparent text-white hover:bg-white/10 hover:text-white"
             >
-              <Link href="/our-projects">View work</Link>
+              <Link href="/contact-us">Get in Touch</Link>
             </Button>
           </div>
         </div>

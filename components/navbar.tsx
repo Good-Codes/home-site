@@ -66,9 +66,9 @@ export default function Navbar() {
             <Button variant="ghost" size="icon" onClick={toggleTheme} className="size-8">
               {mounted && (theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />)}
             </Button>
-            <Link href="/contact-us">
-              <Button size="sm">Get a Quote</Button>
-            </Link>
+            <Button asChild size="sm">
+              <Link href="/website-pricing">View Pricing</Link>
+            </Button>
             <SessionNav />
           </div>
 
@@ -182,11 +182,11 @@ export default function Navbar() {
 
               {/* CTA */}
               <div className="px-4 py-4 space-y-2">
-                <Link href="/contact-us" onClick={() => setMenuOpen(false)}>
-                  <Button size="sm" className="w-full rounded-md bg-[#67AFA7] text-white hover:bg-[#559e97]">
-                    Get a Quote
-                  </Button>
-                </Link>
+                <Button asChild size="sm" className="w-full rounded-md bg-[#67AFA7] text-white hover:bg-[#559e97]">
+                  <Link href="/website-pricing" onClick={() => setMenuOpen(false)}>
+                    View Pricing
+                  </Link>
+                </Button>
                 <SessionNav compact />
               </div>
             </motion.div>

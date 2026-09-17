@@ -45,8 +45,8 @@ export default function Hero() {
                 size="lg"
                 className="bg-[#67AFA7] text-white hover:bg-[#559e97] focus-visible:ring-[#67AFA7]"
               >
-                <Link href="/contact-us">
-                  Get a quote
+                <Link href="/website-pricing">
+                  View Pricing
                   <ArrowRight className="h-4 w-4" aria-hidden />
                 </Link>
               </Button>

@@ -23,6 +23,8 @@ const services: Service[] = [
     ],
     bestFit:
       "Ideal when you need a refined digital presence or a product-ready platform that can scale without constant rework.",
+    ctaLabel: "View Pricing",
+    ctaHref: "/website-pricing#packages",
     Icon: Code,
   },
   {
@@ -39,6 +41,8 @@ const services: Service[] = [
     ],
     bestFit:
       "Best for teams launching a new mobile product, extending an existing platform, or improving an app that feels harder to use than it should.",
+    ctaLabel: "Get an Estimate",
+    ctaHref: "/custom-software-estimator",
     Icon: Smartphone,
   },
   {
@@ -55,6 +59,8 @@ const services: Service[] = [
     ],
     bestFit:
       "A fit for businesses that need dependable infrastructure, smoother delivery, and a clearer path from prototype to production.",
+    ctaLabel: "Get in Touch",
+    ctaHref: "/contact-us",
     Icon: Cloud,
   },
   {
@@ -71,6 +77,8 @@ const services: Service[] = [
     ],
     bestFit:
       "Useful when you need a clearer technical direction, a second opinion on important decisions, or a plan to execute with less waste.",
+    ctaLabel: "Get in Touch",
+    ctaHref: "/contact-us",
     Icon: LifeBuoy,
   },
 ];
@@ -83,6 +91,8 @@ type Service = {
   detail: string;
   highlights: string[];
   bestFit: string;
+  ctaLabel: string;
+  ctaHref: string;
   Icon: LucideIcon;
 };
 
@@ -161,7 +171,7 @@ export default function Services() {
         </motion.div>
 
         <div className="mt-20 divide-y divide-neutral-200 border-y border-neutral-200 dark:divide-white/10 dark:border-white/10">
-          {services.map(({ id, title, detail, highlights, bestFit, Icon }, index) => (
+          {services.map(({ id, title, detail, highlights, bestFit, ctaLabel, ctaHref, Icon }, index) => (
             <motion.article
               key={id}
               id={id}
@@ -203,6 +213,16 @@ export default function Services() {
                 <p className="mt-4 text-sm leading-7 text-neutral-700 dark:text-neutral-300">
                   {bestFit}
                 </p>
+                <Button
+                  asChild
+                  size="sm"
+                  className="mt-6 w-fit bg-[#67AFA7] text-white hover:bg-[#559e97] focus-visible:ring-[#67AFA7]"
+                >
+                  <Link href={ctaHref}>
+                    {ctaLabel}
+                    <ArrowRight className="h-4 w-4" aria-hidden />
+                  </Link>
+                </Button>
               </aside>
             </motion.article>
           ))}
@@ -215,16 +235,26 @@ export default function Services() {
           <p className="max-w-2xl text-base leading-7 text-neutral-600 dark:text-neutral-300">
             Need the right blend of product thinking, engineering discipline, and launch support?
           </p>
-          <Button
-            asChild
-            size="lg"
-            className="bg-[#67AFA7] text-white hover:bg-[#559e97] focus-visible:ring-[#67AFA7]"
-          >
-            <Link href="/contact-us">
-              Start a project
-              <ArrowRight className="h-4 w-4" aria-hidden />
-            </Link>
-          </Button>
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+            <Button
+              asChild
+              variant="outline"
+              size="lg"
+              className="border-neutral-300 bg-white text-neutral-950 hover:bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-950 dark:text-neutral-100 dark:hover:bg-white/[0.06]"
+            >
+              <Link href="/contact-us">Get in Touch</Link>
+            </Button>
+            <Button
+              asChild
+              size="lg"
+              className="bg-[#67AFA7] text-white hover:bg-[#559e97] focus-visible:ring-[#67AFA7]"
+            >
+              <Link href="/website-pricing">
+                Start a project
+                <ArrowRight className="h-4 w-4" aria-hidden />
+              </Link>
+            </Button>
+          </div>
         </motion.div>
       </div>
     </section>

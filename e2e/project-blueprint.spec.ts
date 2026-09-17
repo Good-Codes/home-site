@@ -38,11 +38,12 @@ const READY_INTAKE = {
 };
 
 test.describe("Project Blueprint surfaces", () => {
-  test("website pricing shows Option A and Option B", async ({ page }) => {
+  test("website pricing shows custom software and web development paths", async ({ page }) => {
     await page.goto("/website-pricing");
-    await expect(page.getByText("Option A")).toBeVisible();
-    await expect(page.getByText("Option B")).toBeVisible();
-    await expect(page.getByText("Describe your idea")).toBeVisible();
+    await expect(page.getByRole("heading", { name: /Get an AI-powered cost estimate/i })).toBeVisible();
+    await expect(page.getByRole("heading", { name: /View our website pricing models/i })).toBeVisible();
+    await expect(page.getByText("Start an estimate")).toBeVisible();
+    await expect(page.getByText("View website packages")).toBeVisible();
   });
 
   test("custom software estimator redirects unauthenticated visitors to login", async ({
@@ -354,7 +355,7 @@ test.describe("signed-in estimator", () => {
     await expect(page.getByText(/This looks like a marketing website/i)).toBeVisible();
     await page.getByRole("button", { name: /Continue to website packages/i }).click();
     await expect(page).toHaveURL(/website-pricing/);
-    await expect(page.getByText("Option A")).toBeVisible();
+    await expect(page.getByRole("heading", { name: /View our website pricing models/i })).toBeVisible();
   });
 
   test("estimator hero has no serious accessibility violations", async ({
