@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   adminClientFromUserAndLead,
   emptyFieldWriteBack,
+  isCustomerProfileIncomplete,
   organisationDisplay,
   profileUpdateSchema,
   quoteClientSnapshot,
@@ -165,5 +166,23 @@ describe("customer profile helpers", () => {
     expect(client.organisation).toBe("Acme");
     expect(client.city).toBe("Polokwane");
     expect(client.preferredNextStep).toBe("call");
+  });
+
+  it("treats a signed-up profile as incomplete until contact details are filled", () => {
+    expect(isCustomerProfileIncomplete(blankUser)).toBe(true);
+    expect(
+      isCustomerProfileIncomplete({
+        ...blankUser,
+        name: "Ada Lovelace",
+      }),
+    ).toBe(true);
+    expect(
+      isCustomerProfileIncomplete({
+        ...blankUser,
+        name: "Ada Lovelace",
+        phone: "082 000 0000",
+        organisation: "Acme",
+      }),
+    ).toBe(false);
   });
 });

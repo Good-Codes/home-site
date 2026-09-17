@@ -21,8 +21,8 @@ export default function robots(): MetadataRoute.Robots {
         // Allow all crawlers to access the whole site.
         userAgent: "*",
         allow: "/",
-        // Block the thank-you confirmation page — no value in indexing it.
-        disallow: ["/thank-you"],
+        // Block confirmation pages — no value in indexing them.
+        disallow: ["/thank-you", "/account-deleted"],
       },
     ],
     // Point crawlers to the sitemap so they find every page.

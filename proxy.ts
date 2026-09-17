@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 import { authConfig } from "@/auth.config";
+import { isProtectedCustomerAccountPath } from "@/lib/account/paths";
 import { isStaffRole } from "@/lib/auth/roles";
 import { safeCallbackPath } from "@/lib/auth/callback-url";
 
@@ -70,7 +71,7 @@ export async function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
-  if (path.startsWith("/account")) {
+  if (isProtectedCustomerAccountPath(path)) {
     if (!session?.user) {
       const loginUrl = new URL("/login", request.url);
       loginUrl.searchParams.set("next", path);

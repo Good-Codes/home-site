@@ -4,6 +4,7 @@ import { useState } from "react";
 import { signOut } from "next-auth/react";
 
 import { BrandButton } from "@/components/project-blueprint/ui";
+import { ACCOUNT_DELETED_PATH } from "@/lib/account/paths";
 
 export function DeleteAccountCard() {
   const [confirming, setConfirming] = useState(false);
@@ -21,7 +22,7 @@ export function DeleteAccountCard() {
       if (!response.ok) {
         throw new Error(data.error || "Unable to delete your account.");
       }
-      await signOut({ callbackUrl: "/" });
+      await signOut({ callbackUrl: ACCOUNT_DELETED_PATH });
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "Unable to delete your account.",
