@@ -1,6 +1,6 @@
 /**
  * High-impact clarifying questions for AI intake.
- * At most three are shown, and they map onto catalogue answer keys.
+ * Every question is shown after the description so inferred fields can be confirmed.
  */
 
 import { clearUnknownMarker } from "../answer-path";
@@ -248,15 +248,14 @@ export const INTAKE_WHITELIST: IntakeWhitelistQuestion[] = [
   },
   {
     id: "q.delivery.timing",
-    prompt: "Is there a timing target?",
-    help: "Dates guide planning. We will not promise an unrealistic deadline against this scope.",
+    prompt: "When do you want this project completed?",
+    help: "Pick the planning window that fits. This is a target, not a guaranteed delivery date.",
     kind: "single",
     options: [
-      { id: "timing.no_deadline", label: "No fixed deadline" },
-      { id: "timing.within_3_months", label: "Within three months" },
-      { id: "timing.3_to_6_months", label: "Three to six months" },
-      { id: "timing.6_to_12_months", label: "Six to twelve months" },
-      NOT_SURE,
+      { id: "timing.within_3_months", label: "1–3 months" },
+      { id: "timing.3_to_6_months", label: "3–6 months" },
+      { id: "timing.6_to_12_months", label: "6–12 months" },
+      { id: "timing.over_12_months", label: "12+ months" },
     ],
     apply(answers, values) {
       const chosen = withoutUnknown(values)[0];
@@ -361,53 +360,12 @@ export function isQuestionSettled(
 
 export function inferGapQuestionIds(
   answers: ProjectBlueprintAnswers,
-  ideaText: string,
+  _ideaText: string,
   excludeIds: Iterable<string> = [],
 ): string[] {
-  const gaps: string[] = [];
-  const text = ideaText.toLowerCase();
-  const excluded = excludeIds instanceof Set ? excludeIds : new Set(excludeIds);
-
-  const consider = (id: string, missing: boolean) => {
-    if (!missing || isQuestionSettled(id, answers, excluded)) return;
-    gaps.push(id);
-  };
-
-  consider("q.surfaces.channels", !answers.surfaces?.length);
-  consider("q.context.starting_point", !answers.startingPoint);
-
-  const hasPayments = (answers.capabilities ?? []).some((id) =>
-    id.startsWith("cap.payments."),
+  return INTAKE_WHITELIST.map((question) => question.id).filter(
+    (id) => !isQuestionSettled(id, answers, excludeIds),
   );
-  const mentionsPay =
-    /\b(pay|payment|checkout|subscription|billing|invoice)\b/i.test(text);
-  consider("q.intake.payments", !hasPayments && !mentionsPay);
-
-  const integrations = answers.integrations ?? [];
-  const hasIntegrationSignal =
-    integrations.length > 0 && !integrations.includes("integration.unknown");
-  const mentionsIntegrate =
-    /\b(integrat|erp|crm|xero|sage|salesforce|api|webhook)\b/i.test(text);
-  consider("q.integrations.systems", !hasIntegrationSignal && mentionsIntegrate);
-
-  consider("q.users.groups", !answers.userGroups?.length);
-
-  const hasQuality = (answers.qualityRequirements ?? []).length > 0;
-  const mentionsSensitive =
-    /\b(popia|gdpr|personal data|financ|regulated|compliance|pci)\b/i.test(text);
-  consider("q.quality.requirements", !hasQuality && mentionsSensitive);
-
-  return gaps;
-}
-
-function canPickQuestion(
-  id: string,
-  answers: ProjectBlueprintAnswers,
-  picked: string[],
-  excludeIds: Set<string>,
-): boolean {
-  if (!WHITELIST_BY_ID.has(id) || picked.includes(id)) return false;
-  return !isQuestionSettled(id, answers, excludeIds);
 }
 
 export function selectClarifyingQuestions(args: {
@@ -418,27 +376,80 @@ export function selectClarifyingQuestions(args: {
   forceReady?: boolean;
   excludeIds?: string[];
 }): IntakeClarifyingQuestion[] {
-  if (args.forceReady || args.round >= 2) return [];
+  void args.requestedIds;
+  void args.answers;
+  void args.ideaText;
+  void args.round;
+  if (args.forceReady) return [];
 
   const excludeIds = new Set(args.excludeIds ?? []);
-  const picked: string[] = [];
+  return INTAKE_WHITELIST.filter((question) => !excludeIds.has(question.id)).map(
+    toPublicQuestion,
+  );
+}
 
-  for (const id of args.requestedIds ?? []) {
-    if (!canPickQuestion(id, args.answers, picked, excludeIds)) continue;
-    picked.push(id);
-    if (picked.length >= 3) break;
+function paymentSelection(answers: ProjectBlueprintAnswers): string[] {
+  const modes = answers.paymentsFollowUps?.paymentModes ?? [];
+  if (modes.includes("pay.none")) return ["pay.none"];
+  const caps = answers.capabilities ?? [];
+  if (caps.some((id) => id.includes("recurring") || id.includes("subscription"))) {
+    return ["pay.recurring"];
   }
-
-  if (picked.length < 3) {
-    for (const id of inferGapQuestionIds(args.answers, args.ideaText, excludeIds)) {
-      if (!canPickQuestion(id, args.answers, picked, excludeIds)) continue;
-      picked.push(id);
-      if (picked.length >= 3) break;
-    }
+  if (caps.some((id) => id.startsWith("cap.payments."))) {
+    return ["pay.one_time"];
   }
+  if (answers.unknowns?.["q.intake.payments"]) return ["not_sure"];
+  return [];
+}
 
-  return picked
-    .map((id) => WHITELIST_BY_ID.get(id))
-    .filter((question): question is IntakeWhitelistQuestion => Boolean(question))
-    .map(toPublicQuestion);
+/**
+ * Map already-inferred answers onto whitelist option IDs so the form can
+ * pre-select without hiding the question.
+ */
+export function selectionsFromAnswers(
+  answers: ProjectBlueprintAnswers,
+  questions: IntakeClarifyingQuestion[] = INTAKE_WHITELIST,
+): Record<string, string[]> {
+  const raw: Record<string, string[]> = {};
+  if (answers.surfaces?.length) {
+    raw["q.surfaces.channels"] = answers.surfaces.filter((id) =>
+      id.startsWith("surface."),
+    );
+  }
+  if (answers.startingPoint) {
+    raw["q.context.starting_point"] = [answers.startingPoint];
+  }
+  const payments = paymentSelection(answers);
+  if (payments.length) raw["q.intake.payments"] = payments;
+
+  const integrations = (answers.integrations ?? []).filter(
+    (id) => id !== "integration.unknown",
+  );
+  if (integrations.length) raw["q.integrations.systems"] = integrations;
+
+  if (answers.userGroups?.length) {
+    raw["q.users.groups"] = answers.userGroups.filter((id) =>
+      id.startsWith("users."),
+    );
+  }
+  if (answers.userScale) raw["q.users.scale"] = [answers.userScale];
+  if (answers.qualityRequirements?.length) {
+    raw["q.quality.requirements"] = answers.qualityRequirements;
+  }
+  if (answers.timing) raw["q.delivery.timing"] = [answers.timing];
+
+  const allowed = new Map(
+    questions.map((question) => [
+      question.id,
+      new Set(question.options.map((option) => option.id)),
+    ]),
+  );
+  const next: Record<string, string[]> = {};
+  for (const [questionId, values] of Object.entries(raw)) {
+    const optionIds = allowed.get(questionId);
+    if (!optionIds) continue;
+    const filtered = values.filter((id) => optionIds.has(id));
+    if (filtered.length) next[questionId] = filtered;
+  }
+  return next;
 }

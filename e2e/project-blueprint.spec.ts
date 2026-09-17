@@ -1,6 +1,7 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 
+import { ESTIMATOR_TUTORIAL_STORAGE_KEY } from "../lib/project-blueprint/tutorial";
 import { createCustomerAndLogin } from "./helpers/auth";
 
 const READY_INTAKE = {
@@ -159,6 +160,9 @@ test.describe("signed-in estimator", () => {
   test.beforeEach(async ({ page }) => {
     const loggedIn = await createCustomerAndLogin(page);
     test.skip(!loggedIn, "Database is not available for authenticated e2e");
+    await page.evaluate((key) => {
+      window.localStorage.setItem(key, "1");
+    }, ESTIMATOR_TUTORIAL_STORAGE_KEY);
     await page.goto("/custom-software-estimator");
   });
 
@@ -368,3 +372,55 @@ test.describe("signed-in estimator", () => {
     expect(serious).toEqual([]);
   });
 });
+
+test.describe("estimator onboarding tutorial", () => {
+  test.beforeEach(async ({ page }) => {
+    const loggedIn = await createCustomerAndLogin(page);
+    test.skip(!loggedIn, "Database is not available for authenticated e2e");
+    await page.evaluate((key) => {
+      window.localStorage.removeItem(key);
+    }, ESTIMATOR_TUTORIAL_STORAGE_KEY);
+    await page.goto("/custom-software-estimator");
+  });
+
+  test("walks through the tutorial then starts the estimate", async ({
+    page,
+  }) => {
+    await page.getByRole("button", { name: /Start my estimate/i }).click();
+    const dialog = page.getByRole("dialog", { name: /How this estimate works/i });
+    await expect(dialog).toBeVisible();
+    await expect(dialog.getByText(/Describe your idea/i)).toBeVisible();
+    await expect(dialog.getByText(/Four short steps/i)).toBeVisible();
+
+    await page.getByRole("button", { name: /^Next step$/i }).click();
+    await expect(dialog.getByText(/Answer the planning questions/i)).toBeVisible();
+
+    await page.getByRole("button", { name: /^Next step$/i }).click();
+    await expect(dialog.getByText(/Confirm the blueprint/i)).toBeVisible();
+
+    await page.getByRole("button", { name: /^Next step$/i }).click();
+    await expect(dialog.getByText(/Get your planning range/i)).toBeVisible();
+    await page.getByRole("button", { name: /Start estimation/i }).click();
+
+    await expect(page.getByLabel(/Your idea/i)).toBeVisible();
+    await expect(dialog).toHaveCount(0);
+  });
+
+  test("can hide the tutorial for later visits", async ({ page }) => {
+    await page.getByRole("button", { name: /Start my estimate/i }).click();
+    await expect(
+      page.getByRole("dialog", { name: /How this estimate works/i }),
+    ).toBeVisible();
+
+    await page.getByRole("button", { name: /Go to step 4/i }).click();
+    await page.getByText(/Don’t show this tutorial again/i).click();
+    await page.getByRole("button", { name: /Start estimation/i }).click();
+    await expect(page.getByLabel(/Your idea/i)).toBeVisible();
+
+    await page.getByRole("button", { name: /^Back$/i }).click();
+    await page.getByRole("button", { name: /Start my estimate/i }).click();
+    await expect(page.getByLabel(/Your idea/i)).toBeVisible();
+    await expect(page.getByRole("dialog")).toHaveCount(0);
+  });
+});
+

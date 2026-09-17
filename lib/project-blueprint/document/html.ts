@@ -7,6 +7,7 @@ import type {
 import {
   ESTIMATE_PDF_CONTACT,
   ESTIMATE_PDF_DISCLAIMER,
+  ESTIMATE_PDF_RETENTION,
 } from "./disclaimer";
 
 const styles = `
@@ -180,6 +181,7 @@ export function renderEstimateDocumentHtml(input: {
   <p>${escapeHtml(result.nextStepRecommendation)}</p>
   <footer>
     <p>${escapeHtml(ESTIMATE_PDF_DISCLAIMER)}</p>
+    <p>${escapeHtml(ESTIMATE_PDF_RETENTION)}</p>
     <p>${escapeHtml(ESTIMATE_PDF_CONTACT)}</p>
   </footer>
 </body>

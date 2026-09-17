@@ -9,7 +9,7 @@ import type {
   IntakeConcept,
   ProjectBlueprintAnswers,
 } from "../types";
-import { inferGapQuestionIds } from "./whitelist";
+import { getWhitelistIds } from "./whitelist";
 
 const WEBSITE_ONLY =
   /\b(brochure|landing pages?|marketing website|company website|wordpress|wix|squarespace)\b/i;
@@ -147,16 +147,10 @@ export function fallbackIntakeDraft(
     ],
   };
 
-  const clarifyingQuestionIds = inferGapQuestionIds(
-    {
-      ...current,
-      ...patch,
-    } as ProjectBlueprintAnswers,
-    ideaText,
-  ).slice(0, 3);
+  const clarifyingQuestionIds = getWhitelistIds();
 
   return {
-    status: clarifyingQuestionIds.length ? "needs_clarification" : "ready",
+    status: "needs_clarification",
     concept,
     answers: merged,
     clarifyingQuestionIds,

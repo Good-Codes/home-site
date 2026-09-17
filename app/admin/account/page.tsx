@@ -27,7 +27,7 @@ export default async function AdminAccountPage() {
     <div className="mx-auto max-w-xl space-y-6">
       <AccountPageHeader
         title="Account"
-        description="Your staff sign-in for the quotation workflow."
+        description="Your staff sign-in for the estimate inbox."
       />
 
       <AccountCard title="Sign-in">

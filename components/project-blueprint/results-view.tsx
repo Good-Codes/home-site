@@ -14,6 +14,7 @@ import type {
   ScenarioKind,
 } from "@/lib/project-blueprint/types";
 import { formatWeeks, formatZarRange } from "@/lib/project-blueprint/format";
+import { ESTIMATE_INFO_RETENTION_DISCLOSURE, ESTIMATE_ROUGH_DISCLOSURE } from "@/lib/project-blueprint/disclosures";
 import { BrandButton, optionCardClass, optionCardSelectedClass } from "./ui";
 
 /** Accept shared PublicEstimateResult plus engine-shaped extras from the API. */
@@ -503,6 +504,15 @@ export function ResultsView({
             {pdfError}
           </p>
         ) : null}
+      </section>
+
+      <section className="space-y-3 border-t border-neutral-200 pt-8 dark:border-white/10">
+        <p className="max-w-2xl text-sm leading-6 text-neutral-600 dark:text-neutral-300">
+          {ESTIMATE_ROUGH_DISCLOSURE}
+        </p>
+        <p className="max-w-2xl text-sm leading-6 text-neutral-500 dark:text-neutral-400">
+          {ESTIMATE_INFO_RETENTION_DISCLOSURE}
+        </p>
       </section>
     </motion.div>
   );

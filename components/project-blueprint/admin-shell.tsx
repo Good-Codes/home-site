@@ -28,7 +28,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
               Project Blueprint
             </p>
             <p className="mt-0.5 text-sm text-neutral-600 dark:text-neutral-400">
-              Admin quotation workflow
+            Admin estimate inbox
             </p>
           </div>
           <nav

@@ -57,7 +57,7 @@ export function buildTaxonomyPrompt(): string {
     "capabilities (multi, only if clearly stated): cap.access.registration_login; cap.workflow.status_tracking; cap.payments.one_time; cap.payments.recurring; cap.data.files",
     "integrations (multi): integration.none; integration.payment_gateway; integration.erp; integration.unknown",
     "qualityRequirements (multi): quality.personal_sensitive; quality.financial_info; quality.popia_privacy",
-    "timing (single): timing.no_deadline; timing.within_3_months; timing.3_to_6_months; timing.not_sure",
+    "timing (single): timing.within_3_months = 1-3 months; timing.3_to_6_months = 3-6 months; timing.6_to_12_months = 6-12 months; timing.over_12_months = 12+ months",
     "Do not set a customer budget. Do not invent IDs. Leave fields empty when unsure and use answers.unknowns.",
   ].join("\n");
 }

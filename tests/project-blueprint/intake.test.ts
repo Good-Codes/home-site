@@ -13,6 +13,7 @@ import {
   applyClarifications,
   inferGapQuestionIds,
   selectClarifyingQuestions,
+  selectionsFromAnswers,
 } from "@/lib/project-blueprint/intake/whitelist";
 import { coerceIntakePayload, toStringList } from "@/lib/project-blueprint/intake/coerce";
 import { parseOpenAiIntakePayload } from "@/lib/project-blueprint/intake/openai";
@@ -130,29 +131,54 @@ function sparseNeedsClarification(overrides: Record<string, unknown> = {}) {
 }
 
 describe("clarifying questions", () => {
-  it("returns at most three questions", () => {
+  it("returns every whitelist question, including surfaces and integrations", () => {
     const questions = selectClarifyingQuestions({
-      requestedIds: [
-        "q.surfaces.channels",
-        "q.context.starting_point",
-        "q.intake.payments",
-        "q.integrations.systems",
-        "not-a-real-id",
-      ],
-      answers: normalizeAnswers({}),
-      ideaText: "We want software",
+      requestedIds: ["q.intake.payments"],
+      answers: normalizeAnswers({
+        surfaces: ["surface.public_web"],
+        integrations: ["integration.payment_gateway"],
+      }),
+      ideaText:
+        "We need a customer portal where dealerships upload finance applications, track progress, and process monthly payments after login.",
       round: 0,
     });
-    expect(questions.length).toBeLessThanOrEqual(3);
-    expect(questions.every((q) => q.options.length > 0)).toBe(true);
+    const ids = questions.map((question) => question.id);
+    expect(ids).toEqual([
+      "q.surfaces.channels",
+      "q.context.starting_point",
+      "q.intake.payments",
+      "q.integrations.systems",
+      "q.users.groups",
+      "q.users.scale",
+      "q.quality.requirements",
+      "q.delivery.timing",
+    ]);
+    expect(questions.find((question) => question.id === "q.delivery.timing")?.options.map((option) => option.id)).toEqual(
+      [
+        "timing.within_3_months",
+        "timing.3_to_6_months",
+        "timing.6_to_12_months",
+        "timing.over_12_months",
+      ],
+    );
   });
 
-  it("asks nothing on round 2", () => {
+  it("asks nothing when the user has already answered the full set", () => {
     const questions = selectClarifyingQuestions({
       requestedIds: ["q.surfaces.channels"],
       answers: normalizeAnswers({}),
       ideaText: "We want software",
       round: 2,
+      excludeIds: [
+        "q.surfaces.channels",
+        "q.context.starting_point",
+        "q.intake.payments",
+        "q.integrations.systems",
+        "q.users.groups",
+        "q.users.scale",
+        "q.quality.requirements",
+        "q.delivery.timing",
+      ],
     });
     expect(questions).toEqual([]);
   });
@@ -206,11 +232,43 @@ describe("clarifying questions", () => {
       expect.arrayContaining([
         "q.surfaces.channels",
         "q.context.starting_point",
+        "q.integrations.systems",
+        "q.delivery.timing",
       ]),
     );
   });
 
-  it("skips OpenAI ids the user already answered", () => {
+  it("pre-selects inferred answers without dropping the question", () => {
+    const questions = selectClarifyingQuestions({
+      answers: normalizeAnswers({
+        surfaces: ["surface.customer_portal"],
+        integrations: ["integration.payment_gateway"],
+        timing: "timing.over_12_months",
+      }),
+      ideaText: RICH_PORTAL,
+      round: 0,
+    });
+    const selections = selectionsFromAnswers(
+      normalizeAnswers({
+        surfaces: ["surface.customer_portal"],
+        integrations: ["integration.payment_gateway"],
+        timing: "timing.over_12_months",
+        capabilities: ["cap.payments.recurring"],
+      }),
+      questions,
+    );
+    expect(selections["q.surfaces.channels"]).toEqual(["surface.customer_portal"]);
+    expect(selections["q.integrations.systems"]).toEqual([
+      "integration.payment_gateway",
+    ]);
+    expect(selections["q.intake.payments"]).toEqual(["pay.recurring"]);
+    expect(selections["q.delivery.timing"]).toEqual(["timing.over_12_months"]);
+    expect(questions.map((question) => question.id)).toContain(
+      "q.surfaces.channels",
+    );
+  });
+
+  it("skips questions the user already answered", () => {
     const questions = selectClarifyingQuestions({
       requestedIds: ["q.surfaces.channels", "q.users.groups"],
       answers: normalizeAnswers({
@@ -242,7 +300,14 @@ describe("keyword fallback", () => {
       normalizeAnswers(draft.answers),
       RICH_PORTAL,
     );
-    expect(draft.status).not.toBe("website_handoff");
+    expect(draft.status).toBe("needs_clarification");
+    expect(draft.clarifyingQuestionIds).toEqual(
+      expect.arrayContaining([
+        "q.surfaces.channels",
+        "q.integrations.systems",
+        "q.delivery.timing",
+      ]),
+    );
     expect(answers.route).not.toBe("route.website");
     expect(JSON.stringify(draft.concept)).not.toMatch(/\bZAR\b|\bR\d/);
   });
@@ -253,6 +318,22 @@ describe("runIntake", () => {
     const prompt = buildIntakeSystemPrompt();
     expect(prompt).toContain("Never invent prices");
     expect(prompt).not.toContain("budgetBand");
+  });
+
+  it("still asks every planning question after a rich description", async () => {
+    const result = await runIntake(
+      { ideaText: RICH_PORTAL },
+      {
+        completeJson: async () => validAiPayload(),
+      },
+    );
+    const ids = result.clarifyingQuestions.map((question) => question.id);
+    expect(result.status).toBe("needs_clarification");
+    expect(ids).toContain("q.surfaces.channels");
+    expect(ids).toContain("q.integrations.systems");
+    expect(ids).toContain("q.delivery.timing");
+    expect(result.answers.capabilities).toContain("cap.payments.recurring");
+    expect(result.answers.capabilities).not.toContain("cap.invented.thing");
   });
 
   it("returns website_handoff when the model classifies a marketing site", async () => {
@@ -281,7 +362,7 @@ describe("runIntake", () => {
     expect(result.clarifyingQuestions).toEqual([]);
   });
 
-  it("strips illegal IDs from model output and stays ready for a rich description", async () => {
+  it("strips illegal IDs from model output without skipping planning questions", async () => {
     const result = await runIntake(
       { ideaText: RICH_PORTAL },
       {
@@ -298,13 +379,15 @@ describe("runIntake", () => {
           }),
       },
     );
-    expect(result.status).toBe("ready");
+    expect(result.status).toBe("needs_clarification");
     expect(result.answers.capabilities).toContain("cap.payments.recurring");
     expect(result.answers.capabilities).not.toContain("cap.invented.thing");
-    expect(result.clarifyingQuestions.length).toBe(0);
+    expect(result.clarifyingQuestions.map((question) => question.id)).toContain(
+      "q.surfaces.channels",
+    );
   });
 
-  it("caps follow-ups at three and then forces ready on round 2", async () => {
+  it("asks the full question set, then is ready after those answers", async () => {
     const first = await runIntake(
       { ideaText: "We want an app for our business." },
       {
@@ -322,16 +405,26 @@ describe("runIntake", () => {
       },
     );
     expect(first.status).toBe("needs_clarification");
-    expect(first.clarifyingQuestions.length).toBeLessThanOrEqual(3);
+    expect(first.clarifyingQuestions.map((question) => question.id)).toEqual(
+      expect.arrayContaining([
+        "q.surfaces.channels",
+        "q.integrations.systems",
+        "q.delivery.timing",
+      ]),
+    );
 
     const second = await runIntake(
       {
         ideaText: "We want an app for our business.",
-        round: 2,
+        round: 1,
         previousAnswers: first.answers,
+        askedQuestionIds: first.clarifyingQuestions.map((question) => question.id),
         clarifications: first.clarifyingQuestions.map((question) => ({
           questionId: question.id,
-          values: ["not_sure"],
+          values:
+            question.id === "q.delivery.timing"
+              ? ["timing.3_to_6_months"]
+              : ["not_sure"],
         })),
       },
       {
@@ -344,6 +437,7 @@ describe("runIntake", () => {
     );
     expect(second.status).toBe("ready");
     expect(second.clarifyingQuestions).toEqual([]);
+    expect(second.answers.timing).toBe("timing.3_to_6_months");
   });
 
   it("does not re-ask a question after the user chooses I’m not sure yet", async () => {
@@ -576,6 +670,25 @@ describe("intake request schema", () => {
         "I need an app where fishermen can upload a photo of each fish they catch along with extra information.",
       round: 0,
       previousAnswers: null,
+    });
+    expect(parsed.success).toBe(true);
+  });
+
+  it("accepts the full planning-question set as clarifications", () => {
+    const parsed = intakeRequestSchema.safeParse({
+      ideaText:
+        "I need an app where fishermen can upload a photo of each fish they catch along with extra information.",
+      round: 1,
+      clarifications: [
+        { questionId: "q.surfaces.channels", values: ["surface.native_mobile"] },
+        { questionId: "q.context.starting_point", values: ["start.new_idea"] },
+        { questionId: "q.intake.payments", values: ["pay.none"] },
+        { questionId: "q.integrations.systems", values: ["integration.none"] },
+        { questionId: "q.users.groups", values: ["users.customers"] },
+        { questionId: "q.users.scale", values: ["scale.under_100"] },
+        { questionId: "q.quality.requirements", values: ["quality.none"] },
+        { questionId: "q.delivery.timing", values: ["timing.3_to_6_months"] },
+      ],
     });
     expect(parsed.success).toBe(true);
   });

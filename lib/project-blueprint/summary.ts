@@ -57,10 +57,10 @@ const LABELS: Record<string, string> = {
   "level.not_sure": "product level still open",
 
   "timing.no_deadline": "no fixed deadline",
-  "timing.within_3_months": "within three months",
-  "timing.3_to_6_months": "three to six months",
-  "timing.6_to_12_months": "six to twelve months",
-  "timing.over_12_months": "more than twelve months",
+  "timing.within_3_months": "1–3 months",
+  "timing.3_to_6_months": "3–6 months",
+  "timing.6_to_12_months": "6–12 months",
+  "timing.over_12_months": "12+ months",
   "timing.date_required": "a fixed commercial or regulatory date",
   "timing.not_sure": "timing still open",
 

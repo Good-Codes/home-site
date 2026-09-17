@@ -13,6 +13,7 @@ export {
   applyClarifications,
   inferGapQuestionIds,
   selectClarifyingQuestions,
+  selectionsFromAnswers,
 } from "./whitelist";
 export {
   fillDefaultsAndUnknowns,

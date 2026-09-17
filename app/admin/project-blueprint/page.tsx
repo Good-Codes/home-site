@@ -61,8 +61,7 @@ export default function AdminEstimateInboxPage() {
           Estimate inbox
         </h1>
         <p className="max-w-2xl text-sm leading-6 text-neutral-600 dark:text-neutral-300">
-          Review planning estimates, open risk flags, and start a human quotation
-          when the client is ready.
+          Review planning estimates and open risk flags.
         </p>
       </header>
 
