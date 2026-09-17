@@ -40,6 +40,7 @@ export async function GET(_request: Request, context: RouteContext) {
               select: PROFILE_SELECT,
             },
             clientSnapshot: true,
+            creatorAccountDeletedAt: true,
             lead: {
               select: {
                 name: true,
@@ -125,6 +126,7 @@ export async function GET(_request: Request, context: RouteContext) {
         usingPlaceholderConfiguration: Boolean(
           publicResult.usingPlaceholderConfiguration,
         ),
+        creatorAccountDeleted: Boolean(row.estimate.creatorAccountDeletedAt),
         privateNotes: {
           discoveryRecommended: Boolean(row.isDiscoveryFirst),
           checksum: row.checksum,

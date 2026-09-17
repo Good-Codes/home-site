@@ -8,6 +8,7 @@ describe("oauthErrorMessage", () => {
     expect(oauthErrorMessage("oauth_denied")).toMatch(/isn’t available/i);
     expect(oauthErrorMessage("Configuration")).toMatch(/not configured/i);
     expect(oauthErrorMessage("OAuthCallback")).toMatch(/didn’t complete/i);
+    expect(oauthErrorMessage("account_locked")).toMatch(/locked/i);
   });
 
   it("ignores unrelated errors", () => {

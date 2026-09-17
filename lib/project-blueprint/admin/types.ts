@@ -10,6 +10,7 @@ export type AdminEstimateListItem = {
   nextStep: string;
   createdAt: string;
   usingPlaceholderConfiguration: boolean;
+  creatorAccountDeleted: boolean;
 };
 
 export type AdminEstimateDetail = {
@@ -46,6 +47,7 @@ export type AdminEstimateDetail = {
   publicResult: PublicEstimateResult;
   riskFlags: Array<{ id: string; title: string; explanation: string }>;
   usingPlaceholderConfiguration: boolean;
+  creatorAccountDeleted: boolean;
   /** Admin-only high-level flags — never includes rates. */
   privateNotes: {
     discoveryRecommended: boolean;

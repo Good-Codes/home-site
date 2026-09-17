@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { isDatabaseConfigured, prisma } from "@/lib/db";
+import { isAccountLocked } from "@/lib/auth/lock";
 import { requireAdmin } from "@/lib/project-blueprint/auth/admin";
 
 export const dynamic = "force-dynamic";
@@ -26,6 +27,7 @@ export async function GET() {
       name: true,
       role: true,
       isActive: true,
+      adminLocked: true,
       failedLoginCount: true,
       lockedUntil: true,
       createdAt: true,
@@ -39,6 +41,8 @@ export async function GET() {
       name: user.name,
       role: user.role,
       isActive: user.isActive,
+      adminLocked: user.adminLocked,
+      locked: isAccountLocked(user),
       failedLoginCount: user.failedLoginCount,
       lockedUntil: user.lockedUntil?.toISOString() ?? null,
       createdAt: user.createdAt.toISOString(),

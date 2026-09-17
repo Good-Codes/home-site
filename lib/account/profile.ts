@@ -187,6 +187,24 @@ export function isBlank(value: string | null | undefined): boolean {
   return !value?.trim();
 }
 
+/** Contact fields we prompt for after signup. Enums stay optional. */
+export const PROFILE_COMPLETION_FIELDS = [
+  "name",
+  "phone",
+  "organisation",
+] as const satisfies ReadonlyArray<keyof CustomerProfile>;
+
+export type ProfileCompletionFields = Pick<
+  CustomerProfile,
+  (typeof PROFILE_COMPLETION_FIELDS)[number]
+>;
+
+export function isCustomerProfileIncomplete(
+  profile: ProfileCompletionFields,
+): boolean {
+  return PROFILE_COMPLETION_FIELDS.some((field) => isBlank(profile[field]));
+}
+
 export function organisationDisplay(
   profileOrganisation: string | null | undefined,
   leadCompany: string | null | undefined,

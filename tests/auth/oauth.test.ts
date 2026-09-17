@@ -237,6 +237,17 @@ describe("upsertOAuthUser", () => {
     expect(prisma.oAuthAccount.create).not.toHaveBeenCalled();
   });
 
+  it("rejects an admin-locked linked user", async () => {
+    vi.mocked(prisma.oAuthAccount.findUnique).mockResolvedValue({
+      user: userRow({ adminLocked: true }),
+    } as never);
+
+    await expect(upsertOAuthUser(identity)).resolves.toEqual({
+      ok: false,
+      reason: "locked",
+    });
+  });
+
   it("retries as a link when create hits a unique conflict", async () => {
     vi.mocked(prisma.oAuthAccount.findUnique)
       .mockResolvedValueOnce(null as never)

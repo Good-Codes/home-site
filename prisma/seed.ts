@@ -28,6 +28,7 @@ async function main() {
         isActive: true,
         failedLoginCount: 0,
         lockedUntil: null,
+        adminLocked: false,
       },
     });
     console.info(`Updated bootstrap admin ${email}`);

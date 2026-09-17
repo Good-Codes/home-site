@@ -5,7 +5,7 @@ import { defaultPostLoginPath } from "./roles";
  */
 export function safeCallbackPath(
   next: string | null | undefined,
-  fallback = "/custom-software-estimator",
+  fallback = "/",
 ): string {
   if (!next) return fallback;
   const trimmed = next.trim();

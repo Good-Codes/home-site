@@ -9,7 +9,5 @@ export function isStaffRole(
 export function defaultPostLoginPath(
   role: AppRole | string | null | undefined,
 ): string {
-  return isStaffRole(role)
-    ? "/admin/project-blueprint"
-    : "/custom-software-estimator";
+  return isStaffRole(role) ? "/admin/project-blueprint" : "/";
 }

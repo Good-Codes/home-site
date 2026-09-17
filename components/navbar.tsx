@@ -47,6 +47,7 @@ export default function Navbar() {
                 sizes="(min-width: 768px) 50px, 50px"
                 className="h-full w-full object-contain"
                 priority
+                loading="eager"
               />
             )}
           </Link>

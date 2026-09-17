@@ -37,7 +37,7 @@ describe("DeleteAccountCard", () => {
       expect(fetch).toHaveBeenCalledWith("/api/account", { method: "DELETE" });
     });
     await vi.waitFor(() => {
-      expect(signOut).toHaveBeenCalledWith({ callbackUrl: "/" });
+      expect(signOut).toHaveBeenCalledWith({ callbackUrl: "/account-deleted" });
     });
   });
 });

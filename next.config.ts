@@ -31,6 +31,7 @@ const securityHeaders = [
 const nextConfig: NextConfig = {
   output: "standalone",
   allowedDevOrigins: ["127.0.0.1", "localhost"],
+  agentRules: false,
   serverExternalPackages: ["@prisma/client", "prisma", "bcryptjs", "puppeteer"],
   outputFileTracingIncludes: {
     "/api/account/estimates/[id]/pdf": [

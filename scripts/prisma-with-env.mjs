@@ -40,9 +40,9 @@ for (const [key, value] of Object.entries(fromFiles)) {
 }
 
 const args = process.argv.slice(2);
-const child = spawn("npx", ["prisma", ...args], {
+const prismaCli = resolve(process.cwd(), "node_modules/prisma/build/index.js");
+const child = spawn(process.execPath, [prismaCli, ...args], {
   stdio: "inherit",
-  shell: true,
   env: process.env,
 });
 

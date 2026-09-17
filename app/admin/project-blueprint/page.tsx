@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
+import { DeletedAccountNotice } from "@/components/admin/deleted-account-notice";
 import type { AdminEstimateListItem } from "@/lib/project-blueprint/admin/types";
 
 function formatDate(iso: string): string {
@@ -112,7 +113,14 @@ export default function AdminEstimateInboxPage() {
                       {statusLabel(row.status)}
                     </Link>
                   </td>
-                  <td className="px-4 py-3">{row.clientName ?? "—"}</td>
+                  <td className="px-4 py-3">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span>{row.clientName ?? "—"}</span>
+                      {row.creatorAccountDeleted ? (
+                        <DeletedAccountNotice compact />
+                      ) : null}
+                    </div>
+                  </td>
                   <td className="px-4 py-3">{row.organisation ?? "—"}</td>
                   <td className="px-4 py-3 font-medium">{row.rangeDisplay}</td>
                   <td className="px-4 py-3 capitalize">{row.confidence}</td>

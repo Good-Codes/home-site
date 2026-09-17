@@ -126,6 +126,7 @@ model User {
   passwordHash       String?
   role               UserRole          @default(CUSTOMER)
   isActive           Boolean           @default(true)
+  adminLocked        Boolean           @default(false)
   failedLoginCount   Int               @default(0)
   lockedUntil        DateTime?
   phone              String?
@@ -185,6 +186,7 @@ model Estimate {
   lastScreen       String?
   savedToProfileAt DateTime?
   clientSnapshot   Json?
+  creatorAccountDeletedAt DateTime?
   createdAt        DateTime       @default(now())
   updatedAt        DateTime       @updatedAt
 

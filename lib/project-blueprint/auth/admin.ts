@@ -3,6 +3,7 @@ import "server-only";
 import type { UserRole } from "@prisma/client";
 
 import { auth } from "@/auth";
+import { isAccountLocked } from "@/lib/auth/lock";
 import { isStaffRole } from "@/lib/auth/roles";
 import { isDatabaseConfigured, prisma } from "@/lib/db";
 
@@ -21,6 +22,34 @@ export async function requireUser(): Promise<
   if (!id) {
     return { ok: false, status: 401, error: "Authentication required." };
   }
+
+  if (isDatabaseConfigured()) {
+    const row = await prisma.user.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        role: true,
+        isActive: true,
+        adminLocked: true,
+        lockedUntil: true,
+      },
+    });
+    if (!row || !row.isActive || isAccountLocked(row)) {
+      return { ok: false, status: 401, error: "Authentication required." };
+    }
+    return {
+      ok: true,
+      user: {
+        id: row.id,
+        email: row.email,
+        name: row.name,
+        role: row.role,
+      },
+    };
+  }
+
   return {
     ok: true,
     user: {
@@ -66,9 +95,16 @@ export async function requireCustomer(): Promise<
       name: true,
       role: true,
       isActive: true,
+      adminLocked: true,
+      lockedUntil: true,
     },
   });
-  if (!row || !row.isActive || row.role !== "CUSTOMER") {
+  if (
+    !row ||
+    !row.isActive ||
+    row.role !== "CUSTOMER" ||
+    isAccountLocked(row)
+  ) {
     return { ok: false, status: 401, error: "Authentication required." };
   }
 
@@ -97,6 +133,27 @@ export async function requireAdmin(): Promise<
 
   if (!isStaffRole(session.user.role)) {
     return { ok: false, status: 403, error: "Admin access required." };
+  }
+
+  if (isDatabaseConfigured()) {
+    const row = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: {
+        id: true,
+        role: true,
+        isActive: true,
+        adminLocked: true,
+        lockedUntil: true,
+      },
+    });
+    if (
+      !row ||
+      !row.isActive ||
+      !isStaffRole(row.role) ||
+      isAccountLocked(row)
+    ) {
+      return { ok: false, status: 401, error: "Authentication required." };
+    }
   }
 
   return {

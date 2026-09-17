@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 
 import { BrandButton } from "@/components/project-blueprint/ui";
+import { DeletedAccountNotice } from "@/components/admin/deleted-account-notice";
 import type { AdminEstimateDetail } from "@/lib/project-blueprint/admin/types";
 import {
   formatEnumLabel,
@@ -100,6 +101,8 @@ export default function AdminEstimateDetailPage() {
           </BrandButton>
         </div>
       </div>
+
+      {estimate.creatorAccountDeleted ? <DeletedAccountNotice /> : null}
 
       {warning || estimate.usingPlaceholderConfiguration ? (
         <p

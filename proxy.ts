@@ -3,7 +3,8 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 import { authConfig } from "@/auth.config";
-import { isStaffRole } from "@/lib/auth/roles";
+import { isProtectedCustomerAccountPath } from "@/lib/account/paths";
+import { defaultPostLoginPath, isStaffRole } from "@/lib/auth/roles";
 import { safeCallbackPath } from "@/lib/auth/callback-url";
 
 const { auth } = NextAuth(authConfig);
@@ -24,9 +25,7 @@ export async function proxy(request: NextRequest) {
   const role = session?.user?.role;
 
   if ((path === "/login" || path === "/signup") && session?.user) {
-    const dest = isStaffRole(role)
-      ? "/admin/project-blueprint"
-      : "/custom-software-estimator";
+    const dest = defaultPostLoginPath(role);
     const next = request.nextUrl.searchParams.get("next");
     return NextResponse.redirect(new URL(safeCallbackPath(next, dest), request.url));
   }
@@ -54,7 +53,7 @@ export async function proxy(request: NextRequest) {
       const next = request.nextUrl.searchParams.get("next");
       loginUrl.searchParams.set(
         "next",
-        safeCallbackPath(next, "/custom-software-estimator"),
+        safeCallbackPath(next, "/"),
       );
       return NextResponse.redirect(loginUrl);
     }
@@ -70,7 +69,7 @@ export async function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
-  if (path.startsWith("/account")) {
+  if (isProtectedCustomerAccountPath(path)) {
     if (!session?.user) {
       const loginUrl = new URL("/login", request.url);
       loginUrl.searchParams.set("next", path);

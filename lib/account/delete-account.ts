@@ -93,6 +93,7 @@ export async function deleteCustomerAccount(userId: string): Promise<void> {
           userId: null,
           savedToProfileAt: null,
           clientSnapshot: snapshot as Prisma.InputJsonValue,
+          creatorAccountDeletedAt: new Date(),
         },
       });
     }

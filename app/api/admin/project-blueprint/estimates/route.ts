@@ -51,6 +51,7 @@ export async function GET() {
               },
             },
             clientSnapshot: true,
+            creatorAccountDeletedAt: true,
             lead: {
               select: {
                 name: true,
@@ -115,6 +116,7 @@ export async function GET() {
         usingPlaceholderConfiguration: Boolean(
           publicResult.usingPlaceholderConfiguration,
         ),
+        creatorAccountDeleted: Boolean(row.estimate.creatorAccountDeletedAt),
       };
     });
 

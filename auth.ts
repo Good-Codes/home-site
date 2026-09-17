@@ -104,9 +104,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
       const result = await upsertOAuthUser(extracted.identity);
       if (!result.ok) {
-        return result.reason === "email"
-          ? "/login?error=oauth_email"
-          : "/login?error=oauth_denied";
+        if (result.reason === "email") return "/login?error=oauth_email";
+        if (result.reason === "locked") return "/login?error=account_locked";
+        return "/login?error=oauth_denied";
       }
 
       return true;

@@ -25,8 +25,7 @@ export default async function LoginPage({
       </p>
       <h1 className="mt-3 text-3xl font-semibold tracking-tight">Sign in</h1>
       <p className="mt-2 text-sm leading-6 text-neutral-600 dark:text-neutral-400">
-        Use your account to open the custom software estimator or the staff
-        inbox.
+        Use your account to open the custom software estimator.
       </p>
       <div className="mt-8">
         <LoginForm
