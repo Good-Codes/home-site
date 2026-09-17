@@ -42,7 +42,7 @@ export default function Footer() {
           {/* Logo + copyright */}
           <div className="flex items-center gap-3">
             <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-full">
-              <Image src={logoSrc} alt="Good Code" fill className="object-cover" />
+              <Image src={logoSrc} alt="Good Code" fill sizes="40px" className="object-cover" />
             </div>
             <p className="text-xs text-neutral-500 dark:text-neutral-400">
               &copy; {new Date().getFullYear()} Good Code
@@ -84,6 +84,7 @@ export default function Footer() {
                 src={logoSrc}
                 alt="Good Code"
                 fill
+                sizes="80px"
                 className="object-cover"
                 priority={false}
               />

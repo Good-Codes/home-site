@@ -39,4 +39,4 @@ npm run db:seed
 npm run dev
 ```
 
-For that workflow, publish Postgres to the host (for example `127.0.0.1:5433:5432` on `db`) and keep `DATABASE_URL` on `127.0.0.1:5433`.
+Postgres is published to `127.0.0.1:5433` so host Next.js can share the Compose database. Keep `DATABASE_URL` on `127.0.0.1:5433`.

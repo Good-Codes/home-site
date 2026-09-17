@@ -1,11 +1,7 @@
 import { spawn } from "node:child_process";
-import { existsSync, readFileSync } from "node:fs";
+import { cpSync, existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
-/**
- * Prisma only auto-loads `.env`. Next.js also loads `.env.local`.
- * Merge both (local wins), without overriding variables already set in the shell.
- */
 function parseEnvFile(file) {
   const path = resolve(process.cwd(), file);
   if (!existsSync(path)) return {};
@@ -39,11 +35,28 @@ for (const [key, value] of Object.entries(fromFiles)) {
   }
 }
 
-const args = process.argv.slice(2);
-const prismaCli = resolve(process.cwd(), "node_modules/prisma/build/index.js");
-const child = spawn(process.execPath, [prismaCli, ...args], {
+const standaloneDir = resolve(process.cwd(), ".next/standalone");
+const serverJs = resolve(standaloneDir, "server.js");
+
+if (!existsSync(serverJs)) {
+  console.error("Missing .next/standalone/server.js. Run npm run build first.");
+  process.exit(1);
+}
+
+const staticSrc = resolve(process.cwd(), ".next/static");
+const staticDest = resolve(standaloneDir, ".next/static");
+if (existsSync(staticSrc)) {
+  cpSync(staticSrc, staticDest, { recursive: true });
+}
+
+const child = spawn(process.execPath, ["server.js"], {
+  cwd: standaloneDir,
   stdio: "inherit",
-  env: process.env,
+  env: {
+    ...process.env,
+    PORT: process.env.PORT ?? "3000",
+    HOSTNAME: process.env.HOSTNAME ?? "0.0.0.0",
+  },
 });
 
 child.on("exit", (code, signal) => {

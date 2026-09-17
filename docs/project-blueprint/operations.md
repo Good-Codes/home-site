@@ -51,7 +51,7 @@ docker compose up --build
 
 Open `http://127.0.0.1:3002`. The `web` service waits until Postgres is healthy, runs `prisma migrate deploy`, upserts the bootstrap admin when `BOOTSTRAP_ADMIN_PASSWORD` is at least 12 characters, then starts Next.js. Sign in with the `BOOTSTRAP_ADMIN_*` values from `.env`. If those are unset, the Compose defaults are `admin@goodcode.local` / `local-admin-change-me`. Change those before any shared or production deploy.
 
-Postgres stays on the Docker network (`db:5432`). The app container always uses `postgresql://homesite:homesite@db:5432/homesite`.
+Postgres stays on the Docker network (`db:5432`) and is also published to `127.0.0.1:5433` for host Next.js. The app container always uses `postgresql://homesite:homesite@db:5432/homesite`.
 
 ### Host Next.js (optional)
 
@@ -59,7 +59,7 @@ Postgres stays on the Docker network (`db:5432`). The app container always uses 
 docker compose up db -d
 ```
 
-Publish Postgres to the host if you need it (`127.0.0.1:5433:5432` on `db`), then point `.env.local` at:
+Point `.env.local` at:
 
 ```
 DATABASE_URL="postgresql://homesite:homesite@127.0.0.1:5433/homesite"
