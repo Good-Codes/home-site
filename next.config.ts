@@ -32,6 +32,12 @@ const nextConfig: NextConfig = {
   output: "standalone",
   allowedDevOrigins: ["127.0.0.1", "localhost"],
   serverExternalPackages: ["@prisma/client", "prisma", "bcryptjs", "puppeteer"],
+  outputFileTracingIncludes: {
+    "/api/account/estimates/[id]/pdf": [
+      "./lib/project-blueprint/document/fonts/**/*",
+      "./public/dark_mode_logo.png",
+    ],
+  },
   async headers() {
     return [
       {
