@@ -1,11 +1,14 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
 
 import { BrandButton } from "@/components/project-blueprint/ui";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PASSWORD_MIN_LENGTH } from "@/lib/auth/constants";
+import { isAccountLocked } from "@/lib/auth/lock";
 
 type AdminUserRow = {
   id: string;
@@ -13,6 +16,8 @@ type AdminUserRow = {
   name: string | null;
   role: string;
   isActive: boolean;
+  adminLocked?: boolean;
+  locked?: boolean;
   failedLoginCount: number;
   lockedUntil: string | null;
   createdAt: string;
@@ -30,12 +35,17 @@ function formatDate(iso: string): string {
   }
 }
 
-function isLocked(lockedUntil: string | null): boolean {
-  if (!lockedUntil) return false;
-  return new Date(lockedUntil).getTime() > Date.now();
+function userIsLocked(user: AdminUserRow): boolean {
+  if (typeof user.locked === "boolean") return user.locked;
+  return isAccountLocked({
+    adminLocked: user.adminLocked,
+    lockedUntil: user.lockedUntil,
+  });
 }
 
 export default function AdminUsersPage() {
+  const { data: session } = useSession();
+  const selfId = session?.user?.id;
   const [users, setUsers] = useState<AdminUserRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -124,6 +134,26 @@ export default function AdminUsersPage() {
     }
   };
 
+  const onLock = async (userId: string) => {
+    setMessage(null);
+    setError(null);
+    setBusyId(userId);
+    try {
+      const response = await fetch(`/api/admin/users/${userId}/lock`, {
+        method: "POST",
+      });
+      const data = (await response.json().catch(() => ({}))) as { error?: string };
+      if (!response.ok) {
+        setError(data.error || "Unable to lock that account.");
+        return;
+      }
+      await loadUsers();
+      setMessage("Account locked.");
+    } finally {
+      setBusyId(null);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <header className="space-y-2">
@@ -131,8 +161,8 @@ export default function AdminUsersPage() {
           Users
         </h1>
         <p className="max-w-2xl text-sm leading-6 text-neutral-600 dark:text-neutral-300">
-          Signed-up accounts. Set a new password or unlock an account after too
-          many failed sign-in attempts.
+          Signed-up accounts. Open a customer to see their estimates, set a
+          password, or lock and unlock sign-in.
         </p>
       </header>
 
@@ -169,16 +199,27 @@ export default function AdminUsersPage() {
             </thead>
             <tbody>
               {users.map((user) => {
-                const locked = isLocked(user.lockedUntil);
+                const locked = userIsLocked(user);
+                const isSelf = selfId === user.id;
+                const isCustomer = user.role === "CUSTOMER";
                 return (
                   <tr
                     key={user.id}
                     className="border-b border-neutral-100 last:border-0 dark:border-white/5"
                   >
                     <td className="px-4 py-3">
-                      <div className="font-medium text-neutral-900 dark:text-neutral-100">
-                        {user.email}
-                      </div>
+                      {isCustomer ? (
+                        <Link
+                          href={`/admin/users/${user.id}`}
+                          className="font-medium text-[#1f4f4a] underline-offset-4 hover:underline dark:text-[#9ed9d2]"
+                        >
+                          {user.email}
+                        </Link>
+                      ) : (
+                        <div className="font-medium text-neutral-900 dark:text-neutral-100">
+                          {user.email}
+                        </div>
+                      )}
                       {user.name ? (
                         <div className="text-xs text-neutral-500">{user.name}</div>
                       ) : null}
@@ -189,13 +230,13 @@ export default function AdminUsersPage() {
                     </td>
                     <td className="px-4 py-3">{user.failedLoginCount}</td>
                     <td className="px-4 py-3">
-                      {locked ? (
-                        <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-950 dark:bg-amber-500/20 dark:text-amber-100">
-                          Locked
-                        </span>
-                      ) : (
-                        "—"
-                      )}
+                        {locked ? (
+                          <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-800 dark:bg-red-500/20 dark:text-red-100">
+                            Locked
+                          </span>
+                        ) : (
+                          "—"
+                        )}
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex flex-wrap gap-2">
@@ -222,7 +263,16 @@ export default function AdminUsersPage() {
                           >
                             Unlock
                           </button>
-                        ) : null}
+                        ) : isSelf ? null : (
+                          <button
+                            type="button"
+                            className="text-sm font-medium text-[#1f4f4a] underline-offset-4 hover:underline disabled:opacity-60 dark:text-[#9ed9d2]"
+                            disabled={busyId === user.id}
+                            onClick={() => void onLock(user.id)}
+                          >
+                            Lock
+                          </button>
+                        )}
                       </div>
                       {passwordUserId === user.id ? (
                         <form

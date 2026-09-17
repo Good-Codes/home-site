@@ -8,6 +8,8 @@ export function oauthErrorMessage(error: string | null | undefined): string | nu
     case "oauth_denied":
     case "AccessDenied":
       return "That sign-in method isn’t available for this account.";
+    case "account_locked":
+      return "This account is locked. Contact Good Code if you need it reopened.";
     case "Configuration":
       return "Social sign-in is not configured correctly.";
     case "OAuthSignin":

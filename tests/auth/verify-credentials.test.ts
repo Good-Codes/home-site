@@ -27,6 +27,7 @@ function userRow(overrides: Record<string, unknown> = {}) {
     isActive: true,
     failedLoginCount: 0,
     lockedUntil: null,
+    adminLocked: false,
     passwordHash: "",
     ...overrides,
   };
@@ -105,6 +106,22 @@ describe("verifyCredentials", () => {
         passwordHash,
         failedLoginCount: LOGIN_LOCKOUT_MAX_ATTEMPTS,
         lockedUntil: new Date(Date.now() + 60_000),
+      }) as never,
+    );
+
+    await expect(verifyCredentials("ada@example.com", PASSWORD)).resolves.toEqual({
+      ok: false,
+      reason: "locked",
+    });
+    expect(prisma.user.update).not.toHaveBeenCalled();
+  });
+
+  it("rejects an admin-locked account even with the right password", async () => {
+    const passwordHash = await hashPassword(PASSWORD);
+    vi.mocked(prisma.user.findUnique).mockResolvedValue(
+      userRow({
+        passwordHash,
+        adminLocked: true,
       }) as never,
     );
 

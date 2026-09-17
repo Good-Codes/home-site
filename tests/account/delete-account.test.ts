@@ -86,6 +86,7 @@ describe("deleteCustomerAccount", () => {
             email: "ada@example.com",
             organisation: "Acme",
           }),
+          creatorAccountDeletedAt: expect.any(Date),
         }),
       }),
     );

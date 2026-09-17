@@ -48,7 +48,7 @@ export function LoginForm({
           result?.error === "account_locked";
         setError(
           locked
-            ? "This account is temporarily locked. Try again in a few minutes."
+            ? "This account is locked. Try again later, or contact Good Code if you need it reopened."
             : "Invalid email or password.",
         );
         return;

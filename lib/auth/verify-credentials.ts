@@ -8,6 +8,7 @@ import {
   LOGIN_LOCKOUT_MAX_ATTEMPTS,
   LOGIN_LOCKOUT_MS,
 } from "./constants";
+import { isAccountLocked } from "./lock";
 import { comparePassword } from "./password";
 
 export type VerifiedUser = {
@@ -45,6 +46,7 @@ export async function verifyCredentials(
       passwordHash: true,
       failedLoginCount: true,
       lockedUntil: true,
+      adminLocked: true,
     },
   });
 
@@ -57,7 +59,7 @@ export async function verifyCredentials(
   }
 
   const now = new Date();
-  if (user.lockedUntil && user.lockedUntil.getTime() > now.getTime()) {
+  if (isAccountLocked(user)) {
     return { ok: false, reason: "locked" };
   }
 

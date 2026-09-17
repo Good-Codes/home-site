@@ -3,6 +3,7 @@ import "server-only";
 import { UserRole } from "@prisma/client";
 
 import { isDatabaseConfigured, prisma } from "@/lib/db";
+import { isAccountLocked } from "@/lib/auth/lock";
 import { sanitizePersonName } from "@/lib/security/text";
 
 export type OAuthIdentity = {
@@ -22,7 +23,7 @@ export type OAuthUser = {
 
 export type UpsertOAuthResult =
   | { ok: true; user: OAuthUser }
-  | { ok: false; reason: "email" | "inactive" | "unavailable" };
+  | { ok: false; reason: "email" | "inactive" | "locked" | "unavailable" };
 
 export type ExtractOAuthResult =
   | { ok: true; identity: OAuthIdentity }
@@ -34,6 +35,8 @@ const USER_SELECT = {
   name: true,
   role: true,
   isActive: true,
+  adminLocked: true,
+  lockedUntil: true,
 } as const;
 
 function isUniqueConflict(error: unknown): boolean {
@@ -146,6 +149,9 @@ async function loadLinkedUser(
   if (!existingAccount.user.isActive) {
     return { ok: false, reason: "inactive" };
   }
+  if (isAccountLocked(existingAccount.user)) {
+    return { ok: false, reason: "locked" };
+  }
   return {
     ok: true,
     user: {
@@ -164,11 +170,16 @@ async function linkExistingUser(
     name: string | null;
     role: UserRole;
     isActive: boolean;
+    adminLocked: boolean;
+    lockedUntil: Date | null;
   },
   identity: OAuthIdentity,
 ): Promise<UpsertOAuthResult> {
   if (!user.isActive) {
     return { ok: false, reason: "inactive" };
+  }
+  if (isAccountLocked(user)) {
+    return { ok: false, reason: "locked" };
   }
 
   try {
