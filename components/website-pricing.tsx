@@ -6,6 +6,7 @@ import {
   Check,
   Clock3,
   CreditCard,
+  Globe,
   HelpCircle,
   LifeBuoy,
   Plus,
@@ -208,55 +209,72 @@ export default function WebsitePricing() {
             Choose the right pricing path
           </h1>
           <p className="mx-auto mt-6 max-w-3xl text-base leading-7 text-neutral-600 dark:text-neutral-300 sm:text-lg">
-            Marketing websites follow clear packages. Custom products need a
-            planning estimate before a specialist quotation.
+            Two different ways to get a number. Estimate a custom product with
+            AI, or open the fixed packages we use for web development.
           </p>
 
-          <div className="mx-auto mt-12 grid max-w-4xl gap-4 text-left sm:grid-cols-2">
-            <a
-              href="#packages"
-              className="rounded-lg border border-neutral-200 bg-white p-6 shadow-sm shadow-neutral-950/[0.03] transition hover:-translate-y-0.5 hover:border-[#67AFA7]/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#67AFA7] dark:border-white/10 dark:bg-white/[0.04] dark:shadow-black/20"
-            >
-              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#2f6f69] dark:text-[#9ed9d2]">
-                Option A
-              </p>
-              <h2 className="mt-3 text-xl font-semibold text-neutral-900 dark:text-neutral-100">
-                I need a business website
-              </h2>
-              <p className="mt-3 text-sm leading-6 text-neutral-600 dark:text-neutral-300">
-                For marketing sites, brochure websites, landing pages, blogs,
-                and standard business enquiries.
-              </p>
-              <span className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-[#2f6f69] dark:text-[#9ed9d2]">
-                Continue to website packages
-                <ArrowRight className="h-4 w-4" aria-hidden />
-              </span>
-            </a>
-
+          <div className="mx-auto mt-12 grid max-w-5xl gap-6 text-left lg:grid-cols-2">
             <Link
               href="/custom-software-estimator"
-              className="rounded-lg border border-[#67AFA7]/70 bg-white p-6 shadow-sm shadow-neutral-950/[0.03] ring-1 ring-[#67AFA7]/20 transition hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#67AFA7] dark:bg-white/[0.04] dark:shadow-black/20"
+              className="group relative flex flex-col overflow-hidden rounded-xl border-2 border-[#67AFA7] bg-[#67AFA7]/8 p-7 shadow-sm shadow-[#67AFA7]/10 transition hover:-translate-y-0.5 hover:bg-[#67AFA7]/12 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#67AFA7] dark:bg-[#67AFA7]/10 dark:hover:bg-[#67AFA7]/15 sm:p-8"
             >
-              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#2f6f69] dark:text-[#9ed9d2]">
-                Option B
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-[#67AFA7] text-white">
+                  <Sparkles className="h-6 w-6" aria-hidden />
+                </div>
+                <span className="rounded-full bg-[#67AFA7] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-white">
+                  AI-powered
+                </span>
+              </div>
+              <p className="mt-6 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#2f6f69] dark:text-[#9ed9d2]">
+                Custom software
               </p>
-              <h2 className="mt-3 text-xl font-semibold text-neutral-900 dark:text-neutral-100">
-                I need a custom product or system
+              <h2 className="mt-2 text-2xl font-semibold text-neutral-900 dark:text-neutral-100">
+                Get an AI-powered cost estimate
               </h2>
-              <p className="mt-3 text-sm leading-6 text-neutral-600 dark:text-neutral-300">
-                For platforms, portals, mobile apps, workflows, integrations,
-                payments, data products, and cloud systems. Describe the idea
-                and get a planning range.
+              <p className="mt-3 flex-1 text-sm leading-6 text-neutral-700 dark:text-neutral-200">
+                Building a platform, mobile app, portal, or custom system?
+                Describe the idea and receive a planning range and delivery
+                window — not a generic website package.
               </p>
-              <span className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-[#2f6f69] dark:text-[#9ed9d2]">
-                Describe your idea
-                <ArrowRight className="h-4 w-4" aria-hidden />
+              <span className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-[#2f6f69] dark:text-[#9ed9d2]">
+                Start an estimate
+                <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" aria-hidden />
               </span>
             </Link>
+
+            <a
+              href="#packages"
+              className="group relative flex flex-col overflow-hidden rounded-xl border-2 border-neutral-300 bg-neutral-50 p-7 shadow-sm shadow-neutral-950/[0.04] transition hover:-translate-y-0.5 hover:border-neutral-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#67AFA7] dark:border-white/20 dark:bg-white/[0.03] dark:hover:border-white/30 sm:p-8"
+            >
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex h-12 w-12 items-center justify-center rounded-lg border border-neutral-200 bg-white text-neutral-700 dark:border-white/10 dark:bg-white/[0.06] dark:text-neutral-200">
+                  <Globe className="h-6 w-6" aria-hidden />
+                </div>
+                <span className="rounded-full border border-neutral-300 bg-white px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-neutral-700 dark:border-white/15 dark:bg-white/[0.06] dark:text-neutral-200">
+                  Fixed packages
+                </span>
+              </div>
+              <p className="mt-6 text-[11px] font-semibold uppercase tracking-[0.18em] text-neutral-500 dark:text-neutral-400">
+                Web development
+              </p>
+              <h2 className="mt-2 text-2xl font-semibold text-neutral-900 dark:text-neutral-100">
+                View our website pricing models
+              </h2>
+              <p className="mt-3 flex-1 text-sm leading-6 text-neutral-600 dark:text-neutral-300">
+                Marketing sites, brochure websites, and landing pages use clear
+                packages from R3,950. Compare Starter, Business, and Business
+                Plus, then choose the scope that fits.
+              </p>
+              <span className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-neutral-800 dark:text-neutral-100">
+                View website packages
+                <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" aria-hidden />
+              </span>
+            </a>
           </div>
 
           <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
-            <BrandButton href={quoteHref()}>Get a quote</BrandButton>
+            <BrandButton href={quoteHref()}>Get in Touch</BrandButton>
             <BrandButton href="#packages" variant="outline">
               Compare packages
             </BrandButton>
@@ -284,7 +302,7 @@ export default function WebsitePricing() {
         </div>
       </section>
 
-      <section id="packages" className="bg-white py-20 dark:bg-neutral-950 sm:py-24">
+      <section id="packages" className="scroll-mt-28 bg-white py-20 dark:bg-neutral-950 sm:py-24">
         <div className="container mx-auto max-w-7xl px-6">
           <SectionHeading
             eyebrow="Packages"
@@ -348,7 +366,7 @@ export default function WebsitePricing() {
                       className="mt-8 w-full"
                       variant={featured ? "solid" : "outline"}
                     >
-                      Get a quote
+                      Get in Touch
                     </BrandButton>
                   </CardContent>
                 </Card>
@@ -593,7 +611,7 @@ export default function WebsitePricing() {
           </p>
           <div className="mt-8 flex justify-center">
             <BrandButton href={quoteHref()} className="group">
-              Get a quote
+              Get in Touch
               <ArrowRight
                 className="h-4 w-4 transition group-hover:translate-x-0.5"
                 aria-hidden

@@ -11,7 +11,7 @@ import Services from "@/components/services";
 export const metadata: Metadata = {
   title: "Home",
   description:
-    "Good Code builds web, mobile, and cloud solutions for startups and enterprises in South Africa. Explore our services and get a free quote.",
+    "Good Code builds web, mobile, and cloud solutions for startups and enterprises in South Africa. Explore our services and view pricing.",
 };
 
 export default function Page() {
