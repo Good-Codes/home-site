@@ -4,7 +4,11 @@
 
 import { z } from "zod";
 
+import { IDEA_TEXT_MAX, sanitizePlainText } from "@/lib/security/text";
+
 import type { ProjectBlueprintAnswers, UnknownChoice } from "./types";
+
+export { IDEA_TEXT_MAX };
 
 const unknownChoiceSchema = z.enum([
   "not_sure",
@@ -192,7 +196,7 @@ const deadlineConflictSchema = z
   .optional();
 
 export const projectBlueprintAnswersSchema = z.object({
-  ideaText: z.string().nullable().optional(),
+  ideaText: z.string().max(IDEA_TEXT_MAX).nullable().optional(),
   confirmedSuggestions: stringListSchema.optional(),
 
   route: z.string().nullable().optional(),
@@ -243,6 +247,16 @@ export const projectBlueprintAnswersSchema = z.object({
 export type ProjectBlueprintAnswersInput = z.input<typeof projectBlueprintAnswersSchema>;
 export type ProjectBlueprintAnswersParsed = z.output<typeof projectBlueprintAnswersSchema>;
 
+function normalizeIdeaText(value: string | null | undefined): string | null {
+  if (value == null) return null;
+  const cleaned = sanitizePlainText(value, {
+    maxLength: IDEA_TEXT_MAX,
+    keepNewlines: true,
+    collapseWhitespace: true,
+  });
+  return cleaned.length ? cleaned : null;
+}
+
 function uniqueStrings(values: string[] | undefined): string[] {
   if (!values?.length) return [];
   return [...new Set(values.map((v) => v.trim()).filter(Boolean))];
@@ -268,7 +282,7 @@ export function normalizeAnswers(
 
   return {
     ...parsed,
-    ideaText: parsed.ideaText?.trim() ? parsed.ideaText.trim() : parsed.ideaText ?? null,
+    ideaText: normalizeIdeaText(parsed.ideaText),
     confirmedSuggestions: uniqueStrings(parsed.confirmedSuggestions),
     route: parsed.route?.trim() || null,
     startingPoint: parsed.startingPoint?.trim() || null,

@@ -10,12 +10,22 @@ import {
   clientKeyFromRequest,
 } from "@/lib/auth/rate-limit";
 import { RegisterError, registerCustomer } from "@/lib/auth/register";
+import { sanitizePersonName } from "@/lib/security/text";
 
 export const dynamic = "force-dynamic";
 
 const bodySchema = z.object({
   email: z.string().trim().email().max(254),
-  name: z.string().trim().max(120).optional(),
+  name: z
+    .string()
+    .trim()
+    .max(120)
+    .optional()
+    .transform((value) => {
+      if (!value) return undefined;
+      const name = sanitizePersonName(value);
+      return name.length ? name : undefined;
+    }),
   password: z.string().min(PASSWORD_MIN_LENGTH).max(200),
   confirmPassword: z.string().min(PASSWORD_MIN_LENGTH).max(200),
   role: z.unknown().optional(),

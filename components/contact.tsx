@@ -36,6 +36,7 @@ export default function Contact({
     email: "",
     phone: "",
     details: "",
+    website: "",
   });
   const [estimateId, setEstimateId] = useState(
     useAccountForm ? savedEstimates[0]?.id ?? CONTACT_NO_ESTIMATE : CONTACT_NO_ESTIMATE,
@@ -95,6 +96,7 @@ export default function Contact({
       ? {
           estimateId,
           details: describeNewProject ? formData.details : "",
+          website: formData.website,
         }
       : formData;
 
@@ -112,7 +114,7 @@ export default function Contact({
       }
 
       setStatus("success");
-      setFormData({ name: "", email: "", phone: "", details: "" });
+      setFormData({ name: "", email: "", phone: "", details: "", website: "" });
       router.push("/thank-you");
     } catch (error: unknown) {
       setStatus("error");
@@ -153,12 +155,27 @@ export default function Contact({
 
         <motion.form
           onSubmit={handleSubmit}
-          className="mx-auto mt-12 grid max-w-3xl gap-6 rounded-lg border border-neutral-200 bg-white p-6 shadow-sm shadow-neutral-950/[0.03] dark:border-white/10 dark:bg-white/[0.04] dark:shadow-black/20 md:grid-cols-2 md:p-8"
+          className="relative mx-auto mt-12 grid max-w-3xl gap-6 rounded-lg border border-neutral-200 bg-white p-6 shadow-sm shadow-neutral-950/[0.03] dark:border-white/10 dark:bg-white/[0.04] dark:shadow-black/20 md:grid-cols-2 md:p-8"
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
         >
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute -left-[10000px] h-0 w-0 overflow-hidden"
+          >
+            <label htmlFor="website">Website</label>
+            <input
+              id="website"
+              name="website"
+              type="text"
+              tabIndex={-1}
+              autoComplete="off"
+              value={formData.website}
+              onChange={handleChange}
+            />
+          </div>
           {useAccountForm ? (
             <motion.div variants={fieldVariants} className="flex flex-col text-left md:col-span-2">
               <Label htmlFor="estimateId">Saved estimate *</Label>

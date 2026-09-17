@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
-import type { AdminEstimateListItem } from "@/lib/project-blueprint/admin/demo-data";
+import type { AdminEstimateListItem } from "@/lib/project-blueprint/admin/types";
 
 function formatDate(iso: string): string {
   try {

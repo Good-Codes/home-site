@@ -1,0 +1,15 @@
+-- AlterTable
+ALTER TABLE "Estimate" DROP CONSTRAINT "Estimate_userId_fkey";
+
+ALTER TABLE "Estimate" ALTER COLUMN "userId" DROP NOT NULL;
+
+ALTER TABLE "Estimate" ADD COLUMN "clientSnapshot" JSONB;
+
+ALTER TABLE "Estimate" ADD CONSTRAINT "Estimate_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AlterTable
+ALTER TABLE "Lead" DROP CONSTRAINT "Lead_userId_fkey";
+
+ALTER TABLE "Lead" ALTER COLUMN "userId" DROP NOT NULL;
+
+ALTER TABLE "Lead" ADD CONSTRAINT "Lead_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;

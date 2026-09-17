@@ -200,6 +200,7 @@ export function CustomerProfileForm() {
             id="profile-name"
             name="name"
             autoComplete="name"
+            maxLength={120}
             value={form.name ?? ""}
             onChange={(event) =>
               setForm((current) => ({ ...current, name: event.target.value }))
@@ -213,6 +214,7 @@ export function CustomerProfileForm() {
             name="phone"
             type="tel"
             autoComplete="tel"
+            maxLength={40}
             value={form.phone ?? ""}
             onChange={(event) =>
               setForm((current) => ({ ...current, phone: event.target.value }))
@@ -245,6 +247,7 @@ export function CustomerProfileForm() {
             id="profile-organisation"
             name="organisation"
             autoComplete="organization"
+            maxLength={160}
             value={form.organisation ?? ""}
             onChange={(event) =>
               setForm((current) => ({
@@ -260,6 +263,7 @@ export function CustomerProfileForm() {
             id="profile-job-title"
             name="jobTitle"
             autoComplete="organization-title"
+            maxLength={120}
             value={form.jobTitle ?? ""}
             onChange={(event) =>
               setForm((current) => ({
@@ -278,6 +282,7 @@ export function CustomerProfileForm() {
             id="profile-city"
             name="city"
             autoComplete="address-level2"
+            maxLength={80}
             value={form.city ?? ""}
             onChange={(event) =>
               setForm((current) => ({ ...current, city: event.target.value }))

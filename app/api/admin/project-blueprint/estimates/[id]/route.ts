@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server";
 
-import { adminClientFromUserAndLead, PROFILE_SELECT } from "@/lib/account/profile";
+import { adminClientFromUserAndLead, parseClientSnapshot, PROFILE_SELECT } from "@/lib/account/profile";
 import { isDatabaseConfigured, prisma } from "@/lib/db";
-import { getDemoEstimateDetail } from "@/lib/project-blueprint/admin/demo-data";
 import { requireAdmin } from "@/lib/project-blueprint/auth/admin";
 import { buildReviewSummary } from "@/lib/project-blueprint/summary";
 import { normalizeAnswers } from "@/lib/project-blueprint/answers";
@@ -22,15 +21,10 @@ export async function GET(_request: Request, context: RouteContext) {
   }
 
   if (!isDatabaseConfigured()) {
-    const demo = getDemoEstimateDetail(id);
-    if (!demo) {
-      return NextResponse.json({ error: "Estimate not found." }, { status: 404 });
-    }
-    return NextResponse.json({
-      estimate: demo,
-      demo: true,
-      warning: "Database unset. Showing demo estimate detail.",
-    });
+    return NextResponse.json(
+      { error: "Database is not configured." },
+      { status: 503 },
+    );
   }
 
   try {
@@ -45,6 +39,7 @@ export async function GET(_request: Request, context: RouteContext) {
             user: {
               select: PROFILE_SELECT,
             },
+            clientSnapshot: true,
             lead: {
               select: {
                 name: true,
@@ -108,7 +103,11 @@ export async function GET(_request: Request, context: RouteContext) {
         id: row.id,
         status: row.estimate.status.toLowerCase(),
         createdAt: row.createdAt.toISOString(),
-        client: adminClientFromUserAndLead(user, lead),
+        client: adminClientFromUserAndLead(
+          user,
+          lead,
+          parseClientSnapshot(row.estimate.clientSnapshot),
+        ),
         concept,
         answersSummary: {
           headline:

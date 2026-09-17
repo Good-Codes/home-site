@@ -73,7 +73,10 @@ describe("POST /api/contact", () => {
     const response = await POST(
       new Request("http://localhost/api/contact", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Origin: "http://localhost",
+        },
         body: JSON.stringify({ estimateId: enquiry.estimate.referenceId }),
       }),
     );
@@ -98,12 +101,69 @@ describe("POST /api/contact", () => {
     const response = await POST(
       new Request("http://localhost/api/contact", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Origin: "http://localhost",
+        },
         body: JSON.stringify({}),
       }),
     );
 
     expect(response.status).toBe(400);
     expect(sendContactEnquiryEmail).not.toHaveBeenCalled();
+  });
+
+  it("rejects a cross-origin post", async () => {
+    const response = await POST(
+      new Request("http://localhost/api/contact", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Origin: "https://evil.example",
+        },
+        body: JSON.stringify({}),
+      }),
+    );
+    expect(response.status).toBe(403);
+    expect(sendContactEnquiryEmail).not.toHaveBeenCalled();
+    expect(resolveContactEnquiry).not.toHaveBeenCalled();
+  });
+
+  it("returns 429 with Retry-After when the client is rate limited", async () => {
+    vi.mocked(checkAuthRateLimit).mockReturnValue(false);
+    const response = await POST(
+      new Request("http://localhost/api/contact", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Origin: "http://localhost",
+        },
+        body: JSON.stringify({ name: "Ada" }),
+      }),
+    );
+    expect(response.status).toBe(429);
+    expect(response.headers.get("Retry-After")).toBe("900");
+    expect(sendContactEnquiryEmail).not.toHaveBeenCalled();
+  });
+
+  it("accepts a honeypot fill without sending email", async () => {
+    const response = await POST(
+      new Request("http://localhost/api/contact", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Origin: "http://localhost",
+        },
+        body: JSON.stringify({
+          name: "Bot",
+          email: "bot@example.com",
+          details: "spam",
+          website: "https://spam.example",
+        }),
+      }),
+    );
+    expect(response.status).toBe(200);
+    expect(sendContactEnquiryEmail).not.toHaveBeenCalled();
+    expect(resolveContactEnquiry).not.toHaveBeenCalled();
   });
 });

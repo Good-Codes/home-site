@@ -2,8 +2,10 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { Prisma } from "@prisma/client";
 
+import { IDEA_TEXT_MAX } from "@/lib/project-blueprint/answers";
 import { requireUser } from "@/lib/project-blueprint/auth/admin";
 import { isDatabaseConfigured, prisma } from "@/lib/db";
+import { sanitizePlainText } from "@/lib/security/text";
 
 export const dynamic = "force-dynamic";
 
@@ -61,7 +63,23 @@ export async function PUT(request: Request) {
     );
   }
 
-  const answers = parsed.data.answers as Prisma.InputJsonValue;
+  const rawIdeaText = parsed.data.answers.ideaText;
+  if (typeof rawIdeaText === "string" && rawIdeaText.length > IDEA_TEXT_MAX) {
+    return NextResponse.json(
+      { error: "Project description is too long." },
+      { status: 400 },
+    );
+  }
+
+  const answersRecord = { ...parsed.data.answers };
+  if (typeof rawIdeaText === "string") {
+    answersRecord.ideaText = sanitizePlainText(rawIdeaText, {
+      maxLength: IDEA_TEXT_MAX,
+      keepNewlines: true,
+      collapseWhitespace: true,
+    });
+  }
+  const answers = answersRecord as Prisma.InputJsonValue;
   const concept =
     parsed.data.concept === undefined
       ? undefined

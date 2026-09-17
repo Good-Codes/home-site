@@ -1,12 +1,9 @@
 import { NextResponse } from "next/server";
 
-import { organisationDisplay } from "@/lib/account/profile";
+import { organisationDisplay, parseClientSnapshot } from "@/lib/account/profile";
 import { isDatabaseConfigured, prisma } from "@/lib/db";
 import { requireAdmin } from "@/lib/project-blueprint/auth/admin";
-import {
-  DEMO_ESTIMATE_LIST,
-  type AdminEstimateListItem,
-} from "@/lib/project-blueprint/admin/demo-data";
+import type { AdminEstimateListItem } from "@/lib/project-blueprint/admin/types";
 import { formatZarRange } from "@/lib/project-blueprint/format";
 import type { MoneyRange } from "@/lib/project-blueprint/types";
 
@@ -32,10 +29,9 @@ export async function GET() {
 
   if (!isDatabaseConfigured()) {
     return NextResponse.json({
-      estimates: DEMO_ESTIMATE_LIST,
+      estimates: [],
       usingPlaceholderConfiguration: true,
-      demo: true,
-      warning: "Database unset. Showing demo inbox data.",
+      warning: "Database is not configured.",
     });
   }
 
@@ -54,8 +50,10 @@ export async function GET() {
                 organisation: true,
               },
             },
+            clientSnapshot: true,
             lead: {
               select: {
+                name: true,
                 company: true,
               },
             },
@@ -80,14 +78,21 @@ export async function GET() {
             )
           : "early";
       const user = row.estimate.user;
-      const clientName = user.name?.trim() || user.email || null;
+      const snapshot = parseClientSnapshot(row.estimate.clientSnapshot);
+      const clientName =
+        user?.name?.trim() ||
+        snapshot?.name ||
+        row.estimate.lead?.name?.trim() ||
+        user?.email ||
+        snapshot?.email ||
+        null;
 
       return {
         id: row.id,
         status: row.estimate.status.toLowerCase(),
         clientName,
         organisation: organisationDisplay(
-          user.organisation,
+          user?.organisation ?? snapshot?.organisation,
           row.estimate.lead?.company,
         ),
         rangeDisplay: range

@@ -3,6 +3,7 @@ import "server-only";
 import { UserRole } from "@prisma/client";
 
 import { isDatabaseConfigured, prisma } from "@/lib/db";
+import { sanitizePersonName } from "@/lib/security/text";
 
 import { PASSWORD_MIN_LENGTH } from "./constants";
 import { hashPassword, isPasswordLongEnough } from "./password";
@@ -43,7 +44,7 @@ export async function registerCustomer(
   }
 
   const email = input.email.trim().toLowerCase();
-  const name = input.name?.trim() || null;
+  const name = input.name ? sanitizePersonName(input.name) || null : null;
 
   if (!email || !email.includes("@") || email.length > 254) {
     throw new RegisterError("Enter a valid email address.", "VALIDATION");

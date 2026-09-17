@@ -57,6 +57,14 @@ describe("Contact form", () => {
     expect(screen.queryByLabelText(/saved estimate/i)).toBeNull();
   });
 
+  it("includes a visually hidden honeypot field", () => {
+    render(<Contact savedEstimates={[]} />);
+    const honeypot = document.getElementById("website") as HTMLInputElement | null;
+    expect(honeypot).toBeTruthy();
+    expect(honeypot?.getAttribute("tabIndex")).toBe("-1");
+    expect(honeypot?.closest("[aria-hidden='true']")).toBeTruthy();
+  });
+
   it("hides contact fields and lists saved estimates for signed-in customers", () => {
     render(<Contact savedEstimates={savedEstimates} />);
     expect(screen.queryByLabelText(/^name/i)).toBeNull();

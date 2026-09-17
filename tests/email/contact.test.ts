@@ -101,6 +101,21 @@ describe("buildContactEnquiryEmail", () => {
     expect(email.text).toContain("We need a dealer portal.");
     expect(email.text).not.toContain("Reference:");
   });
+
+  it("HTML-encodes markup in the enquiry body", () => {
+    const email = buildContactEnquiryEmail({
+      name: "O'Brien",
+      email: "obrien@example.com",
+      phone: "",
+      details: `<script>alert("xss")</script>`,
+      fromAccount: false,
+      estimate: null,
+    });
+
+    expect(email.html).toContain("O&#039;Brien");
+    expect(email.html).toContain("&lt;script&gt;");
+    expect(email.html).not.toContain("<script>alert");
+  });
 });
 
 describe("estimateSnippetFromRecord", () => {
@@ -132,6 +147,32 @@ describe("resolveContactEnquiry", () => {
     if (result.success) {
       expect(result.data.fromAccount).toBe(false);
       expect(result.data.email).toBe("ada@example.com");
+    }
+  });
+
+  it("keeps apostrophes and accents in guest names", async () => {
+    const result = await resolveContactEnquiry(
+      { name: "José O'Brien", email: "jose@example.com", details: "A new app" },
+      null,
+    );
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.name).toBe("José O'Brien");
+    }
+  });
+
+  it("strips markup from guest names", async () => {
+    const result = await resolveContactEnquiry(
+      {
+        name: "Ada <script>alert(1)</script>",
+        email: "ada@example.com",
+        details: "A new app",
+      },
+      null,
+    );
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.name).toBe("Ada");
     }
   });
 
