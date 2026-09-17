@@ -1,4 +1,4 @@
-import { expect, type Page } from "@playwright/test";
+import { type Page } from "@playwright/test";
 
 const PASSWORD = "correct-horse-e2e1";
 
@@ -26,8 +26,6 @@ export async function createCustomerAndLogin(page: Page): Promise<boolean> {
   await page.getByLabel("Email").fill(email);
   await page.getByLabel("Password", { exact: true }).fill(PASSWORD);
   await page.getByRole("button", { name: /^Sign in$/i }).click();
-  await expect(page).toHaveURL(/custom-software-estimator|admin/, {
-    timeout: 15_000,
-  });
+  await page.waitForURL((url) => url.pathname === "/", { timeout: 15_000 });
   return true;
 }
